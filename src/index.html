@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Pocket Maine - Air and Sea</title>
+<style>
+/*FONTS*/
+/*CSS*/
+</style>
+</head>
+<body>
+<div id="app">
+  <header id="hud">
+    <div id="logo"><b>POCKET MAINE</b><i>AIR AND SEA</i></div>
+    <div class="hudbox" id="moneybox" data-tip="Cash on hand. Fuel is on account, so this can dip below zero."><img id="coinic" alt=""><span id="money">$0</span></div>
+    <div class="hudbox" id="lvlbox" data-act="levels" style="cursor:pointer" data-tip="XP comes from fares, catches, contracts, new ports and firsts. Each level unlocks something: tap to see what is next."><b id="lvl">LV 1</b><div id="xpwrap"><div id="xptxt"></div><div id="xpbar"><i id="xpfill"></i></div></div></div>
+    <div class="hudbox" id="datebox" data-tip="Real time: a day is five minutes, a season is seven days. The clock keeps running while the game is closed."><img id="seasonic" alt=""><div><div id="date"></div><div id="daybar"><i id="dayfill"></i></div></div></div>
+    <div class="spacer"></div>
+    <button class="hbtn big" id="landbtn" data-act="nextIdle" data-tip="Jump to the next craft that needs you (Tab)">0 ARRIVED</button>
+    <button class="hbtn" id="sndbtn" data-act="sound" data-tip="Sound on/off">&#9835;</button>
+    <button class="hbtn" data-act="help" data-tip="About the game">?</button>
+  </header>
+  <div id="stage">
+    <div id="mapwrap">
+      <canvas id="map"></canvas>
+      <div id="zoom"><button class="hbtn" data-act="zin" data-tip="Zoom in">+</button><button class="hbtn" data-act="zout" data-tip="Zoom out">&minus;</button><button class="hbtn" data-act="zhome" data-tip="Whole state">ME</button></div>
+      <div id="bevmap"></div>
+      <div id="banner"></div>
+      <div id="toasts"></div>
+    </div>
+    <div id="sheetwrap">
+      <div id="sheet">
+        <div id="shead"></div>
+        <div id="scols">
+          <div id="sleft"><div id="scenebox"><canvas id="scene" width="184" height="70"></canvas><div id="splash"></div></div><div id="lbody"></div></div>
+          <div id="sright"><div id="stabs"></div><div id="sbody"></div></div>
+        </div>
+        <div id="sfoot"></div>
+      </div>
+    </div>
+  </div>
+  <div id="dock">
+    <div id="fleet"></div>
+    <div id="routebar"></div>
+    <div id="menu">
+      <button class="mbtn" data-act="menu" data-arg="contracts" data-tip="Seasonal contracts"><img id="mi1" alt=""><span id="mk">CONTRACTS</span></button>
+      <button class="mbtn" data-act="menu" data-arg="yard" data-tip="Hangars, boatyards, parts and storage"><img id="mi4" alt=""><span id="my">HANGAR</span></button>
+      <button class="mbtn" data-act="menu" data-arg="market" data-tip="Fish market prices"><img id="mi2" alt=""><span>FISH</span></button>
+      <button class="mbtn" data-act="menu" data-arg="almanac" data-tip="Season, weather, how to play, the books"><img id="mi3" alt=""><span>ALMANAC</span></button>
+    </div>
+  </div>
+  <footer id="ticker"><b>THE DOORYARD DISPATCH</b><img id="tface" alt=""><span id="tmsg"><span id="tmi"></span></span></footer>
+</div>
+<div id="tip"></div>
+<div id="coach"><div id="coachring"></div><div id="coachbub"></div></div>
+<div id="modal"><div id="mbox"></div></div>
+<script>
+/*JS*/
+</script>
+</body>
+</html>
