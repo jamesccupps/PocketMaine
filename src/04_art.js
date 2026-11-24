@@ -156,6 +156,17 @@ const CRAFT_ART = {
   '.BBBBBBBBBBBBBBBBBBBBBBBBBBBB.',
   '..BBBBBBBBBBBBBBBBBBBBBBBBBB..',
   '...RRRRRRRRRRRRRRRRRRRRRRRR...'],
+ excur: [
+  '..............yy..............',
+  '..........wwwwwwwwww..........',
+  '........wwcwcwcwcwcwww........',
+  '......wwwwwwwwwwwwwwwwww......',
+  '....wwcwcwcwcwcwcwcwcwcwww....',
+  '..wwwwwwwwwwwwwwwwwwwwwwwwww..',
+  'wwwbwbwbwbwbwbwbwbwbwbwbwbwwww',
+  '.wwwwwwwwwwwwwwwwwwwwwwwwwwww.',
+  '..BBBBBBBBBBBBBBBBBBBBBBBBBB..',
+  '...RRRRRRRRRRRRRRRRRRRRRRRR...'],
  freight: [
   '.....k............................',
   '...wwwww..........................',

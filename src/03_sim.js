@@ -53,7 +53,8 @@ function standingLevel(pid) { const xp = G.ports[pid].xp; let l = 0; for (let i 
 function addXp(pid, n) { const before = standingLevel(pid); G.ports[pid].xp = Math.max(0, G.ports[pid].xp + n); const after = standingLevel(pid);
   if (after > before) news(PORT_BY[pid].name + ' now considers you "' + STANDING[after].name + '." More work, better pay.', 'good'); }
 function cstat(c) { const T = CRAFT_BY[c.type], u = c.upg; return { T, pax: T.pax, cargo: Math.round(T.cargo * ((u.pod || u.deck) ? 1.5 : 1)), speed: T.speed * SPEED_SCALE * ((u.engine || u.diesel) ? 1.2 : 1) * condSpeed(c) * (crewHas(c, 'quick') ? 1.1 : 1), hold: T.hold || 0, range: T.range }; }
-function loadOf(c) { let p = 0, k = 0; c.jobs.forEach(j => { if (j.kind === 'p') p++; else k++; }); return { pax: p, cargo: k }; }
+const slotsOf = j => j.n || 1;      // a lot or a group is one job that takes several slots
+function loadOf(c) { let p = 0, k = 0; c.jobs.forEach(j => { if (j.kind === 'p') p += slotsOf(j); else k += slotsOf(j); }); return { pax: p, cargo: k }; }
 function craftsAt(pid) { return G.crafts.filter(c => c.at === pid); }
 function netWorth() { let v = G.money; G.crafts.concat(G.stored).forEach(c => v += CRAFT_BY[c.type].price * 0.5); Object.keys(G.parts).forEach(k => { const T = CRAFT_BY[k.split(':')[0]]; if (T) v += G.parts[k] * partPrice(T) * 0.5; }); PORTS.forEach(p => { const st = G.ports[p.id]; if (st.open) { v += p.cost; for (let l = 1; l < st.lvl; l++) v += Math.round((400 * p.size + p.cost * 0.25) * Math.pow(l, 1.7) / 50) * 50 * 0.5; } }); return v; }
 function rankName() { const v = netWorth(); let r = RANKS[0][1]; RANKS.forEach(x => { if (v >= x[0]) r = x[1]; }); return r; }
@@ -72,7 +73,7 @@ function portsOwned() { let n = 0; PORTS.forEach(p => { if (G.ports[p.id].open) 
 function portCost(pid) { return Math.round(PORT_BY[pid].cost * (1 + 0.1 * Math.max(0, portsOwned() - 3)) / 50) * 50; }
 // can this craft type put down at this port?  null = yes, else the reason
 function landWhy(T, upg, port, s) {
-  if (T.cls === 'boat') return port.water === 'sea' ? null : 'no harbor';
+  if (T.cls === 'boat') return port.water !== 'sea' ? 'no harbor' : (T.deep && !has(port, 'deep')) ? 'needs a deep-water berth' : null;
   let why = '';
   if (T.wheels) { if (port.strip >= T.wheels) { if (port.strip === 1 && s === SPRING && !upg.tundra) why = 'mud season: strip closed'; else return null; } else why = port.strip ? 'needs a paved runway' : 'no airstrip'; }
   if (port.water && (T.floats || upg.skis)) {
@@ -132,6 +133,9 @@ function genParty(o) {
   const kind = Math.random() < cargoShare ? 'c' : 'p';
   let tot = 0; const ws = cands.map(p => { const d = Math.hypot(p.x - o.x, p.y - o.y), w = p.size * pull(p, kind, s) * eventPull(o, p, kind) / (1 + d / 260); tot += w; return w; });
   let r = Math.random() * tot, d = cands[0]; for (let i = 0; i < cands.length; i++) { r -= ws[i]; if (r <= 0) { d = cands[i]; break; } }
+  // a craft with ten or more slots that can work this pair brings out the big loads
+  { const cap = bestCapFor(o, d, kind); if (cap >= 10 && Math.random() < 0.3) { const n = cap >= 30 && Math.random() < 0.4 ? 20 : 10, fl = pick(LOTS[kind]).split('|');
+    return [{ id: G.nextId++, from: o.id, to: d.id, kind, n, pay: Math.round(payFor(o, d, kind, s, false) * n * 0.85 / 5) * 5, label: fl[0], ic: fl[1], ev: eventMult(o, d, kind) > 1 ? 1 : 0 }]; } }
   const lvl = G.ports[o.id].lvl, maxN = Math.max(1, Math.min(bestCapFor(o, d, kind), 1 + lvl * 2 + o.size)), n = 1 + Math.floor(Math.pow(Math.random(), 1.6) * maxN);
   let fl = jobFlavor(kind, o, d, s), pay = payFor(o, d, kind, s, false); const out = [], hf = holidayFlavor(kind); if (hf) { fl = hf; pay = Math.round(pay * 1.25 / 5) * 5; }
   for (let i = 0; i < n; i++) out.push({ id: G.nextId++, from: o.id, to: d.id, kind, pay, label: fl[0], ic: fl[1], ev: eventMult(o, d, kind) > 1 ? 1 : 0, hol: hf ? 1 : undefined });
@@ -152,7 +156,7 @@ function roomFor(c, kind) { const cs = cstat(c), ld = loadOf(c); return kind ===
 function findWaiting(pid, jobId) { const st = G.ports[pid]; let i = st.jobs.findIndex(j => j.id === jobId); if (i >= 0) return { list: st.jobs, i }; i = st.lay.findIndex(j => j.id === jobId); return i >= 0 ? { list: st.lay, i } : null; }
 function loadJob(c, jobId) {
   if (c.state !== 'dock') return 'Not at the dock.'; const f = findWaiting(c.at, jobId); if (!f) return 'That one is gone.'; const j = f.list[f.i];
-  if (roomFor(c, j.kind) <= 0) return 'No ' + (j.kind === 'p' ? 'seats' : 'cargo room') + ' left.';
+  if (roomFor(c, j.kind) < slotsOf(j)) return j.n && roomFor(c, j.kind) > 0 ? 'That takes ' + j.n + (j.kind === 'p' ? ' seats.' : ' cargo slots.') : 'No ' + (j.kind === 'p' ? 'seats' : 'cargo room') + ' left.';
   f.list.splice(f.i, 1); c.jobs.push(j); tutMark('load'); emit('load', { c }); return null;
 }
 // everything waiting here for one destination that fits, best paying first
@@ -197,6 +201,7 @@ function routeInfo(c, stops) {
   let from = c.at, dist = 0, time = 0, fuel = 0, wx = null; const legs = [];
   for (let i = 0; i < stops.length; i++) { const li = legInfo(c, from, stops[i]); if (!li.ok) return { ok: false, why: li.why, at: i }; dist += li.dist; time += li.time; fuel += li.fuel; if (i === 0) wx = li.wx; legs.push(li); from = stops[i]; }
   let income = 0; const bd = bonusDest(c); c.jobs.forEach(j => { if (stops.indexOf(j.to) >= 0) income += j.pay * (bd === j.to ? 1.25 : 1); });
+  if (CRAFT_BY[c.type].tour) { const seen = {}; stops.forEach((sid, i) => { income += tourPay(c, sid, legs[i].dist, seen[sid]); seen[sid] = 1; }); }
   return { ok: stops.length > 0, dist, time, fuel, legs, wx, income: Math.round(income), bonus: bd && stops.indexOf(bd) >= 0 };
 }
 const CUSTOMS_WAIT = 60;
@@ -255,9 +260,11 @@ function arrive(c) {
   // once catch & traps are unlocked a boat comes home with its catch still aboard: nothing to collect, you choose where to sell
   if (r.kind === 'fishBack' && feat('catch')) { c.state = 'dock'; c.plan = null; emit('fishIn', { c, pid, x: port.x, y: port.y }); return; }
   let pay = 0, units = 0, bonus = 0; const keep = [];
-  c.jobs.forEach(j => { if (j.to !== pid) { keep.push(j); return; } const p = Math.round(j.pay * (j.bonus ? 1.25 : 1) * (j.kind === 'p' && crewHas(c, 'charm') ? 1.1 : 1)); pay += p; if (j.urgent) bonusXp(20, 'medical run'); if (j.vip) vipDeliver(j, c, pid); if (j.bonus) bonus += p - j.pay; units++; addXp(pid, 1); if (G.ports[j.from]) addXp(j.from, 0.5);
+  c.jobs.forEach(j => { if (j.to !== pid) { keep.push(j); return; } const p = Math.round(j.pay * (j.bonus ? 1.25 : 1) * (j.kind === 'p' && crewHas(c, 'charm') ? 1.1 : 1)); pay += p; if (j.urgent) bonusXp(20, 'medical run'); if (j.vip) vipDeliver(j, c, pid); if (j.bonus) bonus += p - j.pay; units += slotsOf(j); addXp(pid, j.n ? 3 : 1); if (G.ports[j.from]) addXp(j.from, 0.5);
     if (j.kid) { const k = G.active.find(x => x.id === j.kid); if (k) { k.loaded--; k.delivered++; if (k.delivered >= k.total) completeContract(k); } } });
   c.jobs = keep;
+  // an excursion boat is paid at every stop of its loop; a harbor it has already shown them pays half
+  if (CRAFT_BY[c.type].tour && r.kind === 'trip' && c.plan) { const seen = c.plan.seen || (c.plan.seen = {}), tp = tourPay(c, pid, r.len, seen[pid]); seen[pid] = 1; pay += tp; units += CRAFT_BY[c.type].tour; G.stats.tours = (G.stats.tours || 0) + 1; }
   let fishPay = 0, fishTxt = '';
   if (c.fish && port.dock && !feat('catch')) { logFirst('sp', c.fish.sp, 15, 'first ' + FISH[c.fish.sp].name.toLowerCase() + ' landed'); const price = fishPrice(pid, c.fish.sp); fishPay = price * c.fish.units; fishTxt = c.fish.units + ' ' + FISH[c.fish.sp].name.toLowerCase() + ' @ ' + money(price);
     const key = pid + c.fish.sp; G.glut[key] = Math.min(0.45, (G.glut[key] || 0) + c.fish.units * 0.012); G.stats.fishUnits += c.fish.units; G.stats.fishMoney += fishPay; addXp(pid, c.fish.units * 0.25); c.fish = null; }

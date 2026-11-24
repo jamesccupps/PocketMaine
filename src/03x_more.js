@@ -164,3 +164,8 @@ function updateRuns(dt) { for (let n = 0; n < G.crafts.length; n++) { const c = 
 function exportSave() { G.wall = Date.now(); return btoa(unescape(encodeURIComponent(JSON.stringify(G)))); }
 function importSave(code) { let json; try { json = decodeURIComponent(escape(atob(String(code).replace(/\s+/g, '')))); const g = JSON.parse(json); if (!g || !g.crafts || !g.ports || g.v !== G.v) return 'That is not a save code from this game.'; } catch (e) { return 'That is not a save code from this game.'; }
   return loadGame({ getItem: () => json }) ? null : 'That save code could not be loaded.'; }
+
+/* ---------- excursion boats ---------- */
+// what one stop of a sightseeing loop pays: a head count, how far they were carried, and how much there is to see where they land
+function tourPay(c, pid, dist, again) { const T = CRAFT_BY[c.type], p = PORT_BY[pid], pl = clamp(Math.sqrt(pull(p, 'p', season())), 0.7, 1.6);
+  return Math.round(T.tour * (6 + 0.15 * dist) * pl * eventMult(p, p, 'p') * (again ? 0.5 : 1) / 5) * 5; }

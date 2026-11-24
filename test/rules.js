@@ -1,5 +1,5 @@
 const fs=require('fs'),vm=require('vm');
-const src=['01_data','02_map','03_sim','03x_more','03y_vip'].map(f=>fs.readFileSync('src/'+f+'.js','utf8')).join('\n')+`;globalThis.X={get G(){return G},initWorld,newGame,tick,dispatch,loadJob,unloadJob,bonusDest,legInfo,routeInfo,landWhy,CRAFT_BY,PORT_BY,addCraft,goFish,fishOptions,collect,buyCraft,buySlot,slotCost,portCost,unlockPort,xpNeed,hurry,hurryCost,fastForward,saveGame,loadGame,SPRING,WINTER,SUMMER,JOB_REFRESH,unstoreCraft,storeCraft,assemble,buyPart,givePart,partsHeld,partsCount,awardPart,sellStored,hasYard,yardFits,STORE_CAP,stockShelf,partPrice,netWorth,feat,FEATURES,bonusXp,renameCraft,paintCraft,condOf,wearCraft,overhaul,overhaulCost,cstat,startEvent,EVENTS,evActive,eventMult,urgentRun,expireUrgent,payFor,PORT_BY,sellCatch,catchMarkets,goFish,fishOptions,trapCount,trapMax,refreshHall,hireCrew,dismissCrew,PERKS,buildWork,hasWork,workCost,boardCap,fishPrice,legInfo,setRun,stopRun,runMax,updateRuns,exportSave,importSave,xpNeed,logCount,fastForward,addCraft,roomFor,TRAP_SOAK,rollEvent,season,spawnVip,vipJobs,vipDeliver,updateVips,refreshBoard,genParty,partsCount,holidayOn,holidayNow,thanksgivingDay,eventChoices,shelfPrice,evText,gainXp,cycleHoliday,HOLIDAYS,VIPS,setHolidayForce:v=>{HOLIDAY_FORCE=v;}};HOLIDAY_FORCE='off';`;
+const src=['01_data','02_map','03_sim','03x_more','03y_vip'].map(f=>fs.readFileSync('src/'+f+'.js','utf8')).join('\n')+`;globalThis.X={get G(){return G},initWorld,newGame,tick,dispatch,loadJob,unloadJob,bonusDest,legInfo,routeInfo,landWhy,CRAFT_BY,PORT_BY,addCraft,goFish,fishOptions,collect,buyCraft,buySlot,slotCost,portCost,unlockPort,xpNeed,hurry,hurryCost,fastForward,saveGame,loadGame,SPRING,WINTER,SUMMER,JOB_REFRESH,unstoreCraft,storeCraft,assemble,buyPart,givePart,partsHeld,partsCount,awardPart,sellStored,hasYard,yardFits,STORE_CAP,stockShelf,partPrice,netWorth,feat,FEATURES,bonusXp,renameCraft,paintCraft,condOf,wearCraft,overhaul,overhaulCost,cstat,startEvent,EVENTS,evActive,eventMult,urgentRun,expireUrgent,payFor,PORT_BY,sellCatch,catchMarkets,goFish,fishOptions,trapCount,trapMax,refreshHall,hireCrew,dismissCrew,PERKS,buildWork,hasWork,workCost,boardCap,fishPrice,legInfo,setRun,stopRun,runMax,updateRuns,exportSave,importSave,xpNeed,logCount,fastForward,addCraft,roomFor,TRAP_SOAK,rollEvent,season,spawnVip,vipJobs,vipDeliver,updateVips,refreshBoard,genParty,partsCount,holidayOn,holidayNow,thanksgivingDay,eventChoices,shelfPrice,evText,gainXp,cycleHoliday,HOLIDAYS,VIPS,setHolidayForce:v=>{HOLIDAY_FORCE=v;},GEO,KM_LON,GEO_OLD_LONMIN,PORTS,seaRoute,NAV,tourPay,loadOf,has};HOLIDAY_FORCE='off';`;
 vm.runInThisContext(src); const X=globalThis.X; X.initWorld(); X.newGame('casco'); const G=X.G; G.wxNext=1e12; let ok=0,bad=0;
 const T=(name,cond)=>{ if(cond) ok++; else { bad++; console.log('FAIL',name); } };
 const run=(c,max)=>{ let n=0; while(c.state!=='landed'&&c.state!=='dock'&&n++<(max||3000)) X.tick(1); return n; };
@@ -119,5 +119,38 @@ G=X.G; T('new fields survive',G.ports.lew.works.inn===1&&X.trapCount()===1&&X.lo
   const lists=[[X.VIPS.p,'p'],[X.VIPS.c,'c']]; X.HOLIDAYS.forEach(h=>{ lists.push([h.jobs.p,'p'],[h.jobs.c,'c'],[h.vip.p,'p'],[h.vip.c,'c']); });
   const badArt=[]; lists.forEach(([l,k])=>l.forEach(x=>{ const ic=x.split('|')[1]; if(!(k==='p'?looks:icons).has(ic)) badArt.push(x); })); T('every VIP and holiday job has art: '+badArt.join('; '),badArt.length===0);
   const code2=X.exportSave(); T('save code carries the new things',!X.importSave(code2)&&(X.G.stats.vips||0)>=2&&X.logCount('vip')>=1);
+}
+// New England: regions open by level, customs at the border, the bigger map
+{ const G=X.G, P=X.PORT_BY; G.wx=[]; G.wxNext=1e12; G.vipNext=1e12; G.ev=null; G.money=1e7; G.crafts.forEach(q=>{ q.run=null; });
+  T('54 ports, every one inside the map',X.PORTS.length===54&&X.PORTS.every(p=>p.x>2&&p.y>2&&p.x<X.NAV.w-2&&p.y<X.NAV.h-2));
+  T('every harbor can be reached by sea from Portland',X.PORTS.filter(p=>p.water==='sea'&&p.id!=='pwm').every(p=>!!X.seaRoute(P.pwm.dock,p.dock)));
+  G.level=3; T('New Hampshire waits for level 4',/level 4/.test(X.unlockPort('psm'))&&!G.ports.psm.open); G.level=4; T('and opens at level 4',X.unlockPort('psm')===null&&G.ports.psm.open);
+  T('Boston waits for level 6, Canada for level 8',/level 6/.test(X.unlockPort('bos'))&&/level 8/.test(X.unlockPort('ysj'))); G.level=8; ['bos','ysj','bgr','aug'].forEach(id=>X.unlockPort(id)); T('both open at level 8',G.ports.bos.open&&G.ports.ysj.open);
+  const cb=X.addCraft('cub','bgr'), li=X.legInfo(cb,'bgr','ysj'), li2=X.legInfo(cb,'bgr','aug');
+  T('a border leg shows a minute of customs',li.ok&&li.cust===true&&li2.cust===false&&Math.abs(li.time-li.dist/X.cstat(cb).speed-60)<0.01);
+  const jb={id:G.nextId++,from:'bgr',to:'ysj',kind:'p',pay:200,label:'t',ic:'any'}; G.ports.bgr.jobs.unshift(jb); X.loadJob(cb,jb.id); X.dispatch(cb,['ysj']);
+  let n=0; while(cb.state==='move'&&cb.route.pos<cb.route.len&&n++<5000) X.tick(1); const tA=G.t; T('at the far end it waits for customs',cb.state==='move'&&cb.route.cust>0&&cb.route.cust<=60);
+  n=0; while(cb.state==='move'&&n++<300) X.tick(1); T('then lands a minute later',cb.state==='landed'&&cb.at==='ysj'&&Math.abs((G.t-tA)-60)<=3); X.collect(cb);
+  X.unlockPort('hvn'); const sk=X.addCraft('skiff','pwm'), far=X.legInfo(sk,'pwm','hvn'); T('a skiff cannot reach New Haven: out of range',!far.ok&&/out of range/.test(far.why));
+  const js=JSON.parse(Buffer.from(X.exportSave(),'base64').toString('utf8')), dx=(X.GEO_OLD_LONMIN-X.GEO.lonMin)*X.KM_LON, x0=G.crafts[0].x; delete js.geo; js.crafts.forEach(c=>{ c.x-=dx; if(c.route&&c.route.pts) c.route.pts=c.route.pts.map(q=>[q[0]-dx,q[1]]); });
+  T('the map grew 125 km to the west',Math.abs(dx-125.12)<0.01); T('a save from the Maine-only map is moved over',!X.importSave(Buffer.from(JSON.stringify(js),'utf8').toString('base64'))&&Math.abs(X.G.crafts[0].x-x0)<0.01&&X.G.geo===2);
+}
+// ships: deep-water harbors, lots and groups, the excursion boat
+{ const G=X.G, P=X.PORT_BY; G.wx=[]; G.wxNext=1e12; G.vipNext=1e12; G.ev=null; G.money=1e7; G.level=16; X.setHolidayForce('off'); ['pwm','bos','psm','vin','rkd'].forEach(id=>{ G.ports[id].open=true; });
+  T('19 deep-water harbors',X.PORTS.filter(p=>X.has(p,'deep')).length===19);
+  T('a freighter needs a deep berth',X.landWhy(X.CRAFT_BY.freight,{},P.vin,X.SUMMER)==='needs a deep-water berth'&&X.landWhy(X.CRAFT_BY.freight,{},P.bos,X.SUMMER)===null&&X.landWhy(X.CRAFT_BY.ferry,{},P.vin,X.SUMMER)===null);
+  const fy=X.addCraft('ferry','pwm'); let lot=null; for(let i=0;i<400&&!lot;i++){ const pr=X.genParty(P.pwm); if(pr.length===1&&pr[0].n&&pr[0].kind==='p'&&pr[0].to==='bos') lot=pr[0]; }
+  T('with a ferry in the fleet, groups of ten or twenty turn up',!!lot&&(lot.n===10||lot.n===20));
+  if(lot){ const one=X.payFor(P.pwm,P.bos,'p',X.season(),false); T('a group pays a bulk rate for every seat',Math.abs(lot.pay-one*lot.n*0.85)<=5);
+    G.ports.pwm.jobs.unshift(lot); const sk2=X.addCraft('skiff','pwm'); T('it does not fit a small boat',/takes|No seats/.test(X.loadJob(sk2,lot.id)||''));
+    T('one tap puts the whole group aboard',!X.loadJob(fy,lot.id)&&X.loadOf(fy).pax===lot.n&&fy.jobs.length===1&&X.roomFor(fy,'p')===24-lot.n);
+    const d0=G.stats.delivered; X.dispatch(fy,['bos']); run(fy,6000); T('delivered as '+lot.n+' passengers',fy.state==='landed'&&fy.pend.pay===lot.pay&&G.stats.delivered===d0+lot.n); X.collect(fy); }
+  const ex=X.addCraft('excur','pwm'), jq={id:G.nextId++,from:'pwm',to:'bos',kind:'p',pay:50,label:'t',ic:'any'}; G.ports.pwm.jobs.unshift(jq);
+  T('an excursion boat takes no jobs',typeof X.loadJob(ex,jq.id)==='string'&&ex.jobs.length===0);
+  T('it cannot tie up at a shallow harbor',!X.legInfo(ex,'pwm','vin').ok&&/deep/.test(X.legInfo(ex,'pwm','vin').why));
+  const ri=X.routeInfo(ex,['psm','bos','pwm']); T('the route shows what the loop will pay',ri.ok&&ri.income>1500);
+  T('a harbor seen twice pays half',Math.abs(X.tourPay(ex,'bos',100,true)*2-X.tourPay(ex,'bos',100,false))<=10);
+  const s0=X.season(); X.dispatch(ex,['psm','bos','pwm']); let n=0; while(ex.state!=='landed'&&n++<9000) X.tick(1);
+  T('paid at every stop of the loop',ex.state==='landed'&&ex.at==='pwm'&&ex.pend.stops===3&&(X.season()!==s0||Math.abs(ex.pend.pay-ri.income)<=15)&&ex.pend.pay>1500); const m0=G.money; X.collect(ex); T('and collected like any fare',G.money>m0+1500);
 }
 console.log('rules ok',ok,'failed',bad);
