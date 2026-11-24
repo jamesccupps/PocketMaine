@@ -87,6 +87,7 @@ python3 test/audit.py 386x630x3 1280x720x1     # nothing clipped, cropped or off
 python3 test/tutorial.py 386x630x3             # follows the tutorial by tapping only what it highlights
 python3 test/levels.py 386x630x3 casco         # levels up and uses each unlock by taps
 python3 test/playtest.py 386x630x3 casco       # a long tap-driven session, checking the wording per craft
+python3 test/vip.py 386x630x3                  # VIPs, holidays and events by taps, through a save and reload
 python3 test/shot.py 1440 900 stress           # 3,000 random steps through every system
 ```
 
