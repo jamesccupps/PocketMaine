@@ -244,7 +244,15 @@ function slotsHTML(c, live) {
     return '<' + (live ? 'button' : 'div') + ' class="slot ' + kind + ' full' + ((j.bonus || bd === j.to) ? ' bonus' : '') + '"' + (live ? ' data-act="unload" data-arg="' + j.id + '"' : '') + ' data-tip="' + esc(tip) + '"><img src="' + jobIconURL(j) + '" alt=""><span>' + j.to.toUpperCase() + (cnt > 1 ? ' \u00d7' + cnt : !cnt && j.n ? ' \u00d7' + j.n : '') + '</span></' + (live ? 'button' : 'div') + '>'; };
   const mini = cs.pax + cs.cargo >= 10, ld = loadOf(c), gj = []; (c.goods || []).forEach(q => { for (let i = 0; i < (mini ? 1 : q.n); i++) gj.push({ good: q.g, n: mini ? q.n : 0 }); });
   const rest = (n, kind) => n > 0 ? '<div class="slot ' + kind + ' empty cnt" data-tip="' + n + ' empty ' + (kind === 'p' ? 'seat' : 'cargo space') + (n === 1 ? '' : 's') + '"><img src="' + ICON_URL[kind === 'p' ? 'ui_pax' : 'ui_box'] + '" alt=""><span>\u00d7' + n + '</span></div>' : '';
-  if (mini) { grp(pj).forEach(g => { h += one(g.j, 'p', g.n); }); h += rest(cs.pax - ld.pax, 'p'); grp(cj).forEach(g => { h += one(g.j, 'c', g.n); }); gj.forEach(j => { h += one(j, 'c'); }); h += rest(cs.cargo - ld.cargo, 'c'); }
+  // A big craft shows its load by where it is going, biggest first: one chip a destination, seats and cargo counted together.
+  // The counters above the chips already say how much room is left, and the ABOARD list below has every job.
+  if (mini) { const m = new Map(); c.jobs.forEach(j => { const g = m.get(j.to) || { to: j.to, p: 0, c: 0, pay: 0, vip: 0 }; g[j.kind === 'p' ? 'p' : 'c'] += slotsOf(j); g.pay += j.pay; if (j.vip) g.vip = 1; m.set(j.to, g); });
+    const list = Array.from(m.values()).sort((x, y) => (y.p + y.c) - (x.p + x.c)), max = Math.max(2, (window.innerWidth < 800 ? 7 : 12) - gj.length), show = list.length > max ? list.slice(0, max - 1) : list, more = list.slice(show.length);
+    const say = g => (g.p ? g.p + ' passenger' + (g.p === 1 ? '' : 's') : '') + (g.p && g.c ? ', ' : '') + (g.c ? g.c + ' cargo' : '');
+    show.forEach(g => { const tip = '<b>To ' + esc(portName(g.to)) + '</b>\n' + say(g) + ' \u00b7 pays ' + money(g.pay) + (bd === g.to ? ' +25%' : '') + (live ? '\nClick to put them ashore' : '');
+      h += '<' + (live ? 'button' : 'div') + ' class="slot full dest' + (g.vip ? ' vip' : '') + (bd === g.to ? ' bonus' : '') + '"' + (live ? ' data-act="unloadTo" data-arg="' + g.to + '"' : '') + ' data-tip="' + esc(tip) + '"><span>' + g.to.toUpperCase() + ' \u00d7' + (g.p + g.c) + '</span></' + (live ? 'button' : 'div') + '>'; });
+    if (more.length) h += '<div class="slot empty dest more" data-tip="' + esc(more.map(g => portName(g.to) + ' \u00d7' + (g.p + g.c)).join('\n')) + '"><span>+' + more.length + ' MORE</span></div>';
+    gj.forEach(j => { h += one(j, 'c'); }); }
   else { for (let i = 0; i < cs.pax; i++) h += one(pj[i], 'p'); for (let i = 0; i < cs.cargo; i++) h += one(cj.concat(gj)[i], 'c'); }
   return h + '</div>';
 }
@@ -324,10 +332,14 @@ function craftBarHTML(pid, c) { const here = craftsAt(pid); if (!here.length) re
 function incomeHTML(c) { const L = c.last; if (!L || L.at !== c.at || L.pay <= 0) return '';
   return '<div class="income"><img src="' + ICON_URL.coin + '" alt=""><div><b>+' + money(L.pay) + ' COLLECTED</b><span class="sub">' + [L.units ? L.units + ' delivered' : '', L.fish, 'fuel ' + money(L.fuel), '+' + L.xp + ' XP', L.bonus ? 'full-load bonus ' + money(L.bonus) : ''].filter(Boolean).join(' · ') + '</span></div></div>'; }
 function holdHTML(c) { const T = CRAFT_BY[c.type], cs = cstat(c), ld = loadOf(c), bd = bonusDest(c), full = ld.pax + ld.cargo, cap = cs.pax + cs.cargo, many = craftsAt(c.at).filter(q => q.state === 'dock' || q.state === 'landed').length > 1;
+  // A small craft shows its slots beside its picture; a bigger one lists them underneath; a big one shows its load by destination.
+  const size = cap >= 10 ? 'lg' : cap >= 4 ? 'md' : 'sm';
   const capBox = (kind, n, of, label) => '<div class="cap ' + kind + (of && n >= of ? ' full' : '') + '"><img src="' + ICON_URL[kind === 'p' ? 'ui_pax' : 'ui_box'] + '" alt=""><b>' + n + (of ? '<small>/' + of + '</small>' : '') + '</b><i>' + label + '</i></div>';
-  const caps = (T.tour ? capBox('p', T.tour, 0, 'SIGHTSEERS') : '') + (cs.pax ? capBox('p', ld.pax, cs.pax, cs.pax === 1 ? 'SEAT' : 'SEATS') : '') + (cs.cargo ? capBox('c', ld.cargo, cs.cargo, 'CARGO') : '');
-  return '<div class="holdbar v2"><div class="hh">' + (many ? '<button class="btn sm dark cyc" data-act="cycle" data-arg="-1">\u25c2</button>' : '') + '<div class="cid"><b>' + esc(c.name) + '</b><span class="ct">' + esc(T.name) + '</span></div>' +
-    (c.jobs.length ? '<button class="btn sm plain" data-act="unloadAll" data-tip="Put everything aboard back on the dock"><i class="lgt">UNLOAD ALL</i><i class="smt">CLEAR</i></button>' : '') + (many ? '<button class="btn sm dark cyc" data-act="cycle" data-arg="1">\u25b8</button>' : '') + '</div><div class="cmid"><div class="cpic">' + sprImgC(c, 136, 5) + '</div><div class="caps">' + caps + '</div></div>' + slotsHTML(c, true) +
+  const caps = '<div class="caps">' + (T.tour ? capBox('p', T.tour, 0, 'SIGHTSEERS') : '') + (cs.pax ? capBox('p', ld.pax, cs.pax, cs.pax === 1 ? 'SEAT' : 'SEATS') : '') + (cs.cargo ? capBox('c', ld.cargo, cs.cargo, 'CARGO') : '') + '</div>';
+  const arrow = d => many ? '<button class="btn sm dark cyc" data-act="cycle" data-arg="' + d + '">' + (d < 0 ? '\u25c2' : '\u25b8') + '</button>' : '';
+  const clear = c.jobs.length && size !== 'sm' ? '<button class="btn sm plain clr" data-act="unloadAll" data-tip="Put everything aboard back on the dock">CLEAR</button>' : '';
+  return '<div class="holdbar v2 ' + size + '"><div class="ctop">' + arrow(-1) + '<div class="cpic">' + sprImgC(c, 120, 4) + '</div><div class="cinfo"><b>' + esc(c.name) + '</b><span class="ct">' + esc(T.name) + '</span>' + caps + (size === 'sm' ? slotsHTML(c, true) : '') + '</div>' + arrow(1) + '</div>' +
+    (size === 'sm' ? '' : '<div class="cbot">' + slotsHTML(c, true) + clear + '</div>') +
     '<div class="bn' + (bd ? ' on' : full ? '' : ' hint') + '">' + (bd ? '\u2605 Full load for ' + esc(portName(bd)) + ': pays 25% extra' : full ? 'Fill all ' + cap + ' slots with jobs for one place for a 25% bonus (' + full + '/' + cap + ')' : !reachAny(c) ? (T.fish && PORT_BY[c.at].dock ? 'Nothing to carry from here. Take it out on the FISHING tab.' : 'No port you serve is in reach from here.') : 'Hit LOAD on the jobs you want, then ' + goWord(c) + '.') + '</div></div>'; }
 // What the craft in hand needs next, while the tutorial is still running. Shown in the phone footer and in Aunt Bev's box on desktop.
 function sheetHint(c, pid) { const st = G.ports[pid], p = PORT_BY[pid]; if (!st.open || !c || G.tutDone || c.state !== 'dock') return '';
@@ -631,6 +643,7 @@ function act(a, arg, el) {
     case 'loadK': if (c) { err = loadContract(c, +arg); if (!err) sfx.load(); } break;
     case 'unload': if (c) { err = unloadJob(c, +arg); if (!err) sfx.unload(); } break;
     case 'unloadAll': if (c) { unloadAll(c); sfx.unload(); } break;
+    case 'unloadTo': if (c) { c.jobs.filter(j => j.to === arg).forEach(j => { err = unloadJob(c, j.id) || err; }); if (!err) sfx.unload(); } break;
     case 'route': startRouting(); break;
     case 'cycle': if (c) { const here = craftsAt(c.at).filter(q => q.state === 'dock' || q.state === 'landed'), i = here.findIndex(q => q.id === c.id); if (here.length > 1) selectCraft(here[(i + (+arg) + here.length) % here.length].id, false); } break;
     case 'undo': UI.stops.pop(); computeReach(); sfx.click(); break;
@@ -750,6 +763,6 @@ function fitsHTML(c, atYard) { const T = CRAFT_BY[c.type], cost = fitCost(c), em
   return h + '</div><div class="sub" style="margin-top:6px">' + (atYard ? (empty ? 'Fitting one takes the other off.' : 'Empty the craft first.') : 'Fits are done at a ' + yardWord(T) + ', with the craft empty.') + '</div>'; }
 
 // a craft's size and load at a glance, under its picture in the fleet strip: one pip per seat (blue) and per cargo slot (brown), filled when taken
-function capPips(c) { const T = CRAFT_BY[c.type], cs = cstat(c), ld = loadOf(c); if (T.tour) return '<span class="pips"><i class="pt">TOUR ' + T.tour + '</i></span>';
-  if (cs.pax + cs.cargo > 10) return '<span class="pips"><i class="pt">' + (ld.pax + ld.cargo) + '/' + (cs.pax + cs.cargo) + '</i></span>';
+function capPips(c) { const T = CRAFT_BY[c.type], cs = cstat(c), ld = loadOf(c); if (T.tour) return '<span class="pips"><i class="pt">' + T.tour + '</i></span>';
+  if (cs.pax + cs.cargo > 5) return '<span class="pips"><i class="pt">' + (ld.pax + ld.cargo) + '/' + (cs.pax + cs.cargo) + '</i></span>';
   let h = '<span class="pips">'; for (let i = 0; i < cs.pax; i++) h += '<i class="pp p' + (i < ld.pax ? ' on' : '') + '"></i>'; for (let i = 0; i < cs.cargo; i++) h += '<i class="pp c' + (i < ld.cargo ? ' on' : '') + '"></i>'; return h + '</span>'; }

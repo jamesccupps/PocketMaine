@@ -547,37 +547,55 @@ h3{font-size:13px}.tag{font-size:11px}.item .tx b{font-size:14px}
 .jtx>span.tag.red,.jtx>span.tag.hol,.jtx>span.tag.blue,.jtx>span.tag.green,.jtx>span.tag.org{color:#fff}
 
 /* ---------- the craft card: a big picture, a name, seats and cargo counted plainly, and slots large enough to read ---------- */
-.holdbar.v2{border-color:var(--yellow);box-shadow:none;padding:8px 10px}
+.holdbar.v2{border-color:var(--yellow);box-shadow:none;padding:7px 8px}
 .holdbar.v2.plain{border-color:var(--ink)}
-.holdbar.v2 .hh{display:flex;align-items:center;gap:10px;margin-bottom:8px}
-.holdbar.v2 .cmid{display:flex;gap:8px;align-items:stretch;margin-bottom:8px}
-.holdbar.v2 .cpic{flex:0 0 46%;display:flex;align-items:center;justify-content:center;min-height:70px;padding:6px;background:#8fd0ee;border:3px solid var(--deep);overflow:hidden}
+.holdbar.v2 .ctop{display:flex;align-items:center;gap:8px}
+.holdbar.v2 .cpic{flex:0 0 34%;align-self:stretch;display:flex;align-items:center;justify-content:center;min-height:58px;padding:5px;background:#8fd0ee;border:3px solid var(--deep);overflow:hidden}
 .holdbar.v2 .cpic img{image-rendering:pixelated;display:block;height:auto;max-width:100%}
-.holdbar.v2 .hh>.cid{flex:1;min-width:0}
-.holdbar.v2 .hh .cid b{display:block;font-family:'Silkscreen',monospace;font-size:16px;line-height:1.1;color:var(--yellow);white-space:normal;overflow:visible;overflow-wrap:anywhere}
-.holdbar.v2 .hh .cid>span.ct{display:block;font-size:21px;color:var(--sky);margin-top:3px;white-space:normal}
-.holdbar.v2 .caps{flex:1;min-width:0;display:flex;flex-direction:column;gap:6px}
-.holdbar.v2 .cap{flex:1;min-width:0;display:flex;align-items:center;gap:8px;padding:6px 9px;border:3px solid var(--deep);background:#2f4c70;color:var(--cream)}
+.holdbar.v2 .cinfo{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+.holdbar.v2 .cinfo>b{display:block;font-family:'Silkscreen',monospace;font-size:15px;line-height:1.1;color:var(--yellow);white-space:normal;overflow-wrap:anywhere}
+.holdbar.v2 .cinfo>.ct{display:block;font-size:19px;line-height:1;color:var(--sky)}
+.holdbar.v2 .caps{display:flex;gap:5px;flex-wrap:wrap}
+.holdbar.v2 .cap{display:flex;align-items:center;gap:5px;padding:2px 6px;border:2px solid var(--deep);background:#2f4c70;color:var(--cream)}
 .holdbar.v2 .cap.c{background:#6a5332}
-.holdbar.v2 .cap img{width:28px;height:28px;image-rendering:pixelated;flex:0 0 auto;filter:brightness(2.2)}
-.holdbar.v2 .cap b{font-family:'Silkscreen',monospace;font-size:22px;line-height:1;color:#fff;white-space:nowrap}
-.holdbar.v2 .cap b small{font-size:14px;color:#cfe3f4}
-.holdbar.v2 .cap i{font-style:normal;font-family:'Silkscreen',monospace;font-size:10px;color:#cfe3f4;margin-left:auto}
+.holdbar.v2 .cap img{width:18px;height:18px;image-rendering:pixelated;flex:0 0 auto;filter:brightness(2.2)}
+.holdbar.v2 .cap b{font-family:'Silkscreen',monospace;font-size:16px;line-height:1;color:#fff;white-space:nowrap}
+.holdbar.v2 .cap b small{font-size:11px;color:#cfe3f4}
+.holdbar.v2 .cap i{display:none;font-style:normal;font-family:'Silkscreen',monospace;font-size:8px;color:#cfe3f4}
 .holdbar.v2 .cap.full{background:#3f8f3a;border-color:#1f5a22}
-.holdbar.v2 .slots,.holdbar.v2 .slots.mini{display:flex;flex-wrap:wrap;gap:6px}
-.holdbar.v2 .slots .slot{width:54px;height:62px;border:3px solid var(--deep);background:#2f4c70}
+.holdbar.v2 .cbot{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:6px}
+.holdbar.v2 .cbot .clr{flex:0 0 auto}
+.holdbar.v2 .slots,.holdbar.v2 .slots.mini{display:flex;flex-wrap:wrap;gap:5px}
+.holdbar.v2 .slots .slot{width:46px;height:52px;border:3px solid var(--deep);background:#2f4c70}
 .holdbar.v2 .slots .slot.c{background:#6a5332}
 .holdbar.v2 .slots .slot.full{background:#fffaf0}
-.holdbar.v2 .slots .slot img{width:40px;height:40px;margin-top:3px}
+.holdbar.v2 .slots .slot img{width:32px;height:32px;margin-top:2px}
 .holdbar.v2 .slots .slot.empty img{opacity:.55;filter:brightness(1.8)}
-.holdbar.v2 .slots .slot span{display:block;position:absolute;left:0;right:0;bottom:3px;font-size:10px;text-align:center}
-.holdbar.v2 .slots.mini .slot{width:auto;min-width:0;height:42px;flex-direction:row;align-items:center;justify-content:center;gap:6px;padding:0 9px}
-.holdbar.v2 .slots.mini .slot img{width:28px;height:28px;margin:0}
-.holdbar.v2 .slots.mini .slot span{display:inline;position:static;font-size:12px}
-.holdbar.v2 .slots .slot.cnt{width:auto;min-width:0;flex-direction:row;align-items:center;justify-content:center;gap:6px;padding:0 9px}
+.holdbar.v2 .slots .slot span{display:block;position:absolute;left:0;right:0;bottom:2px;font-size:9px;text-align:center}
+.holdbar.v2 .slots.mini .slot{width:auto;min-width:0;height:36px;flex-direction:row;align-items:center;justify-content:center;gap:5px;padding:0 7px}
+.holdbar.v2 .slots.mini .slot img{width:24px;height:24px;margin:0}
+.holdbar.v2 .slots.mini .slot span{display:inline;position:static;font-size:11px}
+.holdbar.v2 .slots .slot.cnt{width:auto;min-width:0;flex-direction:row;align-items:center;justify-content:center;gap:5px;padding:0 7px}
 .holdbar.v2 .slots .slot.cnt img{margin:0}
-.holdbar.v2 .slots .slot.cnt span{display:inline;position:static;font-size:13px;color:#fff}
-.holdbar.v2 .bn{font-size:19px;margin-top:7px}
+.holdbar.v2 .slots .slot.cnt span{display:inline;position:static;font-size:12px;color:#fff}
+.holdbar.v2 .slots.mini .slot.dest{padding:0 8px}
+.holdbar.v2 .slots.mini .slot.dest span{color:var(--ink);font-size:12px}
+.holdbar.v2 .slots.mini .slot.dest.vip{border-color:var(--yellow)}
+.holdbar.v2 .slots.mini .slot.dest.more{background:#2f4c70}.holdbar.v2 .slots.mini .slot.dest.more span{color:#fff}
+.holdbar.v2.lg .cbot .slots{display:contents}
+.holdbar.v2.lg .cpic{flex-basis:30%}
+.holdbar.v2.lg .caps{gap:4px}
+.holdbar.v2.lg .cap{padding:2px 4px;gap:3px}
+@media (max-width:375px){.holdbar.v2.lg .cpic{flex-basis:26%}.holdbar.v2.lg .cap b{font-size:14px}.holdbar.v2.lg .cap img{width:15px;height:15px}}
+.holdbar.v2 .bn{font-size:18px;margin-top:6px}
+@media (min-width:800px){
+ .holdbar.v2{padding:10px}
+ .holdbar.v2 .cpic{min-height:84px}
+ .holdbar.v2 .cinfo>b{font-size:17px}.holdbar.v2 .cinfo>.ct{font-size:22px}
+ .holdbar.v2 .cap{padding:4px 8px}.holdbar.v2 .cap img{width:24px;height:24px}.holdbar.v2 .cap b{font-size:20px}.holdbar.v2 .cap b small{font-size:13px}.holdbar.v2 .cap i{display:inline;font-size:10px}
+ .holdbar.v2 .slots .slot{width:54px;height:62px}.holdbar.v2 .slots .slot img{width:40px;height:40px;margin-top:3px}.holdbar.v2 .slots .slot span{font-size:10px;bottom:3px}
+ .holdbar.v2 .slots.mini .slot{height:42px}.holdbar.v2 .slots.mini .slot img{width:28px;height:28px}
+}
 .ftwx{display:flex;flex-direction:column;align-items:flex-start;gap:3px}
 
 /* size and load under each craft in the fleet strip */
@@ -589,6 +607,15 @@ h3{font-size:13px}.tag{font-size:11px}.item .tx b{font-size:14px}
 .fc .pp.p.on{background:#2f6fc0}
 .fc .pp.c.on{background:#8a5a34}
 .fc .pt{font-family:'Silkscreen',monospace;font-style:normal;font-size:8px;line-height:8px;color:var(--ink);white-space:nowrap}
+/* Very small phones (320 wide, or under 600 tall): the menu words fit, and a small craft's card drops its counters,
+   because two or three slots already show the whole load. */
+@media (max-width:340px){ .mbtn span{font-size:9px;letter-spacing:-.3px} }
+@media (max-height:600px),(max-width:340px){
+ .holdbar.v2{padding:5px 6px}
+ .holdbar.v2.sm .caps{display:none}
+ .holdbar.v2 .slots .slot{width:40px;height:46px}.holdbar.v2 .slots .slot img{width:28px;height:28px;margin-top:1px}
+ .holdbar.v2 .cpic{min-height:48px}
+}
 
 </style>
 </head>
@@ -3091,7 +3118,15 @@ function slotsHTML(c, live) {
     return '<' + (live ? 'button' : 'div') + ' class="slot ' + kind + ' full' + ((j.bonus || bd === j.to) ? ' bonus' : '') + '"' + (live ? ' data-act="unload" data-arg="' + j.id + '"' : '') + ' data-tip="' + esc(tip) + '"><img src="' + jobIconURL(j) + '" alt=""><span>' + j.to.toUpperCase() + (cnt > 1 ? ' \u00d7' + cnt : !cnt && j.n ? ' \u00d7' + j.n : '') + '</span></' + (live ? 'button' : 'div') + '>'; };
   const mini = cs.pax + cs.cargo >= 10, ld = loadOf(c), gj = []; (c.goods || []).forEach(q => { for (let i = 0; i < (mini ? 1 : q.n); i++) gj.push({ good: q.g, n: mini ? q.n : 0 }); });
   const rest = (n, kind) => n > 0 ? '<div class="slot ' + kind + ' empty cnt" data-tip="' + n + ' empty ' + (kind === 'p' ? 'seat' : 'cargo space') + (n === 1 ? '' : 's') + '"><img src="' + ICON_URL[kind === 'p' ? 'ui_pax' : 'ui_box'] + '" alt=""><span>\u00d7' + n + '</span></div>' : '';
-  if (mini) { grp(pj).forEach(g => { h += one(g.j, 'p', g.n); }); h += rest(cs.pax - ld.pax, 'p'); grp(cj).forEach(g => { h += one(g.j, 'c', g.n); }); gj.forEach(j => { h += one(j, 'c'); }); h += rest(cs.cargo - ld.cargo, 'c'); }
+  // A big craft shows its load by where it is going, biggest first: one chip a destination, seats and cargo counted together.
+  // The counters above the chips already say how much room is left, and the ABOARD list below has every job.
+  if (mini) { const m = new Map(); c.jobs.forEach(j => { const g = m.get(j.to) || { to: j.to, p: 0, c: 0, pay: 0, vip: 0 }; g[j.kind === 'p' ? 'p' : 'c'] += slotsOf(j); g.pay += j.pay; if (j.vip) g.vip = 1; m.set(j.to, g); });
+    const list = Array.from(m.values()).sort((x, y) => (y.p + y.c) - (x.p + x.c)), max = Math.max(2, (window.innerWidth < 800 ? 7 : 12) - gj.length), show = list.length > max ? list.slice(0, max - 1) : list, more = list.slice(show.length);
+    const say = g => (g.p ? g.p + ' passenger' + (g.p === 1 ? '' : 's') : '') + (g.p && g.c ? ', ' : '') + (g.c ? g.c + ' cargo' : '');
+    show.forEach(g => { const tip = '<b>To ' + esc(portName(g.to)) + '</b>\n' + say(g) + ' \u00b7 pays ' + money(g.pay) + (bd === g.to ? ' +25%' : '') + (live ? '\nClick to put them ashore' : '');
+      h += '<' + (live ? 'button' : 'div') + ' class="slot full dest' + (g.vip ? ' vip' : '') + (bd === g.to ? ' bonus' : '') + '"' + (live ? ' data-act="unloadTo" data-arg="' + g.to + '"' : '') + ' data-tip="' + esc(tip) + '"><span>' + g.to.toUpperCase() + ' \u00d7' + (g.p + g.c) + '</span></' + (live ? 'button' : 'div') + '>'; });
+    if (more.length) h += '<div class="slot empty dest more" data-tip="' + esc(more.map(g => portName(g.to) + ' \u00d7' + (g.p + g.c)).join('\n')) + '"><span>+' + more.length + ' MORE</span></div>';
+    gj.forEach(j => { h += one(j, 'c'); }); }
   else { for (let i = 0; i < cs.pax; i++) h += one(pj[i], 'p'); for (let i = 0; i < cs.cargo; i++) h += one(cj.concat(gj)[i], 'c'); }
   return h + '</div>';
 }
@@ -3171,10 +3206,14 @@ function craftBarHTML(pid, c) { const here = craftsAt(pid); if (!here.length) re
 function incomeHTML(c) { const L = c.last; if (!L || L.at !== c.at || L.pay <= 0) return '';
   return '<div class="income"><img src="' + ICON_URL.coin + '" alt=""><div><b>+' + money(L.pay) + ' COLLECTED</b><span class="sub">' + [L.units ? L.units + ' delivered' : '', L.fish, 'fuel ' + money(L.fuel), '+' + L.xp + ' XP', L.bonus ? 'full-load bonus ' + money(L.bonus) : ''].filter(Boolean).join(' · ') + '</span></div></div>'; }
 function holdHTML(c) { const T = CRAFT_BY[c.type], cs = cstat(c), ld = loadOf(c), bd = bonusDest(c), full = ld.pax + ld.cargo, cap = cs.pax + cs.cargo, many = craftsAt(c.at).filter(q => q.state === 'dock' || q.state === 'landed').length > 1;
+  // A small craft shows its slots beside its picture; a bigger one lists them underneath; a big one shows its load by destination.
+  const size = cap >= 10 ? 'lg' : cap >= 4 ? 'md' : 'sm';
   const capBox = (kind, n, of, label) => '<div class="cap ' + kind + (of && n >= of ? ' full' : '') + '"><img src="' + ICON_URL[kind === 'p' ? 'ui_pax' : 'ui_box'] + '" alt=""><b>' + n + (of ? '<small>/' + of + '</small>' : '') + '</b><i>' + label + '</i></div>';
-  const caps = (T.tour ? capBox('p', T.tour, 0, 'SIGHTSEERS') : '') + (cs.pax ? capBox('p', ld.pax, cs.pax, cs.pax === 1 ? 'SEAT' : 'SEATS') : '') + (cs.cargo ? capBox('c', ld.cargo, cs.cargo, 'CARGO') : '');
-  return '<div class="holdbar v2"><div class="hh">' + (many ? '<button class="btn sm dark cyc" data-act="cycle" data-arg="-1">\u25c2</button>' : '') + '<div class="cid"><b>' + esc(c.name) + '</b><span class="ct">' + esc(T.name) + '</span></div>' +
-    (c.jobs.length ? '<button class="btn sm plain" data-act="unloadAll" data-tip="Put everything aboard back on the dock"><i class="lgt">UNLOAD ALL</i><i class="smt">CLEAR</i></button>' : '') + (many ? '<button class="btn sm dark cyc" data-act="cycle" data-arg="1">\u25b8</button>' : '') + '</div><div class="cmid"><div class="cpic">' + sprImgC(c, 136, 5) + '</div><div class="caps">' + caps + '</div></div>' + slotsHTML(c, true) +
+  const caps = '<div class="caps">' + (T.tour ? capBox('p', T.tour, 0, 'SIGHTSEERS') : '') + (cs.pax ? capBox('p', ld.pax, cs.pax, cs.pax === 1 ? 'SEAT' : 'SEATS') : '') + (cs.cargo ? capBox('c', ld.cargo, cs.cargo, 'CARGO') : '') + '</div>';
+  const arrow = d => many ? '<button class="btn sm dark cyc" data-act="cycle" data-arg="' + d + '">' + (d < 0 ? '\u25c2' : '\u25b8') + '</button>' : '';
+  const clear = c.jobs.length && size !== 'sm' ? '<button class="btn sm plain clr" data-act="unloadAll" data-tip="Put everything aboard back on the dock">CLEAR</button>' : '';
+  return '<div class="holdbar v2 ' + size + '"><div class="ctop">' + arrow(-1) + '<div class="cpic">' + sprImgC(c, 120, 4) + '</div><div class="cinfo"><b>' + esc(c.name) + '</b><span class="ct">' + esc(T.name) + '</span>' + caps + (size === 'sm' ? slotsHTML(c, true) : '') + '</div>' + arrow(1) + '</div>' +
+    (size === 'sm' ? '' : '<div class="cbot">' + slotsHTML(c, true) + clear + '</div>') +
     '<div class="bn' + (bd ? ' on' : full ? '' : ' hint') + '">' + (bd ? '\u2605 Full load for ' + esc(portName(bd)) + ': pays 25% extra' : full ? 'Fill all ' + cap + ' slots with jobs for one place for a 25% bonus (' + full + '/' + cap + ')' : !reachAny(c) ? (T.fish && PORT_BY[c.at].dock ? 'Nothing to carry from here. Take it out on the FISHING tab.' : 'No port you serve is in reach from here.') : 'Hit LOAD on the jobs you want, then ' + goWord(c) + '.') + '</div></div>'; }
 // What the craft in hand needs next, while the tutorial is still running. Shown in the phone footer and in Aunt Bev's box on desktop.
 function sheetHint(c, pid) { const st = G.ports[pid], p = PORT_BY[pid]; if (!st.open || !c || G.tutDone || c.state !== 'dock') return '';
@@ -3478,6 +3517,7 @@ function act(a, arg, el) {
     case 'loadK': if (c) { err = loadContract(c, +arg); if (!err) sfx.load(); } break;
     case 'unload': if (c) { err = unloadJob(c, +arg); if (!err) sfx.unload(); } break;
     case 'unloadAll': if (c) { unloadAll(c); sfx.unload(); } break;
+    case 'unloadTo': if (c) { c.jobs.filter(j => j.to === arg).forEach(j => { err = unloadJob(c, j.id) || err; }); if (!err) sfx.unload(); } break;
     case 'route': startRouting(); break;
     case 'cycle': if (c) { const here = craftsAt(c.at).filter(q => q.state === 'dock' || q.state === 'landed'), i = here.findIndex(q => q.id === c.id); if (here.length > 1) selectCraft(here[(i + (+arg) + here.length) % here.length].id, false); } break;
     case 'undo': UI.stops.pop(); computeReach(); sfx.click(); break;
@@ -3597,8 +3637,8 @@ function fitsHTML(c, atYard) { const T = CRAFT_BY[c.type], cost = fitCost(c), em
   return h + '</div><div class="sub" style="margin-top:6px">' + (atYard ? (empty ? 'Fitting one takes the other off.' : 'Empty the craft first.') : 'Fits are done at a ' + yardWord(T) + ', with the craft empty.') + '</div>'; }
 
 // a craft's size and load at a glance, under its picture in the fleet strip: one pip per seat (blue) and per cargo slot (brown), filled when taken
-function capPips(c) { const T = CRAFT_BY[c.type], cs = cstat(c), ld = loadOf(c); if (T.tour) return '<span class="pips"><i class="pt">TOUR ' + T.tour + '</i></span>';
-  if (cs.pax + cs.cargo > 10) return '<span class="pips"><i class="pt">' + (ld.pax + ld.cargo) + '/' + (cs.pax + cs.cargo) + '</i></span>';
+function capPips(c) { const T = CRAFT_BY[c.type], cs = cstat(c), ld = loadOf(c); if (T.tour) return '<span class="pips"><i class="pt">' + T.tour + '</i></span>';
+  if (cs.pax + cs.cargo > 5) return '<span class="pips"><i class="pt">' + (ld.pax + ld.cargo) + '/' + (cs.pax + cs.cargo) + '</i></span>';
   let h = '<span class="pips">'; for (let i = 0; i < cs.pax; i++) h += '<i class="pp p' + (i < ld.pax ? ' on' : '') + '"></i>'; for (let i = 0; i < cs.cargo; i++) h += '<i class="pp c' + (i < ld.cargo ? ' on' : '') + '"></i>'; return h + '</span>'; }
 
 /* =====================================================================
