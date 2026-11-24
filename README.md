@@ -1,6 +1,6 @@
 # Pocket Maine - Air and Sea
 
-A cozy pixel-art transport game set in Maine. You run a small outfit moving people and freight around the state by bush plane, floatplane, ferry and lobster boat, in real time, in the spirit of Pocket Planes.
+A cozy pixel-art transport game that starts in Maine and grows to cover New England. You run a small outfit moving people and freight by bush plane, floatplane, ferry and lobster boat, in real time, in the spirit of Pocket Planes.
 
 **Play it:** https://jamesccupps.github.io/PocketMaine/
 
@@ -27,19 +27,25 @@ XP comes from fares, catches, contracts, new ports, new craft types and first la
 
 | Level | Unlocks |
 |---|---|
-| 2 | VIPs and special freight: gold jobs that pay three to four times the fare and bring a tip, XP, a parts crate or a good word at both ports. Also names and paint: rename a craft, pick its colors |
-| 3 | Events: festivals and harvests, a cruise ship or freighter in port, bean suppers, fuel price wars, parts swap meets, urgent medical runs |
-| 4 | Wear and overhaul: craft wear with use and are fixed at a yard |
+| 2 | VIPs and special freight: gold jobs that pay three to four times the fare and bring a tip, XP, a parts crate or a favor at both ports. Some want no stops, a daylight landing or a craft in good repair. Also names and paint |
+| 3 | Events, planned a season ahead and listed in the Almanac: festivals, a cruise ship or freighter in port, boat races that move from harbor to harbor, fuel price wars, parts swap meets, storm relief and urgent medical runs |
+| 4 | New Hampshire and Vermont open. Wear and overhaul: craft wear with use and are fixed at a yard |
 | 5 | Catch and traps: sell the catch where the price is best, set lobster trap strings |
-| 6 | Crew: hire one hand per craft, each with one skill |
+| 6 | Southern New England opens: Boston, the Cape and islands, Rhode Island, Connecticut. Crew: hire one hand per craft, each with one skill |
 | 7 | Port works: fuel dock, lobster pound, inn |
-| 8 | Standing runs: a craft shuttles between two ports by itself |
+| 8 | Canada opens: Saint John, Yarmouth, Quebec City, Montreal, with a minute at customs each crossing. Standing runs: a craft shuttles between two ports by itself |
 
-Also in the game: 23 ports on a hand-drawn map of Maine, 14 craft, hangars and boatyards that sell parts (three parts build a craft), storage for spare craft, contracts, a fish market, weather that holds craft on the ground, and four seasons that freeze lakes and close grass strips in mud season.
+Also in the game:
 
-**Holidays** follow the real calendar. For New Year, Valentine's Day, Independence Day, Halloween, Thanksgiving and Christmas the ports are decorated, holiday passengers and freight turn up on the boards and pay 25% more, and holiday VIPs come by. The Almanac has a switch to turn this off or preview a holiday.
+- **The map.** 54 ports on one hand-drawn map, from Long Island Sound to the St. Lawrence. A boat can follow the coast from Eastport to New Haven.
+- **16 craft.** Nine planes and seven boats. The ferry and the freighter take groups and lots of ten or twenty in one tap. The excursion boat takes no jobs at all: pick two to four deep-water harbors and it is paid at every stop. Freighters and excursion boats need a deep-water harbor.
+- **Yards.** Hangars and boatyards sell parts (three parts build a craft) and store spare craft. One plane, the Gilded Beav, is never for sale: its parts only come in VIP crates.
+- **VIPs with lists.** Three of them keep coming back until they have been everywhere on their list. Finishing a list earns a paint no yard sells.
+- **The rest.** Contracts, a fish market and 17 fishing grounds, weather that holds craft on the ground, and four seasons that freeze lakes and close grass strips in mud season.
 
-What comes next is in the [roadmap](ROADMAP.md): ships you own, the rest of New England, more holidays.
+**Holidays** follow the real calendar, eleven of them: New Year, Valentine's Day, St. Patrick's Day, Maple Sunday, Patriots' Day, Memorial Day, Independence Day, Labor Day, Halloween, Thanksgiving and Christmas. The ports are decorated, holiday passengers and freight turn up on the boards and pay 25% more, and carrying the holiday's VIP earns its paint. The Almanac has a switch to turn this off or preview a holiday.
+
+What is done, what is not, and what could come next is in the [roadmap](ROADMAP.md).
 
 ## Design choices
 
