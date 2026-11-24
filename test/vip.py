@@ -19,7 +19,7 @@ with sync_playwright() as p:
     expect(ev("()=>vipJobs().length")==1, 'a VIP is on a board the moment level 2 is reached'); tap('#mbox .btn.go')
     toast=ev("()=>document.getElementById('toasts').innerText"); expect('VIP at' in toast, 'a toast says where the VIP is: '+toast[:70].replace('\n',' '))
     ev("()=>{ PORTS.forEach(p=>{ const st=G.ports[p.id]; st.jobs=st.jobs.filter(j=>!j.vip); }); const c=G.crafts.find(c=>c.at==='pwm'&&CRAFT_BY[c.type].wheels); G.ports.pwm.jobs.unshift({id:G.nextId++,from:'pwm',to:'lew',kind:'p',pay:240,label:'A film location scout',ic:'tourist',vip:'part',exp:G.t+480}); selectCraft(c.id,true); }"); pg.wait_for_timeout(700)
-    first=ev("()=>{ const r=document.querySelector('.rows .dg .jrow'); return r?r.className+' | '+r.innerText.replace(/\\n/g,' '):''; }"); expect('vip' in first and 'VIP' in first and 'PARTS CRATE' in first, 'the VIP row is first on the board with its reward: '+first[:90])
+    first=ev("()=>{ const r=document.querySelector('.rows .dg .jrow'); return r?r.className+' | '+r.innerText.replace(/\\n/g,' '):''; }"); expect('vip' in first and 'VIP' in first and 'CRATE' in first, 'the VIP row is first on the board with its reward: '+first[:90])
     n0=ev("()=>partsCount()"); tap('.jrow.vip .btn.load')
     expect(ev("()=>UI.selCraft.jobs.some(j=>j.vip)"), 'LOAD puts the VIP aboard')
     ev("()=>{ dispatch(UI.selCraft,['lew']); }"); pg.wait_for_timeout(400); ev("()=>{ G.wall -= 400*1000; }"); pg.wait_for_timeout(1500)

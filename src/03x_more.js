@@ -3,7 +3,7 @@
    Each feature stays out of sight until its level, so the early game is just load, send, collect. */
 const FEATURES = [
   { id: 'names',  lvl: 2, name: 'Names & paint',   where: 'CRAFT tab',              desc: 'Rename any craft and repaint it.' },
-  { id: 'vip',    lvl: 2, name: 'VIPs & special freight', where: 'gold jobs on the board, a gold star on the map', desc: 'Now and then somebody important, or something precious, needs a ride. A VIP pays about triple and brings a reward: a big tip, XP, a parts crate or a good word at both ports. They wait eight minutes.' },
+  { id: 'vip',    lvl: 2, name: 'VIPs & special freight', where: 'gold jobs on the board, a gold star on the map', desc: 'Now and then somebody important, or something precious, needs a ride. A VIP pays about triple and brings a reward: a big tip, XP, a parts crate or a good word at both ports. They wait eight minutes. Some are particular: DIRECT means no stops, BY DAY means land in daylight, FIT means a craft in good repair.' },
   { id: 'events', lvl: 3, name: 'Events',          where: 'the news and the map',   desc: 'Festivals, harvests, cruise ships and freighters in port, fuel price wars and urgent medical runs: something is on for two days at a time.' },
   { id: 'reg1',   lvl: 4, name: 'New Hampshire & Vermont', where: 'the map, west of Maine', desc: 'Ports across the state line can be opened now: Portsmouth, Manchester, the White Mountains, Burlington on Lake Champlain and the rest.' },
   { id: 'wear',   lvl: 4, name: 'Wear & overhaul', where: 'CRAFT tab, at a yard',   desc: 'Craft wear with use. A worn one runs slow until a hangar or boatyard overhauls it, for coins or a spare part.' },

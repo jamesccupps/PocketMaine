@@ -527,7 +527,7 @@ h3{font-size:13px}.tag{font-size:11px}.item .tx b{font-size:14px}
 #mbox .card.unl .sub{font-size:20px}
 
 /* VIPs and holidays */
-.tag.gold{background:#ffd23f;border-color:#8a6a12;color:#3a2a06;display:inline-flex;align-items:center;gap:4px}
+.tag.gold{background:#ffd23f;border-color:#8a6a12;color:#3a2a06;display:inline-flex;align-items:center;gap:4px;white-space:nowrap}
 .tag.gold img{width:10px;height:10px;image-rendering:pixelated}
 .tag.hol{background:var(--red);color:#fff}
 .jrow.vip,.dg .jrow.vip{background:#fff1b8;border-color:#a87a10;box-shadow:inset 0 0 0 2px #ffd23f}
@@ -1691,7 +1691,7 @@ function fastForward(sec) { sec = Math.min(sec, OFFLINE_CAP); const before = G.c
    Each feature stays out of sight until its level, so the early game is just load, send, collect. */
 const FEATURES = [
   { id: 'names',  lvl: 2, name: 'Names & paint',   where: 'CRAFT tab',              desc: 'Rename any craft and repaint it.' },
-  { id: 'vip',    lvl: 2, name: 'VIPs & special freight', where: 'gold jobs on the board, a gold star on the map', desc: 'Now and then somebody important, or something precious, needs a ride. A VIP pays about triple and brings a reward: a big tip, XP, a parts crate or a good word at both ports. They wait eight minutes.' },
+  { id: 'vip',    lvl: 2, name: 'VIPs & special freight', where: 'gold jobs on the board, a gold star on the map', desc: 'Now and then somebody important, or something precious, needs a ride. A VIP pays about triple and brings a reward: a big tip, XP, a parts crate or a good word at both ports. They wait eight minutes. Some are particular: DIRECT means no stops, BY DAY means land in daylight, FIT means a craft in good repair.' },
   { id: 'events', lvl: 3, name: 'Events',          where: 'the news and the map',   desc: 'Festivals, harvests, cruise ships and freighters in port, fuel price wars and urgent medical runs: something is on for two days at a time.' },
   { id: 'reg1',   lvl: 4, name: 'New Hampshire & Vermont', where: 'the map, west of Maine', desc: 'Ports across the state line can be opened now: Portsmouth, Manchester, the White Mountains, Burlington on Lake Champlain and the rest.' },
   { id: 'wear',   lvl: 4, name: 'Wear & overhaul', where: 'CRAFT tab, at a yard',   desc: 'Craft wear with use. A worn one runs slow until a hangar or boatyard overhauls it, for coins or a spare part.' },
@@ -1883,9 +1883,9 @@ function tourPay(c, pid, dist, again) { const T = CRAFT_BY[c.type], p = PORT_BY[
    A VIP is one gold job on a port's board: somebody important or something precious. It pays about triple
    and brings a reward on delivery. They turn up on a timer, wait eight minutes, and never more than three at once. */
 const VIP_STAY = 480, VIP_MAX = 3;
-const VIP_REWARD = { tip: 'BIG TIP', xp: 'XP', part: 'PARTS CRATE', word: 'GOOD WORD' };
+const VIP_REWARD = { tip: 'BIG TIP', xp: 'XP', part: 'CRATE', word: 'GOOD WORD' };
 // some VIPs are particular. Meet the condition or there is no reward (and half the tip).
-const VIP_PREF = { direct: 'NO STOPS', day: 'BY DAYLIGHT', fit: 'SOUND CRAFT' };
+const VIP_PREF = { direct: 'DIRECT', day: 'BY DAY', fit: 'FIT' };      // no stops on the way; land in daylight; a craft in good repair
 const VIP_PREF_WHY = { direct: 'there was a stop on the way', day: 'it was dark when they got there', fit: 'the craft was running rough' };
 function vipMet(j, c) { if (j.pref === 'direct') return !j.hops; if (j.pref === 'day') { const h = hourOf(G.t); return h >= 6 && h < 20; } if (j.pref === 'fit') return condOf(c) >= 60; return true; }
 // a few VIPs keep coming back until they have been everywhere on their list. Finishing a list earns a paint no yard sells.
@@ -2958,7 +2958,7 @@ function jobRowsHTML(pid, c) {
     d.groups.sort((a, b) => ((b.j.vip ? 1 : 0) - (a.j.vip ? 1 : 0)) || ((b.lay || 0) - (a.lay || 0)) || (b.pay - a.pay));
     d.groups.forEach(g => { const room = c ? roomFor(c, g.kind) : 0, need = g.j.n || 1, many = Math.min(g.n, Math.floor(room / need));
       const btn = !c ? '' : (!d.ok && !any) ? '<button class="btn load" disabled>LOAD</button>' : many > 1 ? '<button class="btn load' + (d.ok ? '' : ' far') + '" data-act="loadIds" data-arg="' + g.ids.slice(0, many).join(',') + '">LOAD ' + many + '</button>' : '<button class="btn load' + (!d.ok && room > 0 ? ' far' : '') + '" data-act="load" data-arg="' + g.ids[0] + '"' + (room >= need ? '' : ' disabled data-tip="' + (need > 1 && room > 0 ? 'Takes ' + need + (g.kind === 'p' ? ' seats' : ' cargo slots') : 'No ' + (g.kind === 'p' ? 'seats' : 'cargo room') + ' left') + '"') + '>LOAD</button>';
-      h += row((g.kind === 'c' ? 'c' : 'p') + (g.j.vip ? ' vip' : '') + (d.ok ? '' : ' no'), jobIconURL(g.j), g.j.label, g.n, g.j.n ? '<span class="tag org">' + (g.kind === 'p' ? 'GROUP' : 'LOT') + ' OF ' + g.j.n + '</span>' : g.j.vip ? '<span class="tag gold"><img src="' + ICON_URL.star + '" alt="">VIP \u00b7 ' + VIP_REWARD[g.j.vip] + (g.j.pref ? ' \u00b7 ' + VIP_PREF[g.j.pref] : '') + '</span>' : g.j.urgent ? '<span class="tag red">URGENT ' + secs(Math.max(0, g.j.urgent - G.t)) + '</span>' : g.lay ? '<span class="tag blue">LAYOVER</span>' : g.j.ev ? '<span class="tag yel">EVENT</span>' : g.j.hol ? '<span class="tag hol">HOLIDAY</span>' : '', g.pay, g.n > 1, btn); });
+      h += row((g.kind === 'c' ? 'c' : 'p') + (g.j.vip ? ' vip' : '') + (d.ok ? '' : ' no'), jobIconURL(g.j), g.j.label, g.n, g.j.n ? '<span class="tag org">' + (g.kind === 'p' ? 'GROUP' : 'LOT') + ' OF ' + g.j.n + '</span>' : g.j.vip ? '<span class="tag gold"><img src="' + ICON_URL.star + '" alt="">' + (g.j.pref ? VIP_REWARD[g.j.vip] + ' \u00b7 ' + VIP_PREF[g.j.pref] : 'VIP \u00b7 ' + VIP_REWARD[g.j.vip]) + '</span>' : g.j.urgent ? '<span class="tag red">URGENT ' + secs(Math.max(0, g.j.urgent - G.t)) + '</span>' : g.lay ? '<span class="tag blue">LAYOVER</span>' : g.j.ev ? '<span class="tag yel">EVENT</span>' : g.j.hol ? '<span class="tag hol">HOLIDAY</span>' : '', g.pay, g.n > 1, btn); });
     h += '</div>'; });
   if (far.length && any) h += '<button class="farbtn" data-act="showFar">' + (UI.showFar ? 'HIDE' : 'SHOW') + ' ' + farN + (farN === 1 ? ' JOB' : ' JOBS') + ' ' + (c ? esc(c.name.toUpperCase()) + ' CAN\'T DELIVER' : '') + '</button>';
   if (!isFull) h += ab;
