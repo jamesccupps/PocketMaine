@@ -1,6 +1,6 @@
 const fs=require('fs'),vm=require('vm');
-const src=['01_data','02_map','03_sim','03x_more'].map(f=>fs.readFileSync('src/'+f+'.js','utf8')).join('\n')+`
-;globalThis.X={get G(){return G},SIM,initWorld,newGame,tick,PORTS,PORT_BY,CRAFT_BY,CRAFT,routeInfo,dispatch,loadJob,loadAllFor,unloadJob,goFish,fishOptions,cstat,loadOf,unlockPort,buyCraft,yardFits,acceptContract,loadContract,season,money,netWorth,saveGame,loadGame,bonusDest,upgradePort,portUpgradeCost,boardCap,roomFor,legInfo,collect,buySlot,slotCost,portCost,canBase,xpNeed,fastForward,hurry,hurryCost};`;
+const src=['01_data','02_map','03_sim','03x_more','03y_vip'].map(f=>fs.readFileSync('src/'+f+'.js','utf8')).join('\n')+`
+;HOLIDAY_FORCE='off';globalThis.X={get G(){return G},SIM,initWorld,newGame,tick,PORTS,PORT_BY,CRAFT_BY,CRAFT,routeInfo,dispatch,loadJob,loadAllFor,unloadJob,goFish,fishOptions,cstat,loadOf,unlockPort,buyCraft,yardFits,acceptContract,loadContract,season,money,netWorth,saveGame,loadGame,bonusDest,upgradePort,portUpgradeCost,boardCap,roomFor,legInfo,collect,buySlot,slotCost,portCost,canBase,xpNeed,fastForward,hurry,hurryCost};`;
 vm.runInThisContext(src);
 const X=globalThis.X; X.initWorld(); X.newGame(process.argv[3]||'casco'); const G=X.G;
 const every=+process.argv[4]||8; // seconds between the "player" looking at the game

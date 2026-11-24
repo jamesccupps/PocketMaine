@@ -10,6 +10,7 @@ function frameBody(now) {
   if (UI.started && !UI.paused) { const wall = Date.now(), el = (wall - G.wall) / 1000; G.wall = wall;
     if (el > 3) { const landed = fastForward(el); if (el > 45) awayNote(el, landed); UI.fleetKey = ''; forcePanel(); }
     else if (el > 0) tick(el); }
+  if (UI.started && !UI.greeted && G.tutDone) { UI.greeted = 1; const hd = holidayGreet(); if (hd) banner(hd.name, 'Holiday jobs pay 25% more this week.'); }
   refreshSel();
   const c = UI.selCraft; if (UI.screen === 'route' && (!c || c.state !== 'dock')) deselect();
   if ((UI.screen === 'route') !== !!UI.reach) computeReach();

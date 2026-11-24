@@ -216,6 +216,11 @@ const CARGO_ART = {
  part_hull:   ['........','k......k','kk....kk','kwwwwwwk','kwwwwwwk','.krrrrk.','..kkkk..','........'],
  part_house:  ['..kkkkk.','..kwwwk.','..kbbbk.','..kwwwk.','kkkwwwkk','kwwwwwwk','kkkkkkkk','........'],
  ui_wrench:   ['.....kk.','....kgk.','.k..kgkk','kgkkggk.','kgggggk.','.kgggk..','..kkk...','........'],
+ star:    ['...Y....','..YyY...','YYYyYYY.','.YyyyY..','..YyY...','.YyYyY..','.YY.YY..','........'],
+ gift:    ['..r..r..','...rr...','kkkkkkkk','keerreek','krrrrrrk','keerreek','keerreek','kkkkkkkk'],
+ pumpkin: ['...e....','...E....','.oooooo.','oonoonoo','oooooooo','oonoonoo','.oooooo.','........'],
+ turkey:  ['........','..nnnn..','.nttttn.','ntttttnn','nttttnwn','.nnnnn.w','WWWWWWWW','.WWWWWW.'],
+ heart:   ['........','.rr.rr..','rrrrrrr.','rrpRrrr.','.rrrrr..','..rrr...','...r....','........'],
  coin:    ['..YYYY..','.YyyyyY.','YyywyyyY','YyyyYyyY','YyyyYyyY','YyyyyyyY','.YyyyyY.','..YYYY..']
 };
 /* ---------- little map things ---------- */
@@ -226,7 +231,9 @@ const MISC_ART = {
  whale:  ['....l...','...l.l..','........','.GGGGG.G','GGGGGGGG'],
  gull:   ['w...w','.w.w.','..w..'],
  anchor: ['.k.','kkk','.k.','k.k','.k.'],
- lock:   ['.kk.','k..k','kkkk','kyyk','kkkk']
+ lock:   ['.kk.','k..k','kkkk','kyyk','kkkk'],
+ cruise: ['..............yy........', '..............yy........', '......wwwwwwwwwwwww.....', '....wwbwbwbwbwbwbwww....', '..wwwwwwwwwwwwwwwwwwww..', 'wwwbwbwbwbwbwbwbwbwbwwww', '.wwwwwwwwwwwwwwwwwwwwww.', '..BBBBBBBBBBBBBBBBBBBB..'],
+ freighter: ['...................ww...', '..ryb.oye.byr.oe...wk...', '..ryb.oye.byr.oe..www...', '..ryb.oye.byr.oe..wkw...', 'RRRRRRRRRRRRRRRRRRRRRRRR', '.RRRRRRRRRRRRRRRRRRRRRR.', '..kkkkkkkkkkkkkkkkkkkk..']
 };
 const SPR = {}, ICON = {}, ICON_URL = {};
 function buildArt() {

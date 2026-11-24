@@ -62,7 +62,7 @@ function tutMark(k) { if (G.tutDone) return; const m = { send: 'sent', fish: 'fi
 function xpNeed(l) { return Math.round(60 * Math.pow(l, 1.7)); }
 function gainXp(n) { G.xp += n; while (G.xp >= xpNeed(G.level)) { G.xp -= xpNeed(G.level); G.level++; const bonus = 100 * G.level; G.money += bonus;
     const un = CRAFT.filter(T => T.lvl === G.level).map(T => T.name); news('Level ' + G.level + '! ' + money(bonus) + ' bonus.' + (un.length ? ' Now for sale: ' + un.join(', ') + '.' : ''), 'good'); const fs = FEATURES.filter(f => f.lvl === G.level); fs.forEach(f => news('New at level ' + G.level + ': ' + f.name + '. ' + f.desc, 'good')); if (G.level === FEATURE_BY.crew.lvl) refreshHall();
-    emit('level', { level: G.level, bonus, unlocked: un, feats: fs.map(f => f.id) }); awardPart('Level ' + G.level); } }
+    emit('level', { level: G.level, bonus, unlocked: un, feats: fs.map(f => f.id) }); awardPart('Level ' + G.level); fs.forEach(f => onUnlock(f.id)); } }
 function slotCost() { return Math.round(400 * Math.pow(1.55, G.slots - 4) / 50) * 50; }
 function buySlot() { const c = slotCost(); if (G.money < c) return 'Can\'t afford it yet.'; G.money -= c; G.slots++; emit('buy', {}); return null; }
 function portsOwned() { let n = 0; PORTS.forEach(p => { if (G.ports[p.id].open) n++; }); return n; }
@@ -130,8 +130,8 @@ function genParty(o) {
   let tot = 0; const ws = cands.map(p => { const d = Math.hypot(p.x - o.x, p.y - o.y), w = p.size * pull(p, kind, s) * eventPull(o, p, kind) / (1 + d / 260); tot += w; return w; });
   let r = Math.random() * tot, d = cands[0]; for (let i = 0; i < cands.length; i++) { r -= ws[i]; if (r <= 0) { d = cands[i]; break; } }
   const lvl = G.ports[o.id].lvl, maxN = Math.max(1, Math.min(bestCapFor(o, d, kind), 1 + lvl * 2 + o.size)), n = 1 + Math.floor(Math.pow(Math.random(), 1.6) * maxN);
-  const fl = jobFlavor(kind, o, d, s), pay = payFor(o, d, kind, s, false), out = [];
-  for (let i = 0; i < n; i++) out.push({ id: G.nextId++, from: o.id, to: d.id, kind, pay, label: fl[0], ic: fl[1], ev: eventMult(o, d, kind) > 1 ? 1 : 0 });
+  let fl = jobFlavor(kind, o, d, s), pay = payFor(o, d, kind, s, false); const out = [], hf = holidayFlavor(kind); if (hf) { fl = hf; pay = Math.round(pay * 1.25 / 5) * 5; }
+  for (let i = 0; i < n; i++) out.push({ id: G.nextId++, from: o.id, to: d.id, kind, pay, label: fl[0], ic: fl[1], ev: eventMult(o, d, kind) > 1 ? 1 : 0, hol: hf ? 1 : undefined });
   return out;
 }
 function boardCap(pid) { const p = PORT_BY[pid]; return 5 + p.size * 3 + (G.ports[pid].lvl - 1) * 6 + (hasWork(pid, 'inn') ? 4 : 0); }
@@ -141,7 +141,7 @@ const PORT_MAX_LVL = 5;
 function upgradePort(pid) { const st = G.ports[pid]; if (st.lvl >= PORT_MAX_LVL) return 'Already as big as it gets.'; const cost = portUpgradeCost(pid); if (G.money < cost) return 'Can\'t afford it yet.';
   G.money -= cost; st.lvl++; news(PORT_BY[pid].name + ' terminal improved to level ' + st.lvl + ': more jobs, more layover room.', 'good'); emit('buy', {}); return null; }
 // Like Pocket Planes: each port's board is replaced wholesale on a timer. Layovers stay; whatever you have aboard stays.
-function refreshBoard(p) { const st = G.ports[p.id], target = Math.round(boardCap(p.id) * rnd(0.7, 1)), keep = (st.jobs || []).filter(j => j.urgent); st.jobs = keep; let guard = 0;
+function refreshBoard(p) { const st = G.ports[p.id], target = Math.round(boardCap(p.id) * rnd(0.7, 1)), keep = (st.jobs || []).filter(j => j.urgent || (j.vip && G.t < j.exp)); st.jobs = keep; let guard = 0;
   while (st.jobs.length < target && guard++ < 40) { const party = genParty(p); if (!party.length) break; for (let i = 0; i < party.length && st.jobs.length < target; i++) st.jobs.push(party[i]); } SIM.dirty = true; }
 function updateBoards() { PORTS.forEach(p => { const st = G.ports[p.id]; if (st.open && G.t >= st.next) { refreshBoard(p); st.next = G.t + JOB_REFRESH; } }); }
 function contractAvail(k) { return k.total - k.delivered - k.loaded; }
@@ -186,7 +186,7 @@ function legInfo(c, fromId, toId) {
   if (T.cls === 'boat') { const r = seaRoute(from.dock, to.dock); if (!r) return { ok: false, why: 'no sea route' }; dist = r.len; pts = r.pts; }
   else { dist = Math.hypot(to.x - from.x, to.y - from.y); pts = [[from.x, from.y], [to.x, to.y]]; }
   if (dist > T.range) return { ok: false, why: 'out of range (' + Math.round(dist) + ' of ' + T.range + ' km)', dist };
-  return { ok: true, dist, pts, time: dist / st.speed, fuel: Math.round(dist * T.fuel * (hasWork(fromId, 'fuel') ? 0.7 : 1) * (crewHas(c, 'thrift') ? 0.75 : 1)), wx: wxBlock(c, from.x, from.y) || wxBlock(c, to.x, to.y) };
+  return { ok: true, dist, pts, time: dist / st.speed, fuel: Math.round(dist * T.fuel * (hasWork(fromId, 'fuel') ? 0.7 : 1) * (crewHas(c, 'thrift') ? 0.75 : 1) * (evGlob('fuel') ? 0.7 : 1)), wx: wxBlock(c, from.x, from.y) || wxBlock(c, to.x, to.y) };
 }
 function routeInfo(c, stops) {
   let from = c.at, dist = 0, time = 0, fuel = 0, wx = null; const legs = [];
@@ -232,7 +232,7 @@ function goFish(c, gid, sp, mode) {
   c.plan = { fish: { g: gid, sp, land: c.at, mode } };
   const wx = wxBlock(c, port.x, port.y) || wxBlock(c, g.x, g.y);
   if (wx) { c.state = 'hold'; c.holdWhy = wx; emit('hold', { c }); }
-  else { const fuel = Math.round(r.len * 2 * T.fuel * (crewHas(c, 'thrift') ? 0.75 : 1)) + (mode === 'set' ? TRAP_BAIT : 0); G.money -= fuel; G.stats.fuel += fuel; c.tripFuel = fuel; c.last = null; startRoute(c, r.pts, r.len, 'fishOut', null); emit('depart', { c }); }
+  else { const fuel = Math.round(r.len * 2 * T.fuel * (crewHas(c, 'thrift') ? 0.75 : 1) * (evGlob('fuel') ? 0.7 : 1)) + (mode === 'set' ? TRAP_BAIT : 0); G.money -= fuel; G.stats.fuel += fuel; c.tripFuel = fuel; c.last = null; startRoute(c, r.pts, r.len, 'fishOut', null); emit('depart', { c }); }
   tutMark('fish'); return null;
 }
 function posOnRoute(c) { const r = c.route, pts = r.pts; let d = r.pos;
@@ -248,7 +248,7 @@ function arrive(c) {
   // once catch & traps are unlocked a boat comes home with its catch still aboard: nothing to collect, you choose where to sell
   if (r.kind === 'fishBack' && feat('catch')) { c.state = 'dock'; c.plan = null; emit('fishIn', { c, pid, x: port.x, y: port.y }); return; }
   let pay = 0, units = 0, bonus = 0; const keep = [];
-  c.jobs.forEach(j => { if (j.to !== pid) { keep.push(j); return; } const p = Math.round(j.pay * (j.bonus ? 1.25 : 1) * (j.kind === 'p' && crewHas(c, 'charm') ? 1.1 : 1)); pay += p; if (j.urgent) bonusXp(20, 'medical run'); if (j.bonus) bonus += p - j.pay; units++; addXp(pid, 1); if (G.ports[j.from]) addXp(j.from, 0.5);
+  c.jobs.forEach(j => { if (j.to !== pid) { keep.push(j); return; } const p = Math.round(j.pay * (j.bonus ? 1.25 : 1) * (j.kind === 'p' && crewHas(c, 'charm') ? 1.1 : 1)); pay += p; if (j.urgent) bonusXp(20, 'medical run'); if (j.vip) vipDeliver(j, c, pid); if (j.bonus) bonus += p - j.pay; units++; addXp(pid, 1); if (G.ports[j.from]) addXp(j.from, 0.5);
     if (j.kid) { const k = G.active.find(x => x.id === j.kid); if (k) { k.loaded--; k.delivered++; if (k.delivered >= k.total) completeContract(k); } } });
   c.jobs = keep;
   let fishPay = 0, fishTxt = '';
@@ -280,7 +280,7 @@ function updateCraft(c, dt) {
   } else if (c.state === 'fish') {
     c.fishT += dt;
     if (c.fishT >= c.fishDur) { const T = CRAFT_BY[c.type], f = c.plan.fish, g = GROUND_BY[f.g], s = season(), var_ = f.sp === 'tuna' ? rnd(0.15, 1.9) : rnd(0.72, 1.15);
-      const salt = crewHas(c, 'salt') ? 1.25 : 1; let units;
+      const salt = (crewHas(c, 'salt') ? 1.25 : 1) * (evGlob('fish') ? 1.5 : 1); let units;
       if (f.mode === 'set') { (G.traps || (G.traps = {}))[f.g] = { t: G.t }; units = 0; emit('trapset', { c, g: f.g, x: c.x, y: c.y }); }
       else if (f.mode === 'haul' && (G.traps || {})[f.g]) { units = Math.min(T.hold, Math.max(1, Math.round(T.hold * trapFill(f.g) * salt))); if (G.money >= TRAP_BAIT) { G.money -= TRAP_BAIT; G.traps[f.g].t = G.t; } else delete G.traps[f.g]; }
       else units = Math.round(T.hold * clamp(g.sp[f.sp] * FISH[f.sp].abund[s] * (c.upg.hauler ? 1.25 : 1) * salt * var_, 0, 1));
@@ -328,7 +328,7 @@ function stockShelf(pid) { const st = G.ports[pid], y = PORT_BY[pid].yard, per =
 function updateShelves() { PORTS.forEach(p => { if (!p.yard) return; const st = G.ports[p.id]; if (st.open && (!st.shelf || G.t >= st.shelfNext)) stockShelf(p.id); }); }
 function givePart(t, s) { const k = partKey(t, s); G.parts[k] = (G.parts[k] || 0) + 1; }
 function buyPart(pid, id) { const st = G.ports[pid], i = (st.shelf || []).findIndex(x => x.id === id); if (i < 0) return 'That one is gone.'; const it = st.shelf[i];
-  if (G.money < it.price) return 'Can\'t afford it yet.'; G.money -= it.price; givePart(it.t, it.s); st.shelf.splice(i, 1); emit('buy', {}); return null; }
+  const price = shelfPrice(it); if (G.money < price) return 'Can\'t afford it yet.'; G.money -= price; givePart(it.t, it.s); st.shelf.splice(i, 1); emit('buy', {}); return null; }
 // a free part: contracts and new levels pay one out
 function awardPart(why) { const pool = CRAFT.filter(T => T.lvl <= G.level + 1), r = rollPart(pool); if (!r) return; givePart(r[0].id, r[1]);
   news(why + ': a crate with a ' + partName(r[0].id, r[1]) + ' in it.', 'good'); emit('crate', { t: r[0].id, s: r[1], why }); }
@@ -394,7 +394,7 @@ function tick(dt) {
   if (d !== G.lastDay) { G.lastDay = d; const s = season(); refreshOffers(); rollEvent(); refreshHall(); emit('day', {});
     if (s !== s0) { news(SEASON_NAMES[s] + ', year ' + yearOf(G.t) + '. ' + SEASON_BLURB[s], 'season'); emit('season', { s }); G.offers = []; refreshOffers(); }
     else if ((d % SEASON_DAYS) === SEASON_DAYS - 1) { const nx = (s + 1) % 4; news('Almanac: ' + SEASON_NAMES[nx].toLowerCase() + ' starts tomorrow. ' + (nx === WINTER ? 'Lakes will freeze; floats are no good on ice.' : nx === SPRING ? 'Mud season closes grass and gravel strips.' : nx === SUMMER ? 'The summer people are coming.' : 'Foliage, hunters and potatoes.'), 'season'); } }
-  updateWeather(dt); updateBoards(); updateShelves(); expireUrgent(); updateRuns(dt);
+  updateWeather(dt); updateBoards(); updateShelves(); expireUrgent(); updateVips(); updateRuns(dt);
   for (let i = 0; i < G.crafts.length; i++) updateCraft(G.crafts[i], dt);
   updateContracts();
   const decay = Math.exp(-dt / 900); for (const k in G.glut) { G.glut[k] *= decay; if (G.glut[k] < 0.005) delete G.glut[k]; }

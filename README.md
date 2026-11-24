@@ -27,8 +27,8 @@ XP comes from fares, catches, contracts, new ports, new craft types and first la
 
 | Level | Unlocks |
 |---|---|
-| 2 | Names and paint: rename a craft, pick its colors |
-| 3 | Events: festivals, harvests and urgent medical runs that pay extra |
+| 2 | VIPs and special freight: gold jobs that pay three to four times the fare and bring a tip, XP, a parts crate or a good word at both ports. Also names and paint: rename a craft, pick its colors |
+| 3 | Events: festivals and harvests, a cruise ship or freighter in port, bean suppers, fuel price wars, parts swap meets, urgent medical runs |
 | 4 | Wear and overhaul: craft wear with use and are fixed at a yard |
 | 5 | Catch and traps: sell the catch where the price is best, set lobster trap strings |
 | 6 | Crew: hire one hand per craft, each with one skill |
@@ -36,6 +36,10 @@ XP comes from fares, catches, contracts, new ports, new craft types and first la
 | 8 | Standing runs: a craft shuttles between two ports by itself |
 
 Also in the game: 23 ports on a hand-drawn map of Maine, 14 craft, hangars and boatyards that sell parts (three parts build a craft), storage for spare craft, contracts, a fish market, weather that holds craft on the ground, and four seasons that freeze lakes and close grass strips in mud season.
+
+**Holidays** follow the real calendar. For New Year, Valentine's Day, Independence Day, Halloween, Thanksgiving and Christmas the ports are decorated, holiday passengers and freight turn up on the boards and pay 25% more, and holiday VIPs come by. The Almanac has a switch to turn this off or preview a holiday.
+
+What comes next is in the [roadmap](ROADMAP.md): ships you own, routes beyond Maine, more holidays.
 
 ## Design choices
 
@@ -61,7 +65,8 @@ It needs only Python 3. The three fonts in `fonts/` are inlined into the page.
 | `src/01_data.js` | Ports, craft, fish, flavor text, tuning numbers |
 | `src/02_map.js` | The map: coastline, rasterizer, sea pathfinding |
 | `src/03_sim.js` | The rules: jobs, routes, weather, fishing, yards, parts |
-| `src/03x_more.js` | Everything that unlocks with levels |
+| `src/03x_more.js` | Everything that unlocks with levels, and events |
+| `src/03y_vip.js` | VIPs and the holiday calendar |
 | `src/04_art.js` | Sprites, icons, generated portraits, the pixel font |
 | `src/05_render.js` | Drawing the map and the port scenes |
 | `src/06_ui.js` | Screens, the tutorial, input |

@@ -1,5 +1,5 @@
 const fs=require('fs'),vm=require('vm');
-const src=['01_data','02_map','03_sim','03x_more'].map(f=>fs.readFileSync('src/'+f+'.js','utf8')).join('\n')+`;globalThis.X={get G(){return G},initWorld,newGame,tick,dispatch,loadJob,unloadJob,bonusDest,legInfo,routeInfo,landWhy,CRAFT_BY,PORT_BY,addCraft,goFish,fishOptions,collect,buyCraft,buySlot,slotCost,portCost,unlockPort,xpNeed,hurry,hurryCost,fastForward,saveGame,loadGame,SPRING,WINTER,SUMMER,JOB_REFRESH,unstoreCraft,storeCraft,assemble,buyPart,givePart,partsHeld,partsCount,awardPart,sellStored,hasYard,yardFits,STORE_CAP,stockShelf,partPrice,netWorth,feat,FEATURES,bonusXp,renameCraft,paintCraft,condOf,wearCraft,overhaul,overhaulCost,cstat,startEvent,EVENTS,evActive,eventMult,urgentRun,expireUrgent,payFor,PORT_BY,sellCatch,catchMarkets,goFish,fishOptions,trapCount,trapMax,refreshHall,hireCrew,dismissCrew,PERKS,buildWork,hasWork,workCost,boardCap,fishPrice,legInfo,setRun,stopRun,runMax,updateRuns,exportSave,importSave,xpNeed,logCount,fastForward,addCraft,roomFor,TRAP_SOAK,rollEvent,season};`;
+const src=['01_data','02_map','03_sim','03x_more','03y_vip'].map(f=>fs.readFileSync('src/'+f+'.js','utf8')).join('\n')+`;globalThis.X={get G(){return G},initWorld,newGame,tick,dispatch,loadJob,unloadJob,bonusDest,legInfo,routeInfo,landWhy,CRAFT_BY,PORT_BY,addCraft,goFish,fishOptions,collect,buyCraft,buySlot,slotCost,portCost,unlockPort,xpNeed,hurry,hurryCost,fastForward,saveGame,loadGame,SPRING,WINTER,SUMMER,JOB_REFRESH,unstoreCraft,storeCraft,assemble,buyPart,givePart,partsHeld,partsCount,awardPart,sellStored,hasYard,yardFits,STORE_CAP,stockShelf,partPrice,netWorth,feat,FEATURES,bonusXp,renameCraft,paintCraft,condOf,wearCraft,overhaul,overhaulCost,cstat,startEvent,EVENTS,evActive,eventMult,urgentRun,expireUrgent,payFor,PORT_BY,sellCatch,catchMarkets,goFish,fishOptions,trapCount,trapMax,refreshHall,hireCrew,dismissCrew,PERKS,buildWork,hasWork,workCost,boardCap,fishPrice,legInfo,setRun,stopRun,runMax,updateRuns,exportSave,importSave,xpNeed,logCount,fastForward,addCraft,roomFor,TRAP_SOAK,rollEvent,season,spawnVip,vipJobs,vipDeliver,updateVips,refreshBoard,genParty,partsCount,holidayOn,holidayNow,thanksgivingDay,eventChoices,shelfPrice,evText,gainXp,cycleHoliday,HOLIDAYS,VIPS,setHolidayForce:v=>{HOLIDAY_FORCE=v;}};HOLIDAY_FORCE='off';`;
 vm.runInThisContext(src); const X=globalThis.X; X.initWorld(); X.newGame('casco'); const G=X.G; G.wxNext=1e12; let ok=0,bad=0;
 const T=(name,cond)=>{ if(cond) ok++; else { bad++; console.log('FAIL',name); } };
 const run=(c,max)=>{ let n=0; while(c.state!=='landed'&&c.state!=='dock'&&n++<(max||3000)) X.tick(1); return n; };
@@ -35,7 +35,7 @@ G.crafts.forEach(c=>{ if(c.state==='landed') X.collect(c); }); const out=G.craft
 G.crafts.forEach(c=>{ if(c.state==='landed') X.collect(c); }); G.money=60000; G.level=3;
 T('no hangar at Lewiston',/hangar/.test(X.buyCraft('cub','lew'))); T('no boatyard at Augusta',/boatyard/.test(X.buyCraft('skiff','aug'))); T('Portland has both',X.hasYard('pwm',X.CRAFT_BY.cub)&&X.hasYard('pwm',X.CRAFT_BY.skiff));
 X.tick(1); const sh=G.ports.pwm.shelf; T('yard shelf stocked',sh&&sh.length===4&&sh.every(x=>X.CRAFT_BY[x.t]&&x.price>0)); T('Augusta shelf is plane parts only',G.ports.aug.shelf.length===3&&G.ports.aug.shelf.every(x=>X.CRAFT_BY[x.t].cls==='plane')); T('no shelf where there is no yard',!G.ports.lew.shelf);
-const it=sh[0], mP=G.money, n0=X.partsCount(); T('buy a part',!X.buyPart('pwm',it.id)&&G.money===mP-it.price&&X.partsCount()===n0+1&&G.ports.pwm.shelf.length===3); T('sold part is gone',/gone/.test(X.buyPart('pwm',it.id)));
+G.ev=null; const it=sh[0], mP=G.money, n0=X.partsCount(); T('buy a part',!X.buyPart('pwm',it.id)&&G.money===mP-it.price&&X.partsCount()===n0+1&&G.ports.pwm.shelf.length===3); T('sold part is gone',/gone/.test(X.buyPart('pwm',it.id)));
 G.parts={}; X.givePart('down',0); X.givePart('down',1); T('two parts are not enough',/three/.test(X.assemble('down','pwm'))); X.givePart('down',2); T('level gate on building',/level 3/.test((G.level=2,X.assemble('down','pwm')))); G.level=3;
 T('boats are built at a boatyard',/boatyard/.test(X.assemble('down','aug'))); while(G.crafts.length>=G.slots) X.buySlot(); const nb=G.crafts.length, b1=X.assemble('down','pwm'); T('build from three parts',b1&&b1.type==='down'&&b1.at==='pwm'&&G.crafts.length===nb+1&&X.partsCount()===0);
 const atLew=G.crafts.find(c=>c.at==='lew'&&c.state==='dock'); if(atLew){ atLew.jobs=[]; T('storage needs a hangar',/hangar/.test(X.storeCraft(atLew))); } else T('storage needs a hangar (skipped: nothing at Lewiston)',true);
@@ -85,5 +85,39 @@ const e1=rc.run.earned; X.fastForward(1200); T('it keeps running while you are a
 // save codes
 const code=X.exportSave(), mny=G.money; G.money=1; T('save code round trip',!X.importSave(code)&&X.G.money===mny&&X.G.level===8); T('junk code is refused',/not a save code/.test(X.importSave('hello')));
 G=X.G; T('new fields survive',G.ports.lew.works.inn===1&&X.trapCount()===1&&X.logCount('types')>=2);
+}
+// VIPs, ship calls, statewide events, holidays
+{ const G=X.G, P=X.PORT_BY; G.level=8; ['pwm','rkd','vin','lew','aug'].forEach(id=>{G.ports[id].open=true;}); Object.values(G.ports).forEach(st=>{st.jobs=st.jobs.filter(j=>!j.vip);});
+  const v=X.spawnVip(P.pwm); T('vip spawns at the top of the board',!!v&&!!v.vip&&G.ports.pwm.jobs[0]===v&&v.from==='pwm'&&G.ports[v.to].open);
+  const base=X.payFor(P.pwm,P[v.to],v.kind,X.season(),false); T('vip pays three or four times the fare',v.pay>=base*2.9&&v.pay<=base*4.1);
+  X.spawnVip(P.pwm); T('one vip to a port',G.ports.pwm.jobs.filter(j=>j.vip).length===1);
+  X.refreshBoard(P.pwm); T('vip survives a board refresh',G.ports.pwm.jobs.some(j=>j.id===v.id));
+  G.xp=0; const n0=G.stats.vips||0, parts0=X.partsCount(), lg0=X.logCount('vip'); v.vip='part'; v.label='Test crate'; X.vipDeliver(v,G.crafts[0],v.to); T('vip delivery: counted, logged, parts crate',G.stats.vips===n0+1&&X.partsCount()===parts0+1&&X.logCount('vip')===lg0+1);
+  v.exp=G.t-1; X.updateVips(); T('vip leaves when its wait is up',!G.ports.pwm.jobs.some(j=>j.id===v.id));
+  for(let i=0;i<6;i++){ G.vipNext=G.t; X.updateVips(); } T('one to three vips waiting, never more',X.vipJobs().length>=1&&X.vipJobs().length<=3);
+  const cb=X.addCraft('cub','pwm'), vj={id:G.nextId++,from:'pwm',to:'lew',kind:'p',pay:300,label:'Test VIP',ic:'any',vip:'xp',exp:G.t+480}; G.ports.pwm.jobs.unshift(vj);
+  G.vipNext=1e12; G.crafts.forEach(q=>{ q.run=null; }); const n1=G.stats.vips; T('vip loads like any job',!X.loadJob(cb,vj.id)); X.dispatch(cb,['lew']); run(cb); T('vip is delivered on landing, fare rides with the craft',G.stats.vips>=n1+1&&cb.state==='landed'&&cb.pend.pay===300); X.collect(cb);
+  // events: statewide ones and ship calls
+  G.ev=null; const f0=X.legInfo(cb,'lew','pwm').fuel; X.startEvent(X.EVENTS.find(e=>e.id==='fuelwar')); const f1=X.legInfo(cb,'lew','pwm').fuel; T('fuel price war: 30% off, no port',G.ev.port===null&&Math.abs(f1-f0*0.7)<=1&&/30%/.test(G.ev.text));
+  T('swap meet marks parts down',(()=>{ const it={price:200}; const a=X.shelfPrice(it); X.startEvent(X.EVENTS.find(e=>e.id==='swapmeet')); return a===200&&X.shelfPrice(it)===125; })());
+  G.ev=null; const nb=G.ports.pwm.jobs.length; X.startEvent(X.EVENTS.find(e=>e.id==='cruise'),'pwm'); T('cruise ship floods its port with passengers',G.ev.ship==='cruise'&&G.ports.pwm.jobs.length>=nb+10&&X.eventMult(P.pwm,P.rkd,'p')===1.5&&X.eventMult(P.rkd,P.pwm,'p')===1);
+  T('old saves: an event without text still describes itself',/Rockland/.test(X.evText({id:'lobfest',name:'Lobster Festival',port:'rkd',kind:'p',mult:1.6,from:false})));
+  const t0=G.t; G.t=300*0.5; const su=X.eventChoices().map(x=>x[0].id); G.t=300*14.5; const wi=X.eventChoices().map(x=>x[0].id); G.t=t0;
+  T('cruise ships in summer, none in winter',su.indexOf('cruise')>=0&&wi.indexOf('cruise')<0&&wi.indexOf('freighter')>=0&&wi.indexOf('fuelwar')>=0&&su.indexOf('supper')>=0);
+  // unlocks land on the board at once
+  Object.values(G.ports).forEach(st=>{st.jobs=st.jobs.filter(j=>!j.vip);}); G.ev=null; G.level=1; G.xp=X.xpNeed(1)-1; X.gainXp(2); T('level 2 puts a VIP on a board',G.level===2&&X.vipJobs().length===1);
+  G.xp=X.xpNeed(2)-1; X.gainXp(2); T('level 3 starts an event',G.level===3&&!!G.ev);
+  // holidays follow the real calendar
+  T('thanksgiving is the fourth thursday',X.thanksgivingDay(2026)===26&&X.thanksgivingDay(2025)===27&&X.thanksgivingDay(2023)===23&&X.thanksgivingDay(2029)===22);
+  const hid=(y,m,d)=>{ const h=X.holidayOn(new Date(y,m-1,d)); return h?h.id:null; };
+  T('holiday calendar',hid(2026,11,23)==='thanks'&&hid(2026,11,27)==='thanks'&&hid(2026,11,19)===null&&hid(2026,11,28)===null&&hid(2026,12,25)==='christmas'&&hid(2026,12,27)===null&&hid(2026,10,31)==='halloween'&&hid(2026,7,4)==='fourth'&&hid(2027,1,1)==='newyear'&&hid(2026,12,31)==='newyear'&&hid(2026,2,14)==='valentine'&&hid(2026,6,15)===null);
+  X.setHolidayForce('thanks'); let hol=0,tot=0,pays=true; for(let i=0;i<60;i++) X.genParty(P.pwm).forEach(j=>{ tot++; if(j.hol){ hol++; if(j.pay<X.payFor(P.pwm,P[j.to],j.kind,X.season(),false)) pays=false; } }); T('holiday jobs turn up among the usual ones and pay more',hol>0&&hol<tot&&pays);
+  X.setHolidayForce('off'); let none=true; for(let i=0;i<30;i++) X.genParty(P.pwm).forEach(j=>{ if(j.hol) none=false; }); T('no holiday, no holiday jobs',none&&X.holidayNow()===null);
+  X.setHolidayForce(null); G.hol='christmas'; T('preview a holiday from the almanac',X.holidayNow().id==='christmas'); G.hol='off'; T('holidays can be switched off',X.holidayNow()===null);
+  X.cycleHoliday(); T('the setting cycles',G.hol==='newyear'); delete G.hol; X.setHolidayForce('off');
+  const icons=new Set([...fs.readFileSync('src/04_art.js','utf8').matchAll(/^ (\w+):\s*\[/gm)].map(m=>m[1])), looks=new Set(['hunter','skier','tourist','fisher','kid','suit','nurse','guide','sled','elder','cap','any']);
+  const lists=[[X.VIPS.p,'p'],[X.VIPS.c,'c']]; X.HOLIDAYS.forEach(h=>{ lists.push([h.jobs.p,'p'],[h.jobs.c,'c'],[h.vip.p,'p'],[h.vip.c,'c']); });
+  const badArt=[]; lists.forEach(([l,k])=>l.forEach(x=>{ const ic=x.split('|')[1]; if(!(k==='p'?looks:icons).has(ic)) badArt.push(x); })); T('every VIP and holiday job has art: '+badArt.join('; '),badArt.length===0);
+  const code2=X.exportSave(); T('save code carries the new things',!X.importSave(code2)&&(X.G.stats.vips||0)>=2&&X.logCount('vip')>=1);
 }
 console.log('rules ok',ok,'failed',bad);

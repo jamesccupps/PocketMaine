@@ -116,6 +116,8 @@ function drawMap(now, ui) {
     x.fillStyle = st.open ? (p.size >= 3 ? '#ffd23f' : '#fff3d6') : '#7d8794'; x.fillRect(sx - r, sy - r, r * 2 + 1, r * 2 + 1);
     if (st.open) { x.fillStyle = '#c8402f'; x.fillRect(sx - r + 1, sy - r + 1, r * 2 - 1, r * 2 - 1); x.fillStyle = '#fff3d6'; x.fillRect(sx, sy, 1, 1); } else { x.fillStyle = '#4c5562'; x.fillRect(sx - r + 1, sy - r + 1, r * 2 - 1, r * 2 - 1); }
     { const ev = evActive(); if (ev && ev.port === p.id && st.open) { const yy = sy - r - 7 - (Math.floor(t * 3) % 2); x.fillStyle = '#14273d'; x.fillRect(sx - 3, yy - 1, 7, 5); x.fillRect(sx - 1, yy - 3, 3, 9); x.fillStyle = '#ffd23f'; x.fillRect(sx - 2, yy, 5, 3); x.fillRect(sx, yy - 2, 1, 7); } }
+    { const ev = evActive(); if (ev && ev.ship && ev.port === p.id && st.open) { const q = shipSpot(p), sp = SPR[ev.ship === 'cruise' ? 'cruise' : 'freighter']; if (q) x.drawImage(sp, wx2s(q[0]) - 12, wy2s(q[1]) - 5 + (Math.sin(t * 1.4) > 0 ? 0 : 1)); } }
+    if (st.open && vipAt(p.id)) { const xx = sx + r + 2, yy = sy - r - 8 + (Math.floor(t * 3) % 2); x.fillStyle = '#14273d'; x.fillRect(xx - 1, yy - 1, 7, 6); x.fillStyle = '#ffd23f'; x.fillRect(xx + 2, yy, 1, 1); x.fillRect(xx, yy + 1, 5, 1); x.fillRect(xx + 1, yy + 2, 3, 1); x.fillRect(xx + 1, yy + 3, 1, 1); x.fillRect(xx + 3, yy + 3, 1, 1); }
     if (p.yard) { x.fillStyle = '#ffd23f'; x.fillRect(sx - r - 1, sy - r - 1, 2, 2); x.fillRect(sx + r, sy - r - 1, 2, 2); x.fillRect(sx - r - 1, sy + r, 2, 2); x.fillRect(sx + r, sy + r, 2, 2); }
     if (reach === true) ring(x, sx, sy, 6 + (((t * 3) | 0) % 2), '#7dff8a'); else if (reach && ui.stops.indexOf(p.id) < 0 && st.open) { x.fillStyle = '#ff6a5a'; x.fillRect(sx - 4, sy - r - 4, 1, 1); x.fillRect(sx - 3, sy - r - 3, 1, 1); x.fillRect(sx - 2, sy - r - 4, 1, 1); x.fillRect(sx - 4, sy - r - 2, 1, 1); x.fillRect(sx - 2, sy - r - 2, 1, 1); }
     const flash = ui.flash && ui.flash[p.id] && ui.stops.indexOf(p.id) < 0;
@@ -162,6 +164,7 @@ function drawMap(now, ui) {
   if (night > 0.4) G.crafts.forEach(c => { if (c.state === 'move' && ((t * 2 + c.id) | 0) % 2) { x.fillStyle = CRAFT_BY[c.type].cls === 'plane' ? '#ff5a4a' : '#7dff8a'; x.fillRect(c.hx, c.hy - 2, 1, 1); } });
   relabel.forEach(l => drawText(x, l[0], l[1], l[2], l[3], '#14273d'));
   drawWeather(x, t);
+  { const hd = holidayNow(); if (hd) drawHolidayFx(x, bw, bh, t, hd.fx, night, 18); }
   // money popups
   for (let i = VIEW.popups.length - 1; i >= 0; i--) { const p = VIEW.popups[i]; p.t += 1 / 60; if (p.t > 2.2) { VIEW.popups.splice(i, 1); continue; } const sx = wx2s(p.x) - textWidth(p.text) / 2, sy = wy2s(p.y) - 12 - p.t * 9; drawText(x, p.text, Math.round(sx), Math.round(sy), p.color, '#14273d'); }
 }
@@ -222,6 +225,7 @@ function drawScene(x, port, craft, now) {
     else { const m1 = s === WINTER ? '#c9d6e2' : '#6f8fa8', m2 = s === WINTER ? '#e4ecf2' : s === FALL ? '#9a7f44' : '#4f8050'; const woods = has(port, 'woods') || has(port, 'ski');
       for (let i = 0; i < W; i++) { const hh = (woods ? 10 : 4) + Math.round(vnoise(i / 26 + port.x, 2) * (woods ? 22 : 8)); x.fillStyle = m1; x.fillRect(i, HOR - hh, 1, hh + 14); if (woods && hh > 24) { x.fillStyle = '#ffffff'; x.fillRect(i, HOR - hh, 1, s === SUMMER ? 1 : 3); } }
       for (let i = 0; i < W; i++) { const hh = 2 + Math.round(vnoise(i / 14 + port.y, 6) * 9); x.fillStyle = m2; x.fillRect(i, HOR + 4 - hh, 1, hh + 10); } }
+    { const ev = evActive(); if (ev && ev.ship && ev.port === port.id && coastal) drawBigShip(x, ev.ship, 112, GND - 3, night, t); }
     // ground
     x.fillStyle = grass; x.fillRect(0, GND, W, H - GND); x.fillStyle = grassD; for (let i = 0; i < 40; i++) x.fillRect((hash2(i, 51) * W) | 0, GND + 1 + ((hash2(i, 52) * (H - GND - 2)) | 0), 2, 1);
     const waterX = (coastal || lake) ? (port.strip ? 112 : 70) : W + 1;
@@ -247,6 +251,7 @@ function drawScene(x, port, craft, now) {
       x.fillStyle = grass; x.fillRect(waterX - 3, GND - 2, 3, 3); x.fillStyle = '#8a8f98'; x.fillRect(waterX - 1, GND, 2, H - GND);
       x.fillStyle = '#7a5a38'; x.fillRect(waterX - 4, GND + 5, 30, 2); x.fillStyle = '#4a3422'; for (let i = 0; i < 4; i++) x.fillRect(waterX + 2 + i * 7, GND + 7, 1, 6);
       if (coastal && !island && has(port, 'coast')) { const lx = W - 10; x.fillStyle = '#6a6f78'; x.fillRect(lx - 5, HOR - 3, 12, 3); x.fillStyle = '#ffffff'; x.fillRect(lx - 1, HOR - 14, 4, 11); x.fillStyle = '#c8402f'; x.fillRect(lx - 1, HOR - 16, 4, 2); x.fillStyle = (night > 0.3 && ((t * 1.5) | 0) % 2) ? '#fff3a8' : '#1b1b24'; x.fillRect(lx, HOR - 15, 2, 1); } }
+    { const hd = holidayNow(); if (hd && G.ports[port.id].open) drawHolidayDeco(x, hd.deco, waterX, GND, t, night); }
     // cargo waiting on the ground, people milling about
     const st = G.ports[port.id];
     if (st.open) { const all = st.jobs.concat(st.lay), cargo = all.filter(j => j.kind === 'c').slice(0, 9), pax = all.filter(j => j.kind === 'p').slice(0, 8), cx0 = port.strip ? 28 : 54;
@@ -266,5 +271,57 @@ function drawScene(x, port, craft, now) {
   if (wx.storm) { x.fillStyle = '#b8d4ee'; for (let i = 0; i < 70; i++) { const ph = (t * 90 + hash2(i, 71) * 80) % (H + 10); x.fillRect(((hash2(i, 72) * (W + 30)) | 0) - ((ph * 0.4) | 0), ph | 0, 1, 3); } if (hash2((t * 2) | 0, 5) < 0.08) { x.globalAlpha = 0.5; x.fillStyle = '#ffffff'; x.fillRect(0, 0, W, H); x.globalAlpha = 1; } }
   if (wx.snow || (s === WINTER && wx.storm)) { x.fillStyle = '#ffffff'; for (let i = 0; i < 60; i++) { const ph = (t * 14 + hash2(i, 81) * 80) % (H + 4); x.fillRect(((hash2(i, 82) * W + Math.sin(t + i) * 3) | 0), ph | 0, 1, 1); } }
   if (wx.fog) { for (let b = 0; b < 5; b++) { x.globalAlpha = 0.34 + b * 0.05; x.fillStyle = night > 0.5 ? '#6a7890' : '#eef3f6'; const off = Math.sin(t * 0.3 + b) * 8; for (let i = -1; i < 5; i++) x.fillRect((i * 50 + off + b * 13) | 0, 14 + b * 10, 38, 6); } x.globalAlpha = 1; }
+  { const hd = holidayNow(); if (hd) drawHolidayFx(x, W, H, t, hd.fx, night, 14); }
   if (night > 0 && !travel) { x.globalAlpha = 0.28 * night; x.fillStyle = '#081430'; x.fillRect(0, GND - 30, W, H); x.globalAlpha = 1; }
+}
+
+/* ---------- ship calls and holiday dressing ---------- */
+// where a visiting ship lies off a port: out along the longest run of open water from the dock
+function shipSpot(p) { if (p.shipAt !== undefined) return p.shipAt; const o = p.dock || [p.x, p.y]; let best = null, bs = 0;
+  for (let a = 0; a < 16; a++) { const dx = Math.cos(a * Math.PI / 8), dy = Math.sin(a * Math.PI / 8); let run = 0; for (let d = 2; d <= 14; d++) { if (isSea(o[0] + dx * d, o[1] + dy * d)) run++; else break; } if (run > bs) { bs = run; const far = Math.min(12, 4 + run * 0.6); best = [o[0] + dx * far, o[1] + dy * far]; } }
+  return (p.shipAt = best); }
+function drawBigShip(x, kind, px, wl, night, t) {
+  const lit = night > 0.4 ? '#ffd86a' : '#2b4666';
+  if (kind === 'cruise') {
+    x.fillStyle = '#f4f6f8'; x.fillRect(px + 2, wl - 5, 50, 5); x.fillRect(px, wl - 5, 2, 3); x.fillRect(px + 52, wl - 5, 2, 4);
+    x.fillStyle = '#1f3f78'; x.fillRect(px + 1, wl - 2, 52, 1); x.fillStyle = '#8f2a22'; x.fillRect(px + 3, wl - 1, 48, 1);
+    x.fillStyle = '#ffffff'; x.fillRect(px + 8, wl - 8, 38, 3); x.fillRect(px + 12, wl - 11, 30, 3); x.fillRect(px + 18, wl - 13, 18, 2);
+    x.fillStyle = lit; for (let i = 0; i < 12; i++) { x.fillRect(px + 9 + i * 3, wl - 7, 2, 1); if (i > 0 && i < 10) x.fillRect(px + 13 + (i - 1) * 3, wl - 10, 2, 1); x.fillRect(px + 5 + i * 4, wl - 4, 1, 1); }
+    x.fillStyle = '#f2c230'; x.fillRect(px + 30, wl - 17, 5, 4); x.fillStyle = '#1f3f78'; x.fillRect(px + 30, wl - 18, 5, 1);
+    x.fillStyle = '#dfe7ee'; for (let i = 0; i < 3; i++) x.fillRect(px + 34 + i * 3 + ((t * 2) | 0) % 2, wl - 20 - i * 2, 3, 1);
+  } else {
+    x.fillStyle = '#8f2a22'; x.fillRect(px + 1, wl - 5, 52, 4); x.fillRect(px, wl - 5, 2, 2); x.fillStyle = '#1b1b24'; x.fillRect(px + 2, wl - 1, 50, 1);
+    const cols = ['#c8402f', '#3f7fc8', '#f2c230', '#3f8f3a', '#e08a2c', '#d3d8dd'];
+    for (let i = 0; i < 8; i++) for (let k = 0; k < 2 + (i % 3 === 1 ? 1 : 0); k++) { x.fillStyle = cols[(i * 2 + k * 3) % cols.length]; x.fillRect(px + 3 + i * 5, wl - 8 - k * 3, 4, 2); }
+    x.fillStyle = '#f4f6f8'; x.fillRect(px + 44, wl - 13, 7, 8); x.fillStyle = lit; x.fillRect(px + 45, wl - 12, 5, 1); x.fillRect(px + 45, wl - 9, 5, 1);
+    x.fillStyle = '#1b1b24'; x.fillRect(px + 47, wl - 17, 1, 4); x.fillStyle = '#f2c230'; x.fillRect(px + 48, wl - 16, 2, 2);
+  }
+}
+function drawHolidayDeco(x, deco, waterX, GND, t, night) {
+  const xb = Math.min(waterX, SCENE_W) - 8, base = xb - 20, y0 = GND - 20;
+  const pumpkin = (px, py, face) => { x.fillStyle = '#e07a1c'; x.fillRect(px, py - 3, 5, 3); x.fillRect(px + 1, py - 4, 3, 1); x.fillStyle = '#3f8f3a'; x.fillRect(px + 2, py - 5, 1, 1);
+    if (face) { x.fillStyle = night > 0.4 ? '#fff0a0' : '#1b1b24'; x.fillRect(px + 1, py - 3, 1, 1); x.fillRect(px + 3, py - 3, 1, 1); x.fillRect(px + 1, py - 1, 3, 1); } else { x.fillStyle = '#b85a12'; x.fillRect(px + 2, py - 3, 1, 3); } };
+  const string = (cols, flags) => { for (let px = 3; px <= xb; px++) { const yy = y0 + Math.round(5 * Math.sin(Math.PI * (px - 3) / (xb - 3))), i = (px - 3) >> 2; x.fillStyle = '#1b1b24'; x.fillRect(px, yy, 1, 1); if ((px - 3) % 4) continue;
+      x.fillStyle = cols[i % cols.length]; if (flags) { x.fillRect(px, yy + 1, 3, 1); x.fillRect(px + 1, yy + 2, 1, 1); } else if (((t * 2 + i) | 0) % 4) x.fillRect(px, yy + 1, 2, 2); }
+    x.fillStyle = '#1b1b24'; x.fillRect(3, y0, 1, GND - y0); x.fillRect(xb, y0, 1, GND - y0); };
+  if (deco === 'pumpkins') { pumpkin(base, GND + 3, 1); pumpkin(base + 7, GND + 4, 1); pumpkin(base + 14, GND + 3, 1); }
+  else if (deco === 'harvest') { x.fillStyle = '#d9b54a'; x.fillRect(base + 12, GND - 2, 8, 5); x.fillStyle = '#a8842a'; x.fillRect(base + 12, GND, 8, 1); x.fillRect(base + 15, GND - 2, 1, 5); pumpkin(base, GND + 3, 0); pumpkin(base + 6, GND + 4, 0);
+    x.fillStyle = '#c9a04a'; for (let r = 0; r < 7; r++) x.fillRect(base - 7 - (r >> 1), GND - 5 + r, 2 + r, 1); x.fillStyle = '#8a5a34'; x.fillRect(base - 6, GND - 2, 3, 1); }
+  else if (deco === 'lights') { string(['#ff4a3a', '#3fd05a', '#ffd23f', '#4fa0ff'], false); const tx = base + 10; drawPine(x, tx, GND + 3, 10, '#2f6d37', false);
+    [[0, -3, '#ff4a3a'], [-2, -5, '#ffd23f'], [1, -6, '#4fa0ff'], [-1, -8, '#ff4a3a'], [2, -2, '#ffd23f']].forEach((o, i) => { if (((t * 2 + i) | 0) % 3) { x.fillStyle = o[2]; x.fillRect(tx + o[0], GND + 3 + o[1], 1, 1); } }); x.fillStyle = '#ffe36a'; x.fillRect(tx, GND - 8, 1, 2); x.fillRect(tx - 1, GND - 7, 3, 1); }
+  else if (deco === 'flags') string(['#d8402f', '#ffffff', '#3f7fc8'], true);
+  else if (deco === 'pink') string(['#ff7aa8', '#ffffff', '#d8402f'], true);
+  else if (deco === 'gold') string(['#ffd23f', '#ffffff'], false);
+}
+function drawHolidayFx(x, W, H, t, fx, night, n) {
+  if (fx === 'bats' && night <= 0.3) fx = 'leaves';
+  if (fx === 'fireworks') { if (night <= 0.3) return; const pal = ['#ff6a5a', '#ffe36a', '#7dff8a', '#8fd8ee', '#ff9ad0'];
+    for (let b = 0; b < 3; b++) { const cyc = t / 2.6 + hash2(b, 97) * 5, k = Math.floor(cyc), ph = cyc - k, cx = hash2(k, 98 + b) * W, cy = (0.08 + hash2(k, 109 + b) * 0.42) * H, rr = 2 + ph * 9; if (ph > 0.85) continue; x.fillStyle = pal[(k + b) % pal.length];
+      for (let a = 0; a < 10; a++) if (ph < 0.55 || a % 2) x.fillRect((cx + Math.cos(a * 0.628) * rr) | 0, (cy + Math.sin(a * 0.628) * rr + ph * ph * 4) | 0, 1, 1); } return; }
+  if (fx === 'bats') { x.fillStyle = '#c9a8f0'; for (let i = 0; i < Math.ceil(n / 3); i++) { const px = ((((hash2(i, 94) * W + t * (9 + hash2(i, 95) * 8)) % (W + 10)) + W + 10) % (W + 10) | 0) - 5, py = (2 + hash2(i, 96) * H * 0.55 + Math.sin(t * 2 + i) * 4) | 0, f = ((t * 6 + i) | 0) % 2 ? 1 : -1;
+      x.fillRect(px - 1, py, 3, 1); x.fillRect(px - 2, py + f, 1, 1); x.fillRect(px + 2, py + f, 1, 1); } return; }
+  const cols = fx === 'leaves' ? ['#d9812b', '#bf452c', '#e3b535'] : fx === 'snow' ? ['#ffffff', '#dfeaf2'] : fx === 'hearts' ? ['#ff7aa8', '#ff9ac0'] : ['#ff6a5a', '#ffe36a', '#7dff8a', '#8fd8ee'];
+  const sp = fx === 'snow' ? 8 : fx === 'hearts' ? -5 : 11, span = H + 8;
+  for (let i = 0; i < n; i++) { const py = ((((t * sp * (0.7 + hash2(i, 91) * 0.6) + hash2(i, 92) * span) % span) + span) % span | 0) - 4, px = ((((hash2(i, 93) * W + Math.sin(t * 1.3 + i) * 5 + (fx === 'leaves' ? py * 0.5 : 0)) % W) + W) % W) | 0;
+    x.fillStyle = cols[i % cols.length]; if (fx === 'hearts') { x.fillRect(px, py, 1, 1); x.fillRect(px + 2, py, 1, 1); x.fillRect(px, py + 1, 3, 1); x.fillRect(px + 1, py + 2, 1, 1); } else x.fillRect(px, py, fx === 'leaves' && i % 2 ? 2 : 1, 1); }
 }

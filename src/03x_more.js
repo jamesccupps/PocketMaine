@@ -3,7 +3,8 @@
    Each feature stays out of sight until its level, so the early game is just load, send, collect. */
 const FEATURES = [
   { id: 'names',  lvl: 2, name: 'Names & paint',   where: 'CRAFT tab',              desc: 'Rename any craft and repaint it.' },
-  { id: 'events', lvl: 3, name: 'Events',          where: 'the news and the map',   desc: 'Festivals, harvests and urgent medical runs pay extra for a day or two.' },
+  { id: 'vip',    lvl: 2, name: 'VIPs & special freight', where: 'gold jobs on the board, a gold star on the map', desc: 'Now and then somebody important, or something precious, needs a ride. A VIP pays about triple and brings a reward: a big tip, XP, a parts crate or a good word at both ports. They wait eight minutes.' },
+  { id: 'events', lvl: 3, name: 'Events',          where: 'the news and the map',   desc: 'Festivals, harvests, cruise ships and freighters in port, fuel price wars and urgent medical runs: something is on for two days at a time.' },
   { id: 'wear',   lvl: 4, name: 'Wear & overhaul', where: 'CRAFT tab, at a yard',   desc: 'Craft wear with use. A worn one runs slow until a hangar or boatyard overhauls it, for coins or a spare part.' },
   { id: 'catch',  lvl: 5, name: 'Catch & traps',   where: 'FISHING tab',            desc: 'Boats keep the catch aboard, so you can sell it where the price is best. Lobster boats can set trap strings and haul them.' },
   { id: 'crew',   lvl: 6, name: 'Crew',            where: 'CRAFT tab',              desc: 'Hire a hand for a craft. Each brings one skill: fog flying, bigger catches, less wear, speed, fares or fuel.' },
@@ -52,18 +53,34 @@ const EVENTS = [
   { id: 'maple',   s: SPRING, port: 'lew', kind: 'c', mult: 1.5, name: 'Maple Sunday',      blurb: 'Syrup going out by the case.', from: 1 },
   { id: 'fiddle',  s: SPRING, port: 'bgr', kind: 'c', mult: 1.5, name: 'Fiddlehead season', blurb: 'Bangor wants them by the crate.' },
   { id: 'smelt',   s: SPRING, port: 'epm', kind: 'c', mult: 1.5, name: 'Smelt run',         blurb: 'Eastport is shipping fish.', from: 1 },
-  { id: 'boats',   s: SPRING, port: 'sto', kind: 'c', mult: 1.5, name: 'Launching week',    blurb: 'Stonington yards want gear and paint.' }
+  { id: 'boats',   s: SPRING, port: 'sto', kind: 'c', mult: 1.5, name: 'Launching week',    blurb: 'Stonington yards want gear and paint.' },
+  { id: 'cruise',    ss: [SUMMER, FALL], ports: ['pwm', 'bhb', 'rkd', 'bbh', 'epm'], kind: 'p', mult: 1.5, from: 1, ship: 'cruise', name: 'Cruise ship in port', blurb: 'Two thousand people came down the gangway and every one of them wants to see something.' },
+  { id: 'freighter', ports: ['pwm', 'epm', 'rkd'], kind: 'c', mult: 1.5, from: 1, ship: 'cargo', name: 'Freighter unloading', blurb: 'A ship is alongside and the wharf is stacked with freight for everywhere.' },
+  { id: 'supper',    any: 1, kind: 'p', mult: 1.4, name: 'Bean supper', blurb: 'Baked beans, brown bread and half the county.' },
+  { id: 'wedding',   any: 1, ss: [SPRING, SUMMER, FALL], kind: 'p', mult: 1.5, name: 'Wedding weekend', blurb: 'Two families and a band, all headed the same way.' },
+  { id: 'yardsale',  any: 1, ss: [SPRING, SUMMER, FALL], kind: 'c', mult: 1.4, from: 1, name: 'Town-wide yard sale', blurb: 'Somebody bought it and now it has to get home.' },
+  { id: 'fuelwar',   glob: 'fuel', name: 'Fuel price war', blurb: 'Two dealers are undercutting each other.', text: 'Fuel is 30% off everywhere.' },
+  { id: 'swapmeet',  glob: 'swap', name: 'Parts swap meet', blurb: 'Every yard has its spares out on tables.', text: 'Parts on every hangar and boatyard shelf are 40% off.' },
+  { id: 'fishrun',   glob: 'fish', ss: [SPRING, SUMMER, FALL], name: 'The fish are running', blurb: 'Everybody with a boat is out.', text: 'Catches are half again as big.' }
 ];
 function evActive() { return G.ev && G.t < G.ev.until ? G.ev : null; }
 function eventMult(o, d, kind) { const e = evActive(); return e && e.kind === kind && (e.from ? o.id : d.id) === e.port ? e.mult : 1; }
 function eventPull(o, p, kind) { const e = evActive(); return e && e.kind === kind && !e.from && p.id === e.port ? 3 : 1; }
-function seedEvent() { const e = G.ev, P = PORT_BY[e.port], s = season();
+const evGlob = k => { const e = evActive(); return !!e && e.glob === k; };
+function evText(e) { return e.text || ((e.kind === 'p' ? 'Passengers' : 'Freight') + (e.from ? ' out of ' : ' bound for ') + PORT_BY[e.port].name + ' pay ' + Math.round((e.mult - 1) * 100) + '% more.'); }
+function shelfPrice(it) { return evGlob('swap') ? Math.max(25, Math.round(it.price * 0.6 / 25) * 25) : it.price; }
+function seedEvent() { const e = G.ev; if (!e.port) return; const P = PORT_BY[e.port], s = season();
   PORTS.forEach(o => { const st = G.ports[o.id]; if (!st.open || (e.from ? o.id !== e.port : o.id === e.port)) return;
     const dests = e.from ? PORTS.filter(d => d.id !== o.id && G.ports[d.id].open) : [P]; if (!dests.length) return;
-    for (let k = 0; k < (e.from ? 3 : 1); k++) { const d = pick(dests), n = 2 + ((Math.random() * 3) | 0), fl = jobFlavor(e.kind, o, d, s), pay = payFor(o, d, e.kind, s, false);
+    for (let k = 0; k < (e.from ? (e.ship ? 5 : 3) : 1); k++) { const d = pick(dests), n = 2 + ((Math.random() * 3) | 0), fl = jobFlavor(e.kind, o, d, s), pay = payFor(o, d, e.kind, s, false);
       for (let i = 0; i < n; i++) st.jobs.unshift({ id: G.nextId++, from: o.id, to: d.id, kind: e.kind, pay, label: fl[0], ic: fl[1], ev: 1 }); } }); SIM.dirty = true; }
-function startEvent(e) { G.ev = { id: e.id, name: e.name, port: e.port, kind: e.kind, mult: e.mult, from: !!e.from, until: G.t + DAY_LEN * 2 }; seedEvent();
-  news(e.name + ' at ' + PORT_BY[e.port].name + '. ' + e.blurb + ' ' + (e.kind === 'p' ? 'Passengers' : 'Freight') + (e.from ? ' out of there pay ' : ' bound there pay ') + Math.round((e.mult - 1) * 100) + '% more for two days.', 'good'); emit('event', { start: true, port: e.port, name: e.name }); }
+function startEvent(e, port) { if (port === undefined) port = e.port || null;
+  G.ev = { id: e.id, name: e.name, port: port || null, kind: e.kind || null, mult: e.mult || 1, from: !!e.from, ship: e.ship || null, glob: e.glob || null, until: G.t + DAY_LEN * 2 }; G.ev.text = evText(e.text ? e : G.ev); seedEvent();
+  news(e.name + (port ? ' at ' + PORT_BY[port].name : '') + '. ' + e.blurb + ' ' + G.ev.text + ' Two days.', 'good'); emit('event', { start: true, port: port || null, name: e.name, text: G.ev.text }); }
+// what could happen today: the season's events at ports you serve, ship calls at harbors you serve, and the statewide ones
+function eventChoices() { const s = season(), out = []; EVENTS.forEach(e => { const ss = e.ss || (e.s !== undefined ? [e.s] : null); if (ss && ss.indexOf(s) < 0) return;
+  if (e.glob) { out.push([e, null]); return; } const ports = (e.any ? PORTS.map(p => p.id) : e.ports || [e.port]).filter(id => G.ports[id].open); if (ports.length) out.push([e, pick(ports)]); }); return out; }
+function startRandomEvent() { const c = eventChoices(); if (!c.length) return false; const x = pick(c); startEvent(x[0], x[1]); return true; }
 function urgentRun() { const open = PORTS.filter(p => G.ports[p.id].open); if (open.length < 2) return null; const far = open.filter(p => has(p, 'island') || has(p, 'remote')), from = pick(far.length ? far : open);
   const to = open.filter(p => p.id !== from.id).sort((a, b) => b.size - a.size)[0], s = season(), fl = jobFlavor('p', from, to, s);
   const j = { id: G.nextId++, from: from.id, to: to.id, kind: 'p', pay: payFor(from, to, 'p', s, false) * 3, label: 'Medical run: a patient for ' + to.name, ic: fl[1], urgent: G.t + 300 };
@@ -71,7 +88,7 @@ function urgentRun() { const open = PORTS.filter(p => G.ports[p.id].open); if (o
 function expireUrgent() { PORTS.forEach(p => { const st = G.ports[p.id]; if (!st.open) return; for (let i = st.jobs.length - 1; i >= 0; i--) if (st.jobs[i].urgent && G.t > st.jobs[i].urgent) { st.jobs.splice(i, 1); SIM.dirty = true; } }); }
 function rollEvent() { if (!feat('events')) return;
   if (G.ev && G.t >= G.ev.until) { news(G.ev.name + ' is over.', 'idle'); G.ev = null; emit('event', {}); }
-  if (!G.ev && portsOwned() > 1 && Math.random() < 0.55) { const s = season(), c = EVENTS.filter(e => e.s === s && G.ports[e.port].open); if (c.length) startEvent(pick(c)); }
+  if (!G.ev && portsOwned() > 1 && Math.random() < 0.6) startRandomEvent();
   if (Math.random() < 0.4) urgentRun(); }
 
 /* ---------- catch & traps ---------- */
