@@ -6,11 +6,14 @@ const FEATURES = [
   { id: 'vip',    lvl: 2, name: 'VIPs & special freight', where: 'gold jobs on the board, a gold star on the map', desc: 'Now and then somebody important, or something precious, needs a ride. A VIP pays about triple and brings a reward: a big tip, XP, a parts crate or a good word at both ports. They wait eight minutes. Some are particular, and want no stops, a daylight landing or a craft in good repair.' },
   { id: 'events', lvl: 3, name: 'Events',          where: 'the news and the map',   desc: 'Festivals, harvests, cruise ships and freighters in port, fuel price wars and urgent medical runs: something is on for two days at a time.' },
   { id: 'reg1',   lvl: 4, name: 'New Hampshire & Vermont', where: 'the map, west of Maine', desc: 'Ports across the state line can be opened now: Portsmouth, Manchester, the White Mountains, Burlington on Lake Champlain and the rest.' },
+  { id: 'trade',  lvl: 3, name: 'Goods & requests', where: 'the bottom of a port\'s job board', desc: 'Buy goods where they are made and sell them where they are wanted: they fill whatever cargo room the jobs leave. Prices move as you buy and sell. Ports ask for goods now and then, and remember who brought them.' },
   { id: 'wear',   lvl: 4, name: 'Wear & overhaul', where: 'CRAFT tab, at a yard',   desc: 'Craft wear with use. A worn one runs slow until a hangar or boatyard overhauls it, for coins or a spare part.' },
   { id: 'catch',  lvl: 5, name: 'Catch & traps',   where: 'FISHING tab',            desc: 'Boats keep the catch aboard, so you can sell it where the price is best. Lobster boats can set trap strings and haul them.' },
+  { id: 'fits',   lvl: 5, name: 'Fits', where: 'CRAFT tab, GEAR, at a yard', desc: 'Set a craft up for one thing: long range, speed, thrift or freight. Each gives something up, and a craft takes one at a time.' },
   { id: 'reg2',   lvl: 6, name: 'Southern New England', where: 'the map, south of Portsmouth', desc: 'Boston, the Cape and the islands, Providence, Newport and the Connecticut shore can be opened now. A boat can follow the coast the whole way.' },
   { id: 'crew',   lvl: 6, name: 'Crew',            where: 'CRAFT tab',              desc: 'Hire a hand for a craft. Each brings one skill: fog flying, bigger catches, less wear, speed, fares or fuel.' },
   { id: 'works',  lvl: 7, name: 'Port works',      where: 'a port\'s TOWN section', desc: 'Build a fuel dock, a lobster pound or an inn at any port you serve.' },
+  { id: 'rival',  lvl: 7, name: 'A rival', where: 'RIVAL tags on the job board', desc: 'Another outfit has noticed you. Now and then it claims the best load at one of your ports: load it within eighty seconds or it goes with them. They leave ports alone where your standing is high. The Almanac can switch them off.' },
   { id: 'reg3',   lvl: 8, name: 'Canada', where: 'the edges of the map', desc: 'Saint John, Yarmouth, Quebec City and Montreal can be opened now. Long hauls and big fares. Customs holds a craft for a minute each time it crosses the border.' },
   { id: 'runs',   lvl: 8, name: 'Standing runs',   where: 'CRAFT tab',              desc: 'Put a craft on a repeating run between two ports. It loads, goes and collects by itself, even while you are away.' }
 ];
@@ -165,21 +168,33 @@ function buildWork(pid, id) { if (!feat('works')) return 'Port works unlock at l
 const RUN_CUT = 0.15;      // the regular crew keeps a share, so sending a craft yourself always pays a bit better
 function runMax() { return feat('runs') ? 1 + Math.floor((G.level - FEATURE_BY.runs.lvl) / 2) : 0; }
 function runCount() { return G.crafts.filter(c => c.run).length; }
+// A run is a loop of two to four ports. The craft loads whatever is bound for any stop on its loop, and also what another run can take on
+// from a port the two share: it carries that to the shared port and leaves it there for the other craft. That is how runs feed each other.
+const RUN_STOPS = 4;
+function runStops(r) { return r.stops || (r.stops = [r.a, r.b]); }
+function runLabel(r) { return runStops(r).map(id => PORT_BY[id].name).join(' > '); }
+function runServes(c, hub, dest) { return G.crafts.some(o => o !== c && o.run && runStops(o.run).indexOf(hub) >= 0 && runStops(o.run).indexOf(dest) >= 0); }
 function setRun(c, to) { if (!feat('runs')) return 'Standing runs unlock at level ' + FEATURE_BY.runs.lvl + '.'; if (c.state !== 'dock') return 'Tie it up first.';
-  if (!c.run && runCount() >= runMax()) return 'All ' + runMax() + ' of your standing runs are in use. Levels add more.'; const li = legInfo(c, c.at, to); if (!li.ok) return 'It can\'t run there: ' + li.why + '.';
-  c.run = { a: c.at, b: to, earned: 0, trips: 0, wait: 0 }; emit('yard', {}); return null; }
+  if (c.run) { const s = runStops(c.run); if (s.indexOf(to) >= 0) return 'That port is already on the run.'; if (s.length >= RUN_STOPS) return 'A run has ' + RUN_STOPS + ' stops at most.';
+    const a = legInfo(c, s[s.length - 1], to), b = legInfo(c, to, s[0]); if (!a.ok) return 'It can\'t get there from ' + PORT_BY[s[s.length - 1]].name + ': ' + a.why + '.'; if (!b.ok) return 'It can\'t get back to ' + PORT_BY[s[0]].name + ' from there: ' + b.why + '.'; s.push(to); emit('yard', {}); return null; }
+  if (runCount() >= runMax()) return 'All ' + runMax() + ' of your standing runs are in use. Levels add more.'; const li = legInfo(c, c.at, to); if (!li.ok) return 'It can\'t run there: ' + li.why + '.';
+  c.run = { a: c.at, b: to, stops: [c.at, to], earned: 0, trips: 0, wait: 0 }; emit('yard', {}); return null; }
 function stopRun(c) { c.run = null; emit('yard', {}); return null; }
 function updateRuns(dt) { for (let n = 0; n < G.crafts.length; n++) { const c = G.crafts[n], r = c.run; if (!r) continue;
     if (c.state === 'landed') { collect(c, true); continue; } if (c.state !== 'dock') continue;
-    if (c.at !== r.a && c.at !== r.b) { news('"' + c.name + '" has left its standing run.', 'idle'); c.run = null; emit('yard', {}); continue; }
-    const other = c.at === r.a ? r.b : r.a, li = legInfo(c, c.at, other);
+    const s = runStops(r), at = s.indexOf(c.at); if (at < 0) { news('"' + c.name + '" has left its standing run.', 'idle'); c.run = null; emit('yard', {}); continue; }
+    const next = s[(at + 1) % s.length], li = legInfo(c, c.at, next);
     if (!li.ok) { news('"' + c.name + '" stopped its standing run: ' + li.why + '.', 'bad'); c.run = null; emit('yard', {}); continue; }
     // the regular crew has a tired craft overhauled when the run brings it to a yard
     if (condOf(c) < 30 && hasYard(c.at, CRAFT_BY[c.type]) && G.money >= overhaulCost(c)) { const cost = overhaulCost(c); if (!overhaul(c, false)) news('"' + c.name + '" was overhauled between runs for ' + money(cost) + '.', 'idle'); }
     r.wait = (r.wait || 0) + dt; if (r.wait < 4) continue;
-    const st = G.ports[c.at]; st.lay.concat(st.jobs).filter(j => j.to === other).sort((a, b) => b.pay - a.pay).forEach(j => { if (roomFor(c, j.kind) > 0) loadJob(c, j.id); });
-    if (!c.jobs.some(j => j.to === other)) { const back = G.ports[other]; if (!(r.wait > 45 && back.lay.concat(back.jobs).some(j => j.to === c.at))) continue; }
-    if (G.money < li.fuel) continue; r.wait = 0; r.trips++; dispatch(c, [other]); } }
+    c.jobs.filter(j => j.via === c.at).forEach(j => { if (!unloadJob(c, j.id)) delete j.via; });       // left here for the other run
+    const st = G.ports[c.at]; st.lay.concat(st.jobs).sort((a, b) => b.pay - a.pay).forEach(j => { if (roomFor(c, j.kind) < slotsOf(j)) return;
+      if (j.to !== c.at && s.indexOf(j.to) >= 0) { loadJob(c, j.id); return; }
+      if (j.lay) return; const hub = s.find(h => h !== c.at && runServes(c, h, j.to)); if (hub && !loadJob(c, j.id)) j.via = hub; });
+    const loaded = CRAFT_BY[c.type].tour || c.jobs.some(j => j.via || s.indexOf(j.to) >= 0);
+    if (!loaded && !(r.wait > 45 && s.some(o => o !== c.at && G.ports[o].lay.concat(G.ports[o].jobs).some(j => j.to !== o && s.indexOf(j.to) >= 0)))) continue;
+    if (G.money < li.fuel) continue; r.wait = 0; r.trips++; dispatch(c, [next]); } }
 
 /* ---------- save codes: carry a game between a phone and a desktop ---------- */
 function exportSave() { G.wall = Date.now(); return btoa(unescape(encodeURIComponent(JSON.stringify(G)))); }
