@@ -73,7 +73,7 @@ function htmlAlmanac() {
   return h;
 }
 function craftProgress(c) { if (c.state === 'move') return c.route.pos / c.route.len; if (c.state === 'fish') return c.fishT / c.fishDur; return 0; }
-function craftRemaining(c) { if (c.state === 'move') return (c.route.len - c.route.pos) / cstat(c).speed; if (c.state === 'fish') return c.fishDur - c.fishT; return 0; }
+function craftRemaining(c) { if (c.state === 'move') return (c.route.len - c.route.pos) / cstat(c).speed + Math.max(0, c.route.cust || 0); if (c.state === 'fish') return c.fishDur - c.fishT; return 0; }
 function showNews(n) { const t = $('tmsg'), inner = $('tmi'); inner.textContent = n.msg; inner.className = ''; t.className = 'in ' + (n.kind || ''); void t.offsetWidth;
   const over = inner.scrollWidth - t.clientWidth; if (over > 4) { inner.style.setProperty('--ov', -(over + 12) + 'px'); inner.style.setProperty('--d', Math.max(5, over / 28).toFixed(1) + 's'); inner.className = 'scroll'; }
   let h = 0; for (let i = 0; i < n.msg.length; i++) h = (h * 31 + n.msg.charCodeAt(i)) | 0;
@@ -393,6 +393,7 @@ function shopHTML(pid) { const port = PORT_BY[pid], free = G.slots - G.crafts.le
 function condTags(p) { const s = season(), w = wxAt(p.x, p.y), conds = []; if (w.fog) conds.push('FOG'); if (w.storm) conds.push(s === WINTER ? 'NOR\'EASTER' : 'STORM'); if (w.snow) conds.push('SNOW SQUALL'); if (p.water === 'lake' && s === WINTER) conds.push('LAKE FROZEN'); if (p.strip === 1 && s === SPRING) conds.push('MUD: STRIP CLOSED');
   return conds.map(c => '<span class="tag org">' + c + '</span>').join(' '); }
 function leftLocked(pid) { const p = PORT_BY[pid], cost = portCost(pid);
+  if (p.lvl && G.level < p.lvl) return '<div class="card" style="margin-top:0"><b class="sk" style="font-size:16px">OPENS AT LEVEL ' + p.lvl + '</b><div class="sub" style="margin:5px 0 0">' + esc(p.reg) + ' opens up at level ' + p.lvl + '. You are level ' + G.level + '. It will cost ' + money(cost) + '.</div></div>';
   return '<div class="card" style="margin-top:0"><b class="sk" style="font-size:16px">OPEN THIS PORT</b><div class="sub" style="margin:5px 0 10px">Jobs start flowing to and from here. Each port you own makes the next one dearer.</div><button class="btn big go" style="width:100%" data-act="unlock" data-arg="' + pid + '"' + (G.money >= cost ? '' : ' disabled') + '>OPEN FOR ' + money(cost) + '</button>' + (G.money >= cost ? '' : '<div class="sub" style="margin-top:8px">You need ' + money(cost - G.money) + ' more.</div>') + '</div>'; }
 function tabPort(pid) {
   const p = PORT_BY[pid], st = G.ports[pid]; let h = '<div class="sub">' + esc(p.blurb) + '</div>'; const ct = condTags(p); if (ct) h += '<div style="margin-top:8px">' + ct + '</div>';

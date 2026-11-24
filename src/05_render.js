@@ -4,7 +4,7 @@
    (image-rendering: pixelated), so one buffer pixel = S screen pixels.
    ===================================================================== */
 const ZOOMS = [0.75, 1, 1.5, 2, 3, 4, 6];   // km to buffer pixels. 4 and 6 are the 2 and 3 maps drawn double size.
-const VIEW = { S: 2, bw: 320, bh: 200, zi: 3, cx: 215, cy: 400, canvas: null, x: null, follow: null, popups: [], season: -1 };
+const VIEW = { S: 2, bw: 320, bh: 200, zi: 3, cx: 340, cy: 400, canvas: null, x: null, follow: null, popups: [], season: -1 };
 const levelCache = {};
 function levelCanvas(k, s) {
   let L = levelCache[k]; if (!L) L = levelCache[k] = { raster: k === 1 ? NAV.raster : rasterize(k), s: -1, canvas: null };
@@ -156,6 +156,7 @@ function drawMap(now, ui) {
     if (isSel) x.drawImage(face === 'r' ? sp.selR : sp.selL, dx - 1, dy - 1); else x.drawImage(sp[face], dx, dy);
     c.hx = sx; c.hy = dy + (sp.h >> 1);
     if (c.state === 'fish') { drawText(x, 'FISHING', sx - 13, dy - 7, '#ffe36a', '#14273d'); const f = clamp(c.fishT / c.fishDur, 0, 1); x.fillStyle = '#14273d'; x.fillRect(sx - 9, dy - 1, 18, 3); x.fillStyle = '#7dff8a'; x.fillRect(sx - 8, dy, Math.round(16 * f), 1); }
+    else if (c.state === 'move' && c.route && c.route.cust > 0 && c.route.pos >= c.route.len) { drawText(x, 'CUSTOMS', sx - 13, dy - 7, '#ffe36a', '#14273d'); }
     else if (c.state === 'hold' && c.holdWhy !== 'turnaround') { if (((t * 2) | 0) % 2) drawText(x, 'HOLD', sx - 7, dy - 7, '#ff9a6a', '#14273d'); }
     else if (c.state === 'landed') { const by = dy - 11 - ((t * 4 + c.id) | 0) % 2; x.fillStyle = '#14273d'; x.fillRect(sx - 5, by - 1, 10, 10); x.fillStyle = '#3f8f3a'; x.fillRect(sx - 4, by, 8, 8); x.drawImage(ICON.coin, sx - 4, by); }
     else if (false) { const by = dy - 10 - ((t * 3 + c.id) | 0) % 2; x.fillStyle = '#14273d'; x.fillRect(sx - 3, by - 1, 7, 9); x.fillRect(sx - 1, by + 8, 3, 1); x.fillStyle = '#ffd23f'; x.fillRect(sx - 2, by, 5, 7); x.fillRect(sx, by + 7, 1, 1); x.fillStyle = '#14273d'; x.fillRect(sx, by + 1, 1, 3); x.fillRect(sx, by + 5, 1, 1); }

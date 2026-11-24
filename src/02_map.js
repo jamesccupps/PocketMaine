@@ -36,17 +36,21 @@ const GEOM = (function () {
   const coast = roughen(pairs(COAST_ME), 11, 0.17, 1.2, false);
   const nb = roughen(pairs(COAST_NB), 12, 0.15, 1.5, false);
   const nh = roughen(pairs(COAST_NH), 13, 0.10, 1.5, false);
-  const border = pairs(BORDER_ME);
+  // Maine's own border runs from the St. Croix round to Kittery. Where it meets New Hampshire and Quebec the outline of New England carries on:
+  // the Quebec line, Lake Champlain, the New York line, down to Long Island Sound. The last stretch of Maine's border is now just a state line.
+  let cut = BORDER_ME.length; for (let i = 0; i < BORDER_ME.length; i += 2) if (BORDER_ME[i] === 45.31 && BORDER_ME[i + 1] === -71.08) cut = i + 2;
+  const border = pairs(BORDER_ME.slice(0, cut).concat(BORDER_NE));
+  const lines = [border, pairs(BORDER_ME.slice(cut - 2))].concat(STATE_LINES.map(l => pairs(l)));
   const sea = [[nh[0][0], WORLD_H + 9]].concat(nh, coast, nb, [[WORLD_W + 9, nb[nb.length - 1][1]], [WORLD_W + 9, WORLD_H + 9]]);
-  const maine = coast.concat(border);
+  const maine = nh.concat(coast, border);
   const islands = ISLANDS.map((a, i) => ({ me: a[0], pts: roughen(pairs(a, 1), 100 + i, 0.17, 1.1, true) }));
   for (let i = 0; i < ISLETS.length; i += 3) { const p = proj(ISLETS[i], ISLETS[i + 1]), r = ISLETS[i + 2]; islands.push({ me: 1, pts: blob(p[0], p[1], r, r * 0.8, i * 37, 300 + i, 7) }); }
-  const lakes = [roughen(pairs(MOOSEHEAD), 50, 0.14, 1.2, true)];
+  const lakes = [roughen(pairs(MOOSEHEAD), 50, 0.14, 1.2, true), roughen(pairs(CHAMPLAIN), 51, 0.10, 1.5, true), roughen(pairs(ST_LAWRENCE), 52, 0.07, 2, true)];
   for (let i = 0; i < LAKES.length; i += 5) { const p = proj(LAKES[i], LAKES[i + 1]); lakes.push(roughen(blob(p[0], p[1], LAKES[i + 2], LAKES[i + 3], LAKES[i + 4], 500 + i, 9), 600 + i, 0.2, 1.2, true)); }
   const rivers = RIVERS.map((r, i) => roughen(pairs(r), 700 + i, 0.12, 2.5, false));
   const mts = []; for (let i = 0; i < MOUNTAINS.length; i += 3) { const p = proj(MOUNTAINS[i], MOUNTAINS[i + 1]); mts.push([p[0], p[1], MOUNTAINS[i + 2]]); }
   const lights = []; for (let i = 0; i < LIGHTS.length; i += 3) { const p = proj(LIGHTS[i], LIGHTS[i + 1]); lights.push([p[0], p[1], LIGHTS[i + 2]]); }
-  return { coast, border, sea, maine, islands, lakes, rivers, mts, lights };
+  return { coast, border, lines, sea, maine, islands, lakes, rivers, mts, lights };
 })();
 
 // low-resolution terrain fields (2 km cells): mountains, farmland, blueberry barrens
@@ -167,9 +171,9 @@ function paint(L, season) {
   }
   const put = (x, y, col, onlyLand) => { if (x < 0 || y < 0 || x >= w || y >= h) return; const i = y * w + x; if (onlyLand && cls[i] !== C_LAND && cls[i] !== C_SHORE) return; const o = i * 4; out[o] = col[0]; out[o + 1] = col[1]; out[o + 2] = col[2]; };
   // state line: dotted
-  const B = GEOM.border; let acc = 0;
+  GEOM.lines.forEach(B => { let acc = 0;
   for (let j = 1; j < B.length; j++) { const a = B[j - 1], b = B[j], len = Math.hypot(b[0] - a[0], b[1] - a[1]) * k;
-    for (let s = 0; s < len; s++, acc++) { if (acc % 4 > 1) continue; const x = Math.floor((a[0] + (b[0] - a[0]) * s / len) * k), y = Math.floor((a[1] + (b[1] - a[1]) * s / len) * k); if (x < 0 || y < 0 || x >= w || y >= h) continue; const o = (y * w + x) * 4; out[o] = out[o] * 0.55; out[o + 1] = out[o + 1] * 0.55; out[o + 2] = out[o + 2] * 0.55; } }
+    for (let s = 0; s < len; s++, acc++) { if (acc % 4 > 1) continue; const x = Math.floor((a[0] + (b[0] - a[0]) * s / len) * k), y = Math.floor((a[1] + (b[1] - a[1]) * s / len) * k); if (x < 0 || y < 0 || x >= w || y >= h) continue; const o = (y * w + x) * 4; out[o] = out[o] * 0.55; out[o + 1] = out[o + 1] * 0.55; out[o + 2] = out[o + 2] * 0.55; } } });
   // mountains: little shaded peaks
   GEOM.mts.forEach(m => { const hh = Math.max(2, Math.round((1.6 + m[2] * 1.5) * Math.sqrt(k) * 1.5)), cx = Math.round(m[0] * k), top = Math.round(m[1] * k) - hh;
     const snowRows = season === WINTER ? hh : season === SUMMER ? (m[2] >= 3 ? 1 : 0) : Math.ceil(hh * (m[2] >= 2 ? 0.45 : 0.2));

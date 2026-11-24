@@ -27,7 +27,7 @@ const season = () => seasonOf(G.t);
 /* ---------- new game / save ---------- */
 function newGame(startId) {
   const S = STARTS.find(x => x.id === startId) || STARTS[0];
-  G = { v: 2, t: DAY_LEN * 0.3, wall: Date.now(), start: S.id, money: 300, xp: 0, level: 1, slots: S.craft.length, ports: {}, crafts: [], nextId: 1, wx: [], wxNext: 200, offers: [], active: [], glut: {}, news: [],
+  G = { v: 2, geo: 2, t: DAY_LEN * 0.3, wall: Date.now(), start: S.id, money: 300, xp: 0, level: 1, slots: S.craft.length, ports: {}, crafts: [], nextId: 1, wx: [], wxNext: 200, offers: [], active: [], glut: {}, news: [],
         stats: { earned: 0, delivered: 0, trips: 0, fishUnits: 0, fishMoney: 0, fuel: 0, contracts: 0, tips: 0 }, tut: {}, tutDone: false, newsNext: 90, lastDay: 0, sound: true, usedNames: [], parts: {}, stored: [], ev: null, hall: [], traps: {}, log: {} };
   G.lastDay = dayOf(G.t);
   PORTS.forEach(p => { G.ports[p.id] = { open: S.ports.indexOf(p.id) >= 0, xp: 0, lvl: 1, jobs: [], lay: [], next: 0 }; });
@@ -41,7 +41,10 @@ function saveGame(store) { try { G.wall = Date.now(); store.setItem(SAVE_KEY, JS
 function loadGame(store) {
   try { const s = store.getItem(SAVE_KEY); if (!s) return false; const g = JSON.parse(s); if (!g || g.v !== 2 || !g.ports || !g.crafts) return false;
     PORTS.forEach(p => { if (!g.ports[p.id]) g.ports[p.id] = { open: p.cost === 0, xp: 0, lvl: 1, jobs: [], lay: [], next: 2 }; });
-    g.crafts = g.crafts.filter(c => CRAFT_BY[c.type]); g.wx = g.wx || []; g.parts = g.parts || {}; g.stored = (g.stored || []).filter(c => CRAFT_BY[c.type]); g.hall = g.hall || []; g.traps = g.traps || {}; g.log = g.log || {}; if (g.ev === undefined) g.ev = null; G = g; SIM.dirty = true; return true; } catch (e) { return false; }
+    g.crafts = g.crafts.filter(c => CRAFT_BY[c.type]); g.wx = g.wx || []; g.parts = g.parts || {}; g.stored = (g.stored || []).filter(c => CRAFT_BY[c.type]); g.hall = g.hall || []; g.traps = g.traps || {}; g.log = g.log || {}; if (g.ev === undefined) g.ev = null;
+    // a save from the Maine-only map: everything with a position moves over by the width the map grew to the west
+    if (!g.geo) { const dx = (GEO_OLD_LONMIN - GEO.lonMin) * KM_LON; g.crafts.forEach(c => { if (typeof c.x === 'number') c.x += dx; if (c.route && c.route.pts) c.route.pts = c.route.pts.map(q => [q[0] + dx, q[1]]); }); g.wx.forEach(w => { if (typeof w.x === 'number') w.x += dx; }); g.geo = 2; }
+    G = g; SIM.dirty = true; return true; } catch (e) { return false; }
 }
 
 /* ---------- helpers ---------- */
@@ -183,10 +186,12 @@ function legInfo(c, fromId, toId) {
   if (!G.ports[toId].open) return { ok: false, why: 'port not open' };
   const lw = landWhy(T, c.upg, to, season()); if (lw) return { ok: false, why: lw };
   let dist, pts;
+  const crow = Math.hypot(to.x - from.x, to.y - from.y);
+  if (crow > T.range) return { ok: false, why: 'out of range (' + Math.round(crow) + (T.cls === 'boat' ? '+' : '') + ' of ' + T.range + ' km)', dist: crow };
   if (T.cls === 'boat') { const r = seaRoute(from.dock, to.dock); if (!r) return { ok: false, why: 'no sea route' }; dist = r.len; pts = r.pts; }
   else { dist = Math.hypot(to.x - from.x, to.y - from.y); pts = [[from.x, from.y], [to.x, to.y]]; }
   if (dist > T.range) return { ok: false, why: 'out of range (' + Math.round(dist) + ' of ' + T.range + ' km)', dist };
-  return { ok: true, dist, pts, time: dist / st.speed, fuel: Math.round(dist * T.fuel * (hasWork(fromId, 'fuel') ? 0.7 : 1) * (crewHas(c, 'thrift') ? 0.75 : 1) * (evGlob('fuel') ? 0.7 : 1)), wx: wxBlock(c, from.x, from.y) || wxBlock(c, to.x, to.y) };
+  return { ok: true, dist, pts, cust: crossesBorder(fromId, toId), time: dist / st.speed + (crossesBorder(fromId, toId) ? CUSTOMS_WAIT : 0), fuel: Math.round(dist * T.fuel * (hasWork(fromId, 'fuel') ? 0.7 : 1) * (crewHas(c, 'thrift') ? 0.75 : 1) * (evGlob('fuel') ? 0.7 : 1)), wx: wxBlock(c, from.x, from.y) || wxBlock(c, to.x, to.y) };
 }
 function routeInfo(c, stops) {
   let from = c.at, dist = 0, time = 0, fuel = 0, wx = null; const legs = [];
@@ -194,7 +199,9 @@ function routeInfo(c, stops) {
   let income = 0; const bd = bonusDest(c); c.jobs.forEach(j => { if (stops.indexOf(j.to) >= 0) income += j.pay * (bd === j.to ? 1.25 : 1); });
   return { ok: stops.length > 0, dist, time, fuel, legs, wx, income: Math.round(income), bonus: bd && stops.indexOf(bd) >= 0 };
 }
-function startRoute(c, pts, len, kind, to) { c.route = { pts, len, pos: 0, kind, to }; c.state = 'move'; c.from = c.at || c.from; c.at = null; c.x = pts[0][0]; c.y = pts[0][1]; posOnRoute(c); }
+const CUSTOMS_WAIT = 60;
+const crossesBorder = (a, b) => !!a && !!b && has(PORT_BY[a], 'customs') !== has(PORT_BY[b], 'customs');
+function startRoute(c, pts, len, kind, to) { c.route = { pts, len, pos: 0, kind, to }; c.state = 'move'; c.from = c.at || c.from; c.at = null; if (to && crossesBorder(c.from, to)) c.route.cust = CUSTOMS_WAIT; c.x = pts[0][0]; c.y = pts[0][1]; posOnRoute(c); }
 function beginLeg(c) {
   const to = c.plan.stops[c.plan.i], li = legInfo(c, c.at, to);
   if (!li.ok) { c.state = 'dock'; c.plan = null; news('"' + c.name + '" can\'t continue to ' + PORT_BY[to].name + ': ' + li.why + '.', 'bad'); return; }
@@ -276,7 +283,9 @@ function updateCraft(c, dt) {
   if (c.state === 'move') {
     const st = cstat(c), T = st.T, w = wxAt(c.x, c.y); let sp = st.speed;
     if (T.cls === 'boat') { if (w.fog && !c.upg.radar) sp *= 0.5; if (w.storm) sp *= 0.7; } else if (w.storm || w.snow) sp *= 0.75;
-    c.route.pos += sp * dt; if (c.route.pos >= c.route.len) arrive(c); else posOnRoute(c);
+    c.route.pos += sp * dt;
+    // across the border a craft sits at the far end for a minute while customs looks it over
+    if (c.route.pos >= c.route.len) { if (c.route.cust > 0) { c.route.pos = c.route.len; c.route.cust -= dt; posOnRoute(c); } else arrive(c); } else posOnRoute(c);
   } else if (c.state === 'fish') {
     c.fishT += dt;
     if (c.fishT >= c.fishDur) { const T = CRAFT_BY[c.type], f = c.plan.fish, g = GROUND_BY[f.g], s = season(), var_ = f.sp === 'tuna' ? rnd(0.15, 1.9) : rnd(0.72, 1.15);
@@ -358,7 +367,7 @@ function sellCraft(c) { if (c.state !== 'dock' || c.jobs.length) return 'Empty i
 function upgradeCost(c, uid) { const u = UPGRADES.find(x => x.id === uid), T = CRAFT_BY[c.type]; return Math.max(u.min, Math.round(u.pct * T.price / 50) * 50); }
 function upgradesFor(c) { const T = CRAFT_BY[c.type]; return UPGRADES.filter(u => u.cls === T.cls && (!u.ok || u.ok(T))); }
 function buyUpgrade(c, uid) { if (c.upg[uid]) return 'Already fitted.'; const cost = upgradeCost(c, uid); if (G.money < cost) return 'Can\'t afford it yet.'; G.money -= cost; c.upg[uid] = 1; emit('buy', { c }); return null; }
-function unlockPort(pid) { const p = PORT_BY[pid], st = G.ports[pid]; if (st.open) return null; const cost = portCost(pid); if (G.money < cost) return 'Can\'t afford it yet.';
+function unlockPort(pid) { const p = PORT_BY[pid], st = G.ports[pid]; if (st.open) return null; if (p.lvl && G.level < p.lvl) return p.reg + ' opens at level ' + p.lvl + '.'; const cost = portCost(pid); if (G.money < cost) return 'Can\'t afford it yet.';
   G.money -= cost; st.open = true; refreshBoard(p); st.next = G.t + JOB_REFRESH;
   news('Now serving ' + p.name + '. ' + p.blurb, 'good'); tutMark('unlock'); emit('unlock', { pid }); refreshOffers(); bonusXp(30, 'new port'); return null; }
 function fleetCanReach(pid) { const p = PORT_BY[pid]; return G.crafts.some(c => canBase(CRAFT_BY[c.type], p)); }

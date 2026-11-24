@@ -4,7 +4,8 @@
    Section 1: DATA  (pure data, no logic; port this to Godot resources)
    ===================================================================== */
 const SAVE_KEY = 'finestkind.save.v2';
-const GEO = { latMin: 42.85, latMax: 47.6, lonMin: -72.2, lonMax: -65.8 };
+const GEO = { latMin: 40.95, latMax: 47.6, lonMin: -73.8, lonMax: -65.8 };
+const GEO_OLD_LONMIN = -72.2;                          // saves from the Maine-only map are shifted over to this one
 const KM_LAT = 111.0, KM_LON = 78.2;                  // equirectangular at ~45N
 const WORLD_W = (GEO.lonMax - GEO.lonMin) * KM_LON;   // ~500 km
 const WORLD_H = (GEO.latMax - GEO.latMin) * KM_LAT;   // ~527 km
@@ -57,7 +58,37 @@ const BORDER_ME = [
  47.46,-69.225, 46.70,-70.00, 46.41,-70.06, 46.19,-70.29, 45.96,-70.25, 45.81,-70.40, 45.67,-70.56,
  45.51,-70.72, 45.39,-70.81, 45.24,-70.85, 45.31,-71.08, 44.00,-71.01, 43.57,-70.975, 43.39,-70.985,
  43.27,-70.90, 43.23,-70.815, 43.13,-70.83, 43.09,-70.76 ];
-const COAST_NH = [ 42.85,-70.815, 42.92,-70.80, 43.00,-70.74, 43.045,-70.715 ];
+// Long Island Sound to Kittery: Connecticut, Rhode Island, Buzzards Bay, the Cape, Boston, Cape Ann, New Hampshire
+const COAST_NH = [
+ 41.00,-73.655, 41.02,-73.58, 41.04,-73.50, 41.06,-73.42, 41.10,-73.38, 41.12,-73.28, 41.15,-73.20, 41.17,-73.16, 41.16,-73.10,
+ 41.20,-73.07, 41.21,-73.00, 41.24,-72.95, 41.28,-72.93, 41.29,-72.90, 41.25,-72.89, 41.25,-72.82, 41.26,-72.72, 41.27,-72.60,
+ 41.26,-72.48, 41.27,-72.38, 41.30,-72.35, 41.27,-72.33, 41.29,-72.25, 41.31,-72.18, 41.30,-72.12, 41.34,-72.095, 41.36,-72.085,
+ 41.32,-72.07, 41.31,-72.00, 41.33,-71.95, 41.34,-71.90, 41.31,-71.86, 41.33,-71.78, 41.36,-71.65, 41.37,-71.55, 41.36,-71.485,
+ 41.40,-71.46, 41.45,-71.44, 41.52,-71.42, 41.60,-71.42, 41.68,-71.40, 41.74,-71.39, 41.79,-71.40, 41.825,-71.385, 41.80,-71.35,
+ 41.76,-71.32, 41.73,-71.28, 41.69,-71.285, 41.66,-71.27, 41.69,-71.24, 41.73,-71.20, 41.72,-71.16, 41.66,-71.18, 41.60,-71.195,
+ 41.53,-71.20, 41.46,-71.195, 41.49,-71.13, 41.51,-71.06, 41.50,-71.00, 41.54,-70.955, 41.58,-70.93, 41.63,-70.92, 41.59,-70.895,
+ 41.60,-70.84, 41.64,-70.80, 41.68,-70.75, 41.71,-70.72, 41.75,-70.68, 41.76,-70.63, 41.71,-70.62, 41.65,-70.635, 41.58,-70.645,
+ 41.53,-70.67, 41.535,-70.62, 41.55,-70.55, 41.60,-70.45, 41.62,-70.36, 41.635,-70.28, 41.65,-70.18, 41.66,-70.08, 41.67,-69.98,
+ 41.61,-69.975, 41.56,-69.995, 41.62,-69.955, 41.70,-69.93, 41.80,-69.935, 41.90,-69.955, 42.00,-70.02, 42.055,-70.12, 42.08,-70.20,
+ 42.06,-70.245, 42.03,-70.20, 42.025,-70.17, 42.045,-70.175, 42.05,-70.15, 42.03,-70.10, 41.98,-70.075, 41.92,-70.07, 41.87,-70.03,
+ 41.81,-70.005, 41.77,-70.03, 41.755,-70.12, 41.75,-70.20, 41.73,-70.28, 41.74,-70.38, 41.77,-70.48, 41.80,-70.52, 41.87,-70.535,
+ 41.93,-70.55, 41.96,-70.62, 41.97,-70.67, 42.00,-70.66, 42.01,-70.61, 42.06,-70.64, 42.12,-70.68, 42.20,-70.715, 42.25,-70.77,
+ 42.27,-70.83, 42.30,-70.88, 42.27,-70.90, 42.26,-70.96, 42.29,-71.01, 42.33,-71.04, 42.36,-71.05, 42.375,-71.02, 42.37,-70.975,
+ 42.40,-70.98, 42.44,-70.95, 42.425,-70.915, 42.46,-70.925, 42.48,-70.88, 42.50,-70.84, 42.525,-70.87, 42.545,-70.86, 42.57,-70.78,
+ 42.575,-70.70, 42.61,-70.67, 42.585,-70.655, 42.61,-70.62, 42.66,-70.60, 42.69,-70.63, 42.665,-70.685, 42.69,-70.74, 42.72,-70.78,
+ 42.77,-70.805, 42.815,-70.81, 42.85,-70.815, 42.92,-70.80, 43.00,-70.74, 43.045,-70.715 ];
+// the rest of New England's outline, from where Maine, New Hampshire and Quebec meet: Quebec line, Lake Champlain, the New York line, back to the Sound
+const BORDER_NE = [ 45.25,-71.39, 45.01,-71.50, 45.01,-72.50, 45.01,-73.34, 44.55,-73.39, 44.05,-73.41, 43.63,-73.42, 43.52,-73.25, 43.20,-73.26, 42.745,-73.265, 42.05,-73.487, 41.30,-73.55, 41.21,-73.48, 41.10,-73.73 ];
+// state lines, drawn dotted
+const STATE_LINES = [
+ [45.01,-71.50, 44.75,-71.63, 44.49,-71.59, 44.33,-71.80, 44.15,-72.04, 43.82,-72.18, 43.65,-72.31, 43.40,-72.40, 43.13,-72.44, 42.87,-72.55, 42.727,-72.458],
+ [42.745,-73.265, 42.727,-72.458, 42.70,-71.30, 42.80,-71.18, 42.89,-70.93, 42.87,-70.82],
+ [42.05,-73.487, 42.03,-72.60, 42.008,-71.80, 42.02,-71.38, 41.89,-71.38, 41.86,-71.34, 41.73,-71.22, 41.68,-71.13, 41.50,-71.12],
+ [42.008,-71.80, 41.42,-71.80, 41.32,-71.86] ];
+const CHAMPLAIN = [45.01,-73.36, 44.80,-73.40, 44.60,-73.44, 44.40,-73.40, 44.20,-73.43, 44.05,-73.46, 43.85,-73.42, 43.65,-73.44, 43.62,-73.40, 43.85,-73.37,
+ 44.05,-73.38, 44.25,-73.30, 44.45,-73.24, 44.62,-73.22, 44.72,-73.28, 44.85,-73.20, 45.01,-73.17];
+const ST_LAWRENCE = [45.40,-73.80, 45.52,-73.50, 45.80,-73.20, 46.04,-73.08, 46.25,-72.75, 46.35,-72.50, 46.60,-71.90, 46.78,-71.25, 46.95,-70.80, 47.25,-70.40, 47.60,-70.05,
+ 47.60,-70.35, 47.30,-70.60, 47.02,-70.95, 46.83,-71.22, 46.68,-71.90, 46.42,-72.55, 46.32,-72.90, 46.10,-73.18, 45.70,-73.45, 45.50,-73.80];
 const COAST_NB = [ 45.195,-67.27, 45.16,-67.18, 45.10,-67.09, 45.065,-67.045, 45.13,-67.02, 45.17,-66.95,
  45.12,-66.85, 45.05,-66.88, 45.04,-66.80, 45.07,-66.65, 45.13,-66.45, 45.20,-66.20, 45.26,-66.07, 45.29,-65.80 ];
 // islands: [isMaine, ...lat,lon]
@@ -78,6 +109,12 @@ const ISLANDS = [
  [0, 44.95,-66.95, 44.93,-66.88, 44.84,-66.92, 44.85,-66.97],                                             // Campobello
  [0, 44.80,-66.80, 44.78,-66.72, 44.62,-66.78, 44.60,-66.88, 44.70,-66.90],                               // Grand Manan
  [0, 45.02,-66.97, 45.02,-66.93, 44.96,-66.94, 44.97,-66.98],                                             // Deer Island NB
+ [1, 41.48,-70.60, 41.46,-70.555, 41.42,-70.52, 41.39,-70.50, 41.37,-70.45, 41.345,-70.48, 41.345,-70.60, 41.335,-70.72, 41.30,-70.80, 41.31,-70.835, 41.35,-70.84, 41.37,-70.775, 41.41,-70.72, 41.45,-70.66],   // Martha's Vineyard
+ [1, 41.39,-70.045, 41.345,-70.015, 41.29,-69.965, 41.245,-69.97, 41.24,-70.06, 41.245,-70.15, 41.27,-70.22, 41.29,-70.235, 41.30,-70.17, 41.285,-70.105, 41.30,-70.06, 41.33,-70.035, 41.37,-70.055],   // Nantucket
+ [1, 41.23,-71.575, 41.20,-71.555, 41.16,-71.55, 41.145,-71.585, 41.16,-71.615, 41.19,-71.60],   // Block Island
+ [1, 41.635,-71.245, 41.60,-71.225, 41.54,-71.23, 41.50,-71.245, 41.465,-71.29, 41.455,-71.345, 41.49,-71.335, 41.53,-71.315, 41.58,-71.29, 41.62,-71.275],   // Aquidneck
+ [1, 41.57,-71.375, 41.52,-71.365, 41.48,-71.385, 41.50,-71.40, 41.55,-71.395],   // Conanicut
+ [0, 40.90,-73.78, 40.94,-73.45, 40.97,-73.10, 40.97,-72.85, 40.995,-72.62, 41.06,-72.43, 41.13,-72.30, 41.16,-72.235, 41.11,-72.33, 41.05,-72.42, 40.98,-72.55, 40.94,-72.62, 40.93,-72.50, 40.98,-72.34, 41.03,-72.18, 41.02,-72.05, 41.07,-71.86, 41.03,-71.93, 40.97,-72.15, 40.86,-72.50, 40.80,-72.80, 40.75,-73.20, 40.75,-73.78],   // Long Island
  [0, 44.72,-65.80, 44.55,-66.00, 44.40,-66.20, 44.25,-66.37, 44.24,-66.33, 44.38,-66.12, 44.45,-65.95, 44.30,-66.10, 44.10,-66.20, 43.95,-66.16, 43.80,-66.15, 43.70,-66.03, 43.55,-65.85, 43.50,-65.80] // Nova Scotia
 ];
 // islets: lat, lon, radius km (all Maine)
@@ -87,7 +124,8 @@ const ISLETS = [
  43.69,-70.085,0.6, 44.23,-68.79,0.8, 44.215,-68.765,0.6, 44.235,-68.82,0.8, 44.34,-68.445,1.6, 44.335,-68.50,1.7,
  44.39,-68.13,0.9, 44.37,-67.865,0.5, 44.50,-67.53,1.4, 44.575,-67.52,1.6, 44.60,-67.285,1.1, 44.50,-67.10,0.4,
  43.97,-68.13,0.35, 43.12,-70.475,0.35, 42.98,-70.61,0.6, 43.545,-70.235,0.6, 44.02,-68.72,0.7, 43.98,-68.93,0.6,
- 44.19,-68.95,0.6, 44.42,-68.03,0.5, 43.65,-70.03,0.5 ];
+ 44.19,-68.95,0.6, 44.42,-68.03,0.5, 43.65,-70.03,0.5,
+ 41.27,-71.98,1.4, 41.49,-70.76,1.5, 41.46,-70.82,1.7, 41.435,-70.88,1.3, 41.42,-70.935,1.0, 42.32,-70.93,0.6, 41.31,-70.28,0.9 ];
 // Moosehead as a polygon; other lakes as rough ellipses [lat, lon, semiMajorKm, semiMinorKm, rotationDeg(0=E-W)]
 const MOOSEHEAD = [45.455,-69.60, 45.52,-69.66, 45.58,-69.72, 45.63,-69.79, 45.67,-69.75, 45.70,-69.70, 45.72,-69.77,
  45.80,-69.76, 45.88,-69.72, 45.89,-69.62, 45.82,-69.59, 45.76,-69.60, 45.75,-69.50, 45.69,-69.52, 45.67,-69.60,
@@ -101,7 +139,9 @@ const LAKES = [
  47.06,-68.37,4,3,60,  47.05,-68.52,8,1.5,150,  46.77,-68.50,3,2,40,  45.18,-67.60,8,2.5,10,  45.13,-68.17,6,1.4,60,
  45.47,-68.87,5,1.6,90,  45.05,-70.98,9,1.4,85,  44.75,-71.03,5,2.5,80,  46.30,-69.57,3,2,0,  46.20,-69.62,4,1.6,30,
  45.87,-69.52,3,1.6,60,  45.92,-69.87,9,1.4,0,  46.62,-69.40,3,1.2,100,  44.92,-67.88,4,1.4,40,  45.02,-67.45,5,1.5,20,
- 44.73,-69.93,2.5,1.2,0, 44.20,-70.05,3,1,70,  45.90,-68.60,3,1.2,90, 46.15,-68.80,4,1.3,120, 44.42,-70.02,2.5,1,80 ];
+ 44.73,-69.93,2.5,1.2,0, 44.20,-70.05,3,1,70,  45.90,-68.60,3,1.2,90, 46.15,-68.80,4,1.3,120, 44.42,-70.02,2.5,1,80,
+ 43.60,-71.35,12,5,-45,  43.75,-71.53,4,2,30,  43.66,-71.77,4,1.5,90,  43.38,-72.06,6,1.5,90,  43.79,-71.14,3,2,0,
+ 44.98,-72.22,7,1.8,90,  42.38,-72.30,11,3,90,  42.40,-71.70,3,1.5,30,  41.50,-73.45,6,1.2,90,  43.60,-73.58,14,1.5,65 ];
 // rivers as polylines
 const RIVERS = [
  [44.80,-68.77, 44.93,-68.65, 45.10,-68.63, 45.24,-68.66, 45.36,-68.50, 45.61,-68.53, 45.65,-68.71, 45.70,-68.92, 45.80,-69.05, 45.88,-69.18, 45.95,-69.33],
@@ -114,21 +154,30 @@ const RIVERS = [
  [44.02,-70.98, 43.92,-70.85, 43.80,-70.80, 43.68,-70.62, 43.61,-70.55, 43.50,-70.44, 43.465,-70.38],
  [45.36,-68.50, 45.30,-68.75, 45.25,-69.00, 45.28,-69.15],
  [44.71,-67.45, 44.80,-67.55, 44.90,-67.70],
- [44.90,-68.66, 45.00,-68.45, 45.10,-68.30] ];
+ [44.90,-68.66, 45.00,-68.45, 45.10,-68.30],
+ [45.01,-71.50, 44.75,-71.63, 44.49,-71.59, 44.33,-71.80, 44.15,-72.04, 43.82,-72.18, 43.65,-72.31, 43.40,-72.40, 43.13,-72.44, 42.87,-72.55, 42.60,-72.57, 42.33,-72.61, 42.10,-72.59, 41.76,-72.65, 41.56,-72.60, 41.42,-72.43, 41.30,-72.35],
+ [43.60,-71.65, 43.44,-71.60, 43.21,-71.53, 42.99,-71.46, 42.76,-71.45, 42.65,-71.31, 42.70,-71.16, 42.77,-71.07, 42.81,-70.90, 42.815,-70.82],
+ [44.26,-72.58, 44.34,-72.75, 44.42,-72.95, 44.49,-73.12, 44.53,-73.27],
+ [42.45,-73.25, 42.20,-73.35, 41.95,-73.37, 41.70,-73.42, 41.45,-73.27, 41.32,-73.10, 41.20,-73.10] ];
 // mountains: lat, lon, size 1..3
 const MOUNTAINS = [
  45.904,-68.921,3, 45.03,-70.31,2, 45.15,-70.29,2, 44.94,-70.50,2, 44.57,-70.95,2, 44.97,-70.36,1, 44.73,-70.34,1,
  45.70,-69.73,1, 45.76,-69.45,1, 45.48,-69.71,1, 46.07,-68.85,2, 45.47,-70.11,1, 45.78,-70.21,1, 44.35,-68.225,1,
  44.23,-69.075,1, 44.75,-70.55,1, 44.61,-70.90,1, 45.55,-69.25,2, 45.90,-69.05,1, 46.52,-67.81,1, 46.96,-68.85,1,
  44.03,-70.82,1, 45.28,-70.50,1, 45.00,-70.75,1, 44.85,-70.60,1, 45.98,-68.98,2, 45.35,-69.55,1, 44.47,-70.85,1,
- 46.40,-69.95,1, 45.20,-70.55,1 ];
+ 46.40,-69.95,1, 45.20,-70.55,1,
+ 44.27,-71.30,3, 44.16,-71.64,2, 44.09,-71.45,1, 44.02,-71.83,2, 43.95,-71.27,1, 43.38,-71.86,1, 42.86,-72.11,2, 44.92,-72.53,2,
+ 44.54,-72.81,3, 44.32,-72.89,2, 44.12,-72.94,1, 43.60,-72.82,3, 43.44,-72.45,1, 43.09,-72.92,2, 43.17,-73.12,1, 42.64,-73.17,2,
+ 42.49,-71.89,1, 44.57,-71.89,1, 44.51,-71.41,1, 44.87,-71.30,1, 42.24,-72.65,1, 42.04,-73.45,1 ];
 // lighthouses: lat, lon, striped(1 = West Quoddy candy stripes)
-const LIGHTS = [ 43.623,-70.208,0, 43.165,-70.591,0, 43.707,-69.758,0, 43.837,-69.506,0, 43.765,-69.316,0, 44.092,-69.044,0,
+const LIGHTS = [ 43.07,-70.71,0, 42.64,-70.575,0, 42.328,-70.89,0, 42.27,-70.76,0, 42.04,-70.055,0, 41.67,-69.95,0, 41.285,-69.965,0, 41.35,-70.84,0, 41.36,-71.48,0, 41.15,-71.55,0, 41.45,-71.40,0, 41.305,-72.09,0, 41.25,-72.90,0, 41.07,-71.86,0,
+ 43.623,-70.208,0, 43.165,-70.591,0, 43.707,-69.758,0, 43.837,-69.506,0, 43.765,-69.316,0, 44.092,-69.044,0,
  43.784,-68.855,0, 44.222,-68.337,0, 43.969,-68.128,0, 44.367,-67.864,0, 44.815,-66.951,1, 43.917,-69.261,0, 43.121,-70.476,0 ];
 // place names painted on the map (not ports)
 const MAP_NAMES = [ ['GULF OF MAINE', 43.35, -68.4, 'sea'], ['PENOBSCOT BAY', 44.22, -68.98, 'sea2'], ['CASCO BAY', 43.60, -70.02, 'sea2'],
  ['MOOSEHEAD', 45.66, -69.66, 'lake'], ['KATAHDIN', 45.95, -68.92, 'mt'], ['NEW BRUNSWICK', 46.3, -67.2, 'far'], ['QUEBEC', 46.6, -70.9, 'far'],
- ['N.H.', 44.2, -71.5, 'far'], ['NOVA SCOTIA', 44.15, -66.0, 'far'], ['BAY OF FUNDY', 44.85, -66.25, 'sea2'], ['THE COUNTY', 46.45, -68.45, 'land'],
+ ['NEW HAMPSHIRE', 43.92, -71.62, 'land'], ['VERMONT', 43.95, -72.75, 'land'], ['MASSACHUSETTS', 42.42, -72.15, 'land'], ['CONNECTICUT', 41.60, -72.78, 'land'], ['R.I.', 41.60, -71.62, 'land'], ['MAINE', 45.22, -69.08, 'land'],
+ ['NEW YORK', 42.9, -73.62, 'far'], ['CAPE COD BAY', 41.90, -70.30, 'sea2'], ['NANTUCKET SOUND', 41.47, -70.27, 'sea2'], ['LONG ISLAND SOUND', 41.12, -72.85, 'sea2'], ['MASS. BAY', 42.42, -70.60, 'sea2'], ['GEORGES BANK', 41.42, -67.60, 'sea'], ['CHAMPLAIN', 44.55, -73.33, 'lake'], ['ST. LAWRENCE', 46.52, -72.25, 'lake'], ['NOVA SCOTIA', 44.15, -66.0, 'far'], ['BAY OF FUNDY', 44.85, -66.25, 'sea2'], ['THE COUNTY', 46.45, -68.45, 'land'],
  ['NORTH WOODS', 46.55, -69.55, 'land'], ['DOWNEAST', 44.95, -67.75, 'land'] ];
 
 /* ---------- ports ----------
@@ -157,13 +206,46 @@ const PORTS = [
  { id:'gls', name:'Grand Lake Stream',lat:45.18,  lon:-67.775, strip:0, water:'lake', reg:'Downeast',       size:1, cost:13000, lab:'l', tags:['woods','lake','camp','hunt','remote'], blurb:'Landlocked salmon, Grand Laker canoes, guides who won\'t say where.' },
  { id:'chm', name:'Chamberlain Lake', lat:46.21,  lon:-69.30,  strip:0, water:'lake', reg:'North Woods',    size:1, cost:16000, lab:'r', tags:['woods','lake','camp','hunt','remote'], blurb:'Heart of the Allagash. No road worth the name. Floats in, skis in, or stay home.' },
  { id:'pqi', name:'Presque Isle',     lat:46.69,  lon:-68.045, strip:2, water:null,   reg:'The County',     size:3, cost:20000, lab:'l', tags:['county','potato','city'], blurb:'Capital of potato country. School lets out for harvest, or used to.' },
- { id:'fkt', name:'Fort Kent',        lat:47.255, lon:-68.59,  strip:1, water:null,   reg:'The County',     size:2, cost:26000, lab:'b', tags:['county','potato','sled','remote'], blurb:'Top of Route 1, half in French. Ployes, sled dogs, and a long way from anywhere.' }
+ { id:'fkt', name:'Fort Kent',        lat:47.255, lon:-68.59,  strip:1, water:null,   reg:'The County',     size:2, cost:26000, lab:'b', tags:['county','potato','sled','remote'], blurb:'Top of Route 1, half in French. Ployes, sled dogs, and a long way from anywhere.' },
+ // ----- beyond Maine: New Hampshire and Vermont (level 4), southern New England (level 6), Canada (level 8) -----
+ { id:"psm", name:"Portsmouth", lat:43.06, lon:-70.745, strip:2, water:"sea", reg:"New Hampshire", size:3, cost:9000, lab:"l", lvl:4, tags:["city", "coast", "market"], blurb:"Brick streets, tugboats and a naval yard across the river. The first stop over the bridge." },
+ { id:"mht", name:"Manchester", lat:42.95, lon:-71.45, strip:2, water:null, reg:"New Hampshire", size:3, cost:12000, lab:"l", lvl:4, tags:["city"], blurb:"Mill buildings a mile long and the busiest airport north of Boston." },
+ { id:"lci", name:"Laconia", lat:43.63, lon:-71.47, strip:2, water:"lake", reg:"New Hampshire", size:2, cost:10000, lab:"l", lvl:4, tags:["lake", "tourist", "camp"], blurb:"Lake Winnipesaukee. Mail boats, motorboats, and a week of motorcycles every June." },
+ { id:"cnw", name:"North Conway", lat:44.05, lon:-71.13, strip:1, water:null, reg:"New Hampshire", size:2, cost:11000, lab:"r", lvl:4, tags:["ski", "leaf", "woods", "tourist"], blurb:"Outlet shops below, Mount Washington above. Skiers in winter, leaf traffic in the fall." },
+ { id:"bml", name:"Berlin", lat:44.575, lon:-71.18, strip:2, water:null, reg:"New Hampshire", size:1, cost:9000, lab:"l", lvl:4, tags:["woods", "sled", "hunt"], blurb:"A paper town on the Androscoggin, deep in the North Country." },
+ { id:"leb", name:"Lebanon", lat:43.63, lon:-72.3, strip:2, water:null, reg:"New Hampshire", size:2, cost:12000, lab:"l", lvl:4, tags:["city", "leaf"], blurb:"The Upper Valley. A college, a hospital, and a runway cut into a hilltop." },
+ { id:"btv", name:"Burlington", lat:44.47, lon:-73.21, strip:2, water:"lake", reg:"Vermont", size:4, cost:22000, lab:"r", lvl:4, tags:["city", "lake", "market"], blurb:"Vermont's one real city, on Lake Champlain. The sun sets over the Adirondacks." },
+ { id:"mpv", name:"Montpelier", lat:44.2, lon:-72.57, strip:2, water:null, reg:"Vermont", size:2, cost:14000, lab:"r", lvl:4, tags:["city", "capitol"], blurb:"The smallest state capital in the country. A gold dome and a lot of maple." },
+ { id:"mvl", name:"Stowe", lat:44.5, lon:-72.65, strip:2, water:null, reg:"Vermont", size:2, cost:16000, lab:"t", lvl:4, tags:["ski", "leaf", "tourist"], blurb:"Mount Mansfield, a white steeple, and lift lines by nine." },
+ { id:"rut", name:"Rutland", lat:43.55, lon:-72.95, strip:2, water:null, reg:"Vermont", size:2, cost:15000, lab:"l", lvl:4, tags:["ski", "leaf"], blurb:"A marble town at the foot of Killington." },
+ { id:"efk", name:"Newport, Vt.", lat:44.9, lon:-72.23, strip:1, water:"lake", reg:"Vermont", size:1, cost:12000, lab:"t", lvl:4, tags:["lake", "woods", "sled", "remote"], blurb:"The Northeast Kingdom, on Memphremagog. Half the lake is in Quebec." },
+ { id:"bos", name:"Boston", lat:42.355, lon:-71.08, strip:2, water:"sea", reg:"Massachusetts", size:5, cost:45000, lab:"l", lvl:6, tags:["city", "market", "coast"], blurb:"The Hub. Everybody has a cousin here, and every one of them wants lobster sent down." },
+ { id:"glo", name:"Gloucester", lat:42.625, lon:-70.68, strip:0, water:"sea", reg:"Massachusetts", size:2, cost:18000, lab:"t", lvl:6, tags:["coast", "lobster"], blurb:"The oldest fishing port in the country. The fleet still goes out past the man at the wheel." },
+ { id:"orh", name:"Worcester", lat:42.27, lon:-71.87, strip:2, water:null, reg:"Massachusetts", size:3, cost:20000, lab:"l", lvl:6, tags:["city"], blurb:"Seven hills, the heart of the Commonwealth, and a runway on top of one of them." },
+ { id:"spf", name:"Springfield", lat:42.11, lon:-72.55, strip:2, water:null, reg:"Massachusetts", size:3, cost:20000, lab:"r", lvl:6, tags:["city"], blurb:"The Pioneer Valley. Basketball was invented here and they will tell you so." },
+ { id:"psf", name:"Pittsfield", lat:42.44, lon:-73.24, strip:2, water:null, reg:"Massachusetts", size:2, cost:16000, lab:"r", lvl:6, tags:["leaf", "ski", "tourist"], blurb:"The Berkshires. Summer music, fall color, and old money in the hills." },
+ { id:"ewb", name:"New Bedford", lat:41.615, lon:-70.94, strip:2, water:"sea", reg:"Massachusetts", size:3, cost:24000, lab:"l", lvl:6, tags:["coast", "scallop", "market"], blurb:"The richest fishing port in the country, on scallops alone." },
+ { id:"pvc", name:"Provincetown", lat:42.055, lon:-70.19, strip:2, water:"sea", reg:"Cape & Islands", size:2, cost:20000, lab:"t", lvl:6, tags:["tourist", "coast", "remote"], blurb:"The very tip of the Cape. Dunes, galleries, and a ferry full of day-trippers." },
+ { id:"hya", name:"Hyannis", lat:41.665, lon:-70.28, strip:2, water:"sea", reg:"Cape & Islands", size:3, cost:26000, lab:"t", lvl:6, tags:["tourist", "coast", "market"], blurb:"Hub of the Cape. Every island flight and half the ferries start here." },
+ { id:"ack", name:"Nantucket", lat:41.275, lon:-70.09, strip:2, water:"sea", reg:"Cape & Islands", size:2, cost:30000, lab:"b", lvl:6, tags:["island", "tourist", "remote"], blurb:"Thirty miles out. Grey shingles, cobblestones, and fog you can lean on." },
+ { id:"mvy", name:"Martha's Vineyard", lat:41.44, lon:-70.6, strip:2, water:"sea", reg:"Cape & Islands", size:2, cost:28000, lab:"b", lvl:6, tags:["island", "tourist"], blurb:"Gingerbread cottages and a summer crowd that arrives by the planeload." },
+ { id:"pvd", name:"Providence", lat:41.835, lon:-71.42, strip:2, water:"sea", reg:"Rhode Island", size:4, cost:32000, lab:"l", lvl:6, tags:["city", "market", "capitol"], blurb:"Head of Narragansett Bay. Coffee milk, a marble dome, and tugs on the river." },
+ { id:"npt", name:"Newport", lat:41.5, lon:-71.29, strip:2, water:"sea", reg:"Rhode Island", size:2, cost:26000, lab:"r", lvl:6, tags:["tourist", "coast", "island"], blurb:"Mansions on the cliff walk and more sailboats than parking spaces." },
+ { id:"bid", name:"Block Island", lat:41.18, lon:-71.58, strip:1, water:"sea", reg:"Rhode Island", size:1, cost:22000, lab:"b", lvl:6, tags:["island", "tourist", "remote"], blurb:"Twelve miles out. One town, one ferry landing, bicycles everywhere." },
+ { id:"gon", name:"New London", lat:41.34, lon:-72.13, strip:2, water:"sea", reg:"Connecticut", size:3, cost:26000, lab:"t", lvl:6, tags:["coast", "city"], blurb:"Submarines, the Coast Guard Academy, and ferries in every direction." },
+ { id:"hvn", name:"New Haven", lat:41.32, lon:-72.93, strip:2, water:"sea", reg:"Connecticut", size:3, cost:28000, lab:"t", lvl:6, tags:["city", "coast"], blurb:"A green, a university, and an argument about who invented the hamburger." },
+ { id:"bdl", name:"Hartford", lat:41.76, lon:-72.7, strip:2, water:null, reg:"Connecticut", size:4, cost:30000, lab:"l", lvl:6, tags:["city", "capitol"], blurb:"The insurance capital, on the Connecticut River." },
+ { id:"ysj", name:"Saint John", lat:45.3, lon:-66.08, strip:2, water:"sea", reg:"Canada", size:3, cost:24000, lab:"l", lvl:8, tags:["city", "coast", "customs"], blurb:"New Brunswick's port city on the Bay of Fundy, where the river runs backwards twice a day." },
+ { id:"yqi", name:"Yarmouth", lat:43.84, lon:-66.13, strip:2, water:"sea", reg:"Canada", size:2, cost:22000, lab:"r", lvl:8, tags:["coast", "lobster", "customs"], blurb:"The ferry landing for Nova Scotia. Lobster boats in every color there is." },
+ { id:"yqb", name:"Quebec City", lat:46.85, lon:-71.28, strip:2, water:"lake", reg:"Canada", size:4, cost:36000, lab:"l", lvl:8, tags:["city", "capitol", "customs"], blurb:"A walled city on a cliff over the St. Lawrence. Bring your French." },
+ { id:"yul", name:"Montreal", lat:45.64, lon:-73.66, strip:2, water:"lake", reg:"Canada", size:5, cost:50000, lab:"r", lvl:8, tags:["city", "market", "customs"], blurb:"An island city in the St. Lawrence. The longest runway and the best bagels on the map." }
 ];
 // Hangars (h) build, sell and store planes; boatyards (m) do the same for boats. Only some towns have one.
-const YARDS = { pwm:'hm', rkd:'hm', bgr:'h', aug:'h', pqi:'h', gnr:'h', bbh:'m', bhb:'m', sto:'m', jon:'m' };
+const YARDS = { pwm:'hm', rkd:'hm', bgr:'h', aug:'h', pqi:'h', gnr:'h', bbh:'m', bhb:'m', sto:'m', jon:'m',
+  psm:'hm', mht:'h', btv:'h', bos:'hm', glo:'m', ewb:'m', hya:'hm', pvd:'hm', gon:'m', bdl:'h', ysj:'m', yul:'h' };
 PORTS.forEach(p => { p.yard = YARDS[p.id] || ''; });
 // shorter names for the map, where every letter costs room
-const MAP_SHORT = { lew:'Lewiston', bbh:'Boothbay', gls:'Grand Lake', chm:'Chamberlain', sug:'Carrabassett', pqi:'Presque Isle', iah:'Isle au Haut', mlt:'Millinocket' };
+const MAP_SHORT = { lew:'Lewiston', bbh:'Boothbay', gls:'Grand Lake', chm:'Chamberlain', sug:'Carrabassett', pqi:'Presque Isle', iah:'Isle au Haut', mlt:'Millinocket', efk:'Newport VT', mvy:'Vineyard', pvc:'P-town', cnw:'N. Conway', bid:'Block Is.' };
 PORTS.forEach(p => { p.mapName = MAP_SHORT[p.id] || p.name; });
 const PART_NAMES = { plane: ['Airframe', 'Engine', 'Controls'], boat: ['Hull', 'Engine', 'Wheelhouse'] };
 const PART_FRAC = 0.22;        // one part costs about this share of a new craft: three parts come to two thirds
@@ -239,10 +321,18 @@ const GROUNDS = [
  { id:'quoddy', name:'Cobscook Tides',    lat:44.80, lon:-66.90, sp:{ scallop:1.3, lobster:0.7 } },
  { id:'jeff',   name:'Jeffreys Ledge',    lat:43.10, lon:-70.08, sp:{ haddock:1.0, tuna:0.8 } },
  { id:'platts', name:'Platts Bank',       lat:43.17, lon:-69.58, sp:{ haddock:1.15, tuna:1.0, halibut:0.7 } },
- { id:'mdrock', name:'Mount Desert Rock', lat:43.93, lon:-68.10, sp:{ halibut:1.0, tuna:1.1, haddock:0.9 } }
+ { id:'mdrock', name:'Mount Desert Rock', lat:43.93, lon:-68.10, sp:{ halibut:1.0, tuna:1.1, haddock:0.9 } },
+ { id:'stell',  name:'Stellwagen Bank',   lat:42.35, lon:-70.35, sp:{ haddock:0.9, tuna:1.05 } },
+ { id:'ccbay',  name:'Cape Cod Bay',      lat:41.90, lon:-70.32, sp:{ lobster:0.9, scallop:0.5 } },
+ { id:'shoals', name:'Nantucket Shoals',  lat:41.12, lon:-69.75, sp:{ scallop:1.2, haddock:0.8 } },
+ { id:'vsound', name:'Vineyard Sound',    lat:41.40, lon:-70.92, sp:{ lobster:0.8, scallop:0.95 } },
+ { id:'bisound',name:'Block Island Sound',lat:41.24, lon:-71.80, sp:{ lobster:1.0, tuna:0.6 } },
+ { id:'lisound',name:'The Race',          lat:41.22, lon:-72.10, sp:{ lobster:0.85, scallop:0.5 } },
+ { id:'georges',name:'Georges Bank',      lat:41.45, lon:-67.90, sp:{ scallop:1.4, haddock:1.3, halibut:0.8 } }
 ];
 // what each sea port pays relative to base
-const MARKET_MULT = { pwm:1.15, rkd:1.0, vin:0.9, mat:0.82, mon:0.85, iah:0.8, sto:1.05, bbh:0.95, bhb:1.05, jon:0.95, epm:0.95 };
+const MARKET_MULT = { pwm:1.15, rkd:1.0, vin:0.9, mat:0.82, mon:0.85, iah:0.8, sto:1.05, bbh:0.95, bhb:1.05, jon:0.95, epm:0.95,
+  psm:1.05, bos:1.3, glo:1.05, ewb:1.15, pvc:0.95, hya:1.0, ack:0.9, mvy:0.9, pvd:1.15, npt:1.05, bid:0.85, gon:1.0, hvn:1.1, ysj:1.0, yqi:0.9 };
 
 /* ---------- standing ---------- */
 const STANDING = [ { xp:0, name:'From Away' }, { xp:15, name:'Summer Person' }, { xp:60, name:'Year-Rounder' }, { xp:160, name:'Local' }, { xp:400, name:'Finest Kind' } ];
@@ -325,9 +415,9 @@ const CONTRACT_TEMPLATES = [
 ];
 // where you can set up shop: three ports, four small craft (the Pocket Planes opening)
 const STARTS = [
- { id:'casco', name:'Casco Bay', sub:'Portland \u00b7 Lewiston-Auburn \u00b7 Boothbay Harbor', blurb:'City money and short hops. The busiest job boards in the state, plus a floatplane to reach Boothbay.', ports:['pwm','lew','bbh'], craft:[['cub','pwm'],['cub','lew'],['loon','pwm'],['skiff','pwm']], view:[175,425] },
- { id:'penobscot', name:'Penobscot Bay', sub:'Rockland \u00b7 Vinalhaven \u00b7 Matinicus', blurb:'Island lifelines. Short runs that pay well, lobster on the doorstep, and weather with opinions.', ports:['rkd','vin','mat'], craft:[['cub','rkd'],['cub','vin'],['skiff','rkd'],['skiff','vin']], view:[255,400] },
- { id:'bangor', name:'Queen City', sub:'Bangor \u00b7 Augusta \u00b7 Bar Harbor', blurb:'The inland hub. Longer legs, bigger fares, Bar Harbor\'s summer crowds, and one boat for the fishing.', ports:['bgr','aug','bhb'], craft:[['cub','bgr'],['cub','aug'],['cub','bhb'],['skiff','bhb']], view:[275,352] }
+ { id:'casco', name:'Casco Bay', sub:'Portland \u00b7 Lewiston-Auburn \u00b7 Boothbay Harbor', blurb:'City money and short hops. The busiest job boards in the state, plus a floatplane to reach Boothbay.', ports:['pwm','lew','bbh'], craft:[['cub','pwm'],['cub','lew'],['loon','pwm'],['skiff','pwm']], view:[300,425] },
+ { id:'penobscot', name:'Penobscot Bay', sub:'Rockland \u00b7 Vinalhaven \u00b7 Matinicus', blurb:'Island lifelines. Short runs that pay well, lobster on the doorstep, and weather with opinions.', ports:['rkd','vin','mat'], craft:[['cub','rkd'],['cub','vin'],['skiff','rkd'],['skiff','vin']], view:[380,400] },
+ { id:'bangor', name:'Queen City', sub:'Bangor \u00b7 Augusta \u00b7 Bar Harbor', blurb:'The inland hub. Longer legs, bigger fares, Bar Harbor\'s summer crowds, and one boat for the fishing.', ports:['bgr','aug','bhb'], craft:[['cub','bgr'],['cub','aug'],['cub','bhb'],['skiff','bhb']], view:[400,352] }
 ];
 // The tutorial's seven stages, in order. Each is ticked off in G.tut as the player gets through it.
 const TUT_PHASES = ['intro', 'sent', 'fish', 'collect', 'loop', 'yard', 'ports'];
