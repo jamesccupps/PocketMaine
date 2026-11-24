@@ -117,6 +117,7 @@ function drawMap(now, ui) {
     if (st.open) { x.fillStyle = '#c8402f'; x.fillRect(sx - r + 1, sy - r + 1, r * 2 - 1, r * 2 - 1); x.fillStyle = '#fff3d6'; x.fillRect(sx, sy, 1, 1); } else { x.fillStyle = '#4c5562'; x.fillRect(sx - r + 1, sy - r + 1, r * 2 - 1, r * 2 - 1); }
     { const ev = evActive(); if (ev && ev.port === p.id && st.open) { const yy = sy - r - 7 - (Math.floor(t * 3) % 2); x.fillStyle = '#14273d'; x.fillRect(sx - 3, yy - 1, 7, 5); x.fillRect(sx - 1, yy - 3, 3, 9); x.fillStyle = '#ffd23f'; x.fillRect(sx - 2, yy, 5, 3); x.fillRect(sx, yy - 2, 1, 7); } }
     { const ev = evActive(); if (ev && ev.ship && ev.port === p.id && st.open) { const q = shipSpot(p), sp = SPR[ev.ship === 'cruise' ? 'cruise' : 'freighter']; if (q) x.drawImage(sp, wx2s(q[0]) - 12, wy2s(q[1]) - 5 + (Math.sin(t * 1.4) > 0 ? 0 : 1)); } }
+    { const hd = holidayNow(); if (hd && st.open && k >= 1) drawHolidayPin(x, hd.deco, sx - r - 5, sy + r + 1, t); }
     if (st.open && vipAt(p.id)) { const xx = sx + r + 2, yy = sy - r - 8 + (Math.floor(t * 3) % 2); x.fillStyle = '#14273d'; x.fillRect(xx - 1, yy - 1, 7, 6); x.fillStyle = '#ffd23f'; x.fillRect(xx + 2, yy, 1, 1); x.fillRect(xx, yy + 1, 5, 1); x.fillRect(xx + 1, yy + 2, 3, 1); x.fillRect(xx + 1, yy + 3, 1, 1); x.fillRect(xx + 3, yy + 3, 1, 1); }
     if (p.yard) { x.fillStyle = '#ffd23f'; x.fillRect(sx - r - 1, sy - r - 1, 2, 2); x.fillRect(sx + r, sy - r - 1, 2, 2); x.fillRect(sx - r - 1, sy + r, 2, 2); x.fillRect(sx + r, sy + r, 2, 2); }
     if (reach === true) ring(x, sx, sy, 6 + (((t * 3) | 0) % 2), '#7dff8a'); else if (reach && ui.stops.indexOf(p.id) < 0 && st.open) { x.fillStyle = '#ff6a5a'; x.fillRect(sx - 4, sy - r - 4, 1, 1); x.fillRect(sx - 3, sy - r - 3, 1, 1); x.fillRect(sx - 2, sy - r - 4, 1, 1); x.fillRect(sx - 4, sy - r - 2, 1, 1); x.fillRect(sx - 2, sy - r - 2, 1, 1); }
@@ -311,10 +312,13 @@ function drawHolidayDeco(x, deco, waterX, GND, t, night) {
   else if (deco === 'lights') { string(['#ff4a3a', '#3fd05a', '#ffd23f', '#4fa0ff'], false); const tx = base + 10; drawPine(x, tx, GND + 3, 10, '#2f6d37', false);
     [[0, -3, '#ff4a3a'], [-2, -5, '#ffd23f'], [1, -6, '#4fa0ff'], [-1, -8, '#ff4a3a'], [2, -2, '#ffd23f']].forEach((o, i) => { if (((t * 2 + i) | 0) % 3) { x.fillStyle = o[2]; x.fillRect(tx + o[0], GND + 3 + o[1], 1, 1); } }); x.fillStyle = '#ffe36a'; x.fillRect(tx, GND - 8, 1, 2); x.fillRect(tx - 1, GND - 7, 3, 1); }
   else if (deco === 'flags') string(['#d8402f', '#ffffff', '#3f7fc8'], true);
+  else if (deco === 'green') string(['#3fa04a', '#ffffff', '#f08a2c'], true);
+  else if (deco === 'maple') string(['#c8402f', '#f2c230', '#e08a2c'], true);
   else if (deco === 'pink') string(['#ff7aa8', '#ffffff', '#d8402f'], true);
   else if (deco === 'gold') string(['#ffd23f', '#ffffff'], false);
 }
 function drawHolidayFx(x, W, H, t, fx, night, n) {
+  if (!fx) return;
   if (fx === 'bats' && night <= 0.3) fx = 'leaves';
   if (fx === 'fireworks') { if (night <= 0.3) return; const pal = ['#ff6a5a', '#ffe36a', '#7dff8a', '#8fd8ee', '#ff9ad0'];
     for (let b = 0; b < 3; b++) { const cyc = t / 2.6 + hash2(b, 97) * 5, k = Math.floor(cyc), ph = cyc - k, cx = hash2(k, 98 + b) * W, cy = (0.08 + hash2(k, 109 + b) * 0.42) * H, rr = 2 + ph * 9; if (ph > 0.85) continue; x.fillStyle = pal[(k + b) % pal.length];
@@ -325,4 +329,11 @@ function drawHolidayFx(x, W, H, t, fx, night, n) {
   const sp = fx === 'snow' ? 8 : fx === 'hearts' ? -5 : 11, span = H + 8;
   for (let i = 0; i < n; i++) { const py = ((((t * sp * (0.7 + hash2(i, 91) * 0.6) + hash2(i, 92) * span) % span) + span) % span | 0) - 4, px = ((((hash2(i, 93) * W + Math.sin(t * 1.3 + i) * 5 + (fx === 'leaves' ? py * 0.5 : 0)) % W) + W) % W) | 0;
     x.fillStyle = cols[i % cols.length]; if (fx === 'hearts') { x.fillRect(px, py, 1, 1); x.fillRect(px + 2, py, 1, 1); x.fillRect(px, py + 1, 3, 1); x.fillRect(px + 1, py + 2, 1, 1); } else x.fillRect(px, py, fx === 'leaves' && i % 2 ? 2 : 1, 1); }
+}
+// a small sign of the season beside each port you serve, on the map
+function drawHolidayPin(x, deco, px, py, t) {
+  x.fillStyle = '#14273d'; x.fillRect(px - 1, py - 1, 5, 6);
+  if (deco === 'pumpkins' || deco === 'harvest') { x.fillStyle = '#e07a1c'; x.fillRect(px, py + 1, 3, 3); x.fillStyle = '#3f8f3a'; x.fillRect(px + 1, py, 1, 1); }
+  else if (deco === 'lights') { x.fillStyle = '#3fa04a'; x.fillRect(px + 1, py + 1, 1, 1); x.fillRect(px, py + 2, 3, 2); x.fillStyle = ((t * 2) | 0) % 2 ? '#ffe36a' : '#ff4a3a'; x.fillRect(px + 1, py, 1, 1); }
+  else { x.fillStyle = '#d3d8dd'; x.fillRect(px, py, 1, 4); x.fillStyle = deco === 'green' ? '#3fa04a' : deco === 'maple' ? '#e08a2c' : deco === 'pink' ? '#ff7aa8' : deco === 'gold' ? '#ffd23f' : '#d8402f'; x.fillRect(px + 1, py, 2, 2); if (deco === 'flags') { x.fillStyle = '#3f7fc8'; x.fillRect(px + 1, py, 1, 1); } }
 }

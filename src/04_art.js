@@ -58,6 +58,17 @@ const CRAFT_ART = {
   '.....k......k..k....',
   '..ggggggggggggggggg.',
   '...GGGGGGGGGGGGGG...'],
+ gilt: [
+  '....YYYYYYYYYYYYYY..',
+  '....yyyyyyyyyyyyyy..',
+  'w........k.....k....',
+  'ww....wwwccwccwwkk..',
+  'www..wwwwccwccwwGGk.',
+  '.yyyyyyyyyyyyyyyGGG.',
+  '..wwwwwwwwwwwwwwGGk.',
+  '.....k......k..k....',
+  '..ggggggggggggggggg.',
+  '...GGGGGGGGGGGGGG...'],
  twin: [
   '.....BBBBBBBBBBBBBBB..',
   '.....bbbbbbbbbbbbbbb..',

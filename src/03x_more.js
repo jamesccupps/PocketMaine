@@ -24,7 +24,9 @@ function logCount(kind) { return Object.keys((G.log || {})[kind] || {}).length; 
 /* ---------- names & paint ---------- */
 const LIVERIES = [['Factory', null, null], ['Barn red', 'r', 'R'], ['Harbor blue', 'b', 'B'], ['Spruce', 'e', 'E'], ['School bus', 'y', 'Y'], ['Lupine', 'v', 'B'], ['Buoy orange', 'o', 'R']];
 function renameCraft(c, name) { if (!feat('names')) return 'Names unlock at level ' + FEATURE_BY.names.lvl + '.'; name = String(name || '').replace(/[<>"&]/g, '').trim().slice(0, 16); if (!name) return 'Give it a name.'; c.name = name; emit('yard', {}); return null; }
-function paintCraft(c, i) { if (!feat('names')) return 'Paint unlocks at level ' + FEATURE_BY.names.lvl + '.'; if (!LIVERIES[i]) return 'No such paint.'; c.liv = i; emit('yard', {}); return null; }
+function hasPaint(i) { const L = LIVERIES[i]; return !!L && (!L[3] || !!(G.liv || {})[L[3]]); }
+function earnPaint(key, why) { const i = LIVERIES.findIndex(L => L[3] === key); if (i < 0) return; const m = G.liv || (G.liv = {}); if (m[key]) return; m[key] = 1; news('New paint earned: ' + LIVERIES[i][0] + '. ' + why, 'good'); emit('paintWon', { name: LIVERIES[i][0] }); }
+function paintCraft(c, i) { if (!feat('names')) return 'Paint unlocks at level ' + FEATURE_BY.names.lvl + '.'; if (!LIVERIES[i]) return 'No such paint.'; if (!hasPaint(i)) return 'That paint has to be earned.'; c.liv = i; emit('yard', {}); return null; }
 
 /* ---------- wear & overhaul ---------- */
 const condOf = c => c.cond === undefined ? 100 : c.cond;
@@ -76,6 +78,7 @@ const EVENTS = [
   { id: 'yardsale',  any: 1, ss: [SPRING, SUMMER, FALL], kind: 'c', mult: 1.4, from: 1, name: 'Town-wide yard sale', blurb: 'Somebody bought it and now it has to get home.' },
   { id: 'fuelwar',   glob: 'fuel', name: 'Fuel price war', blurb: 'Two dealers are undercutting each other.', text: 'Fuel is 30% off everywhere.' },
   { id: 'swapmeet',  glob: 'swap', name: 'Parts swap meet', blurb: 'Every yard has its spares out on tables.', text: 'Parts on every hangar and boatyard shelf are 40% off.' },
+  { id: 'races',     ss: [SUMMER], circuit: 'lobster', kind: 'p', mult: 1.5, name: 'Lobster boat races', blurb: 'The fleet races at a different harbor every day.' },
   { id: 'fishrun',   glob: 'fish', ss: [SPRING, SUMMER, FALL], name: 'The fish are running', blurb: 'Everybody with a boat is out.', text: 'Catches are half again as big.' }
 ];
 function evActive() { return G.ev && G.t < G.ev.until ? G.ev : null; }
@@ -90,21 +93,39 @@ function seedEvent() { const e = G.ev; if (!e.port) return; const P = PORT_BY[e.
     for (let k = 0; k < (e.from ? (e.ship ? 5 : 3) : 1); k++) { const d = pick(dests), n = 2 + ((Math.random() * 3) | 0), fl = jobFlavor(e.kind, o, d, s), pay = payFor(o, d, e.kind, s, false);
       for (let i = 0; i < n; i++) st.jobs.unshift({ id: G.nextId++, from: o.id, to: d.id, kind: e.kind, pay, label: fl[0], ic: fl[1], ev: 1 }); } }); SIM.dirty = true; }
 function startEvent(e, port) { if (port === undefined) port = e.port || null;
-  G.ev = { id: e.id, name: e.name, port: port || null, kind: e.kind || null, mult: e.mult || 1, from: !!e.from, ship: e.ship || null, glob: e.glob || null, until: G.t + DAY_LEN * 2 }; G.ev.text = evText(e.text ? e : G.ev); seedEvent();
-  news(e.name + (port ? ' at ' + PORT_BY[port].name : '') + '. ' + e.blurb + ' ' + G.ev.text + ' Two days.', 'good'); emit('event', { start: true, port: port || null, name: e.name, text: G.ev.text }); }
+  G.ev = { id: e.id, name: e.name, port: port || null, kind: e.kind || null, mult: e.mult || 1, from: !!e.from, ship: e.ship || null, glob: e.glob || null, until: G.t + DAY_LEN * 2 };
+  // a circuit visits up to four harbors, a day at each
+  if (e.circuit) { const ps = PORTS.filter(p => G.ports[p.id].open && has(p, e.circuit)).map(p => p.id).sort(() => Math.random() - 0.5).slice(0, 4); G.ev.circuit = ps; G.ev.ci = 0; G.ev.port = port = ps[0]; G.ev.until = G.t + DAY_LEN * ps.length; }
+  G.ev.text = evText(e.text ? e : G.ev); seedEvent(); const len = G.ev.circuit ? 'A day at each of ' + G.ev.circuit.length + ' harbors.' : 'Two days.';
+  news(e.name + (port ? ' at ' + PORT_BY[port].name : '') + '. ' + e.blurb + ' ' + G.ev.text + ' ' + len, 'good'); emit('event', { start: true, port: port || null, name: e.name, text: G.ev.text, len }); }
+function moveCircuit() { const e = G.ev; if (!e || !e.circuit || e.ci + 1 >= e.circuit.length) return; e.ci++; e.port = e.circuit[e.ci]; e.text = evText(Object.assign({}, e, { text: '' })); seedEvent();
+  news(e.name + ' move on to ' + PORT_BY[e.port].name + '. ' + e.text, 'good'); emit('event', { start: true, port: e.port, name: e.name, text: e.text, len: 'Today only.' }); }
 // what could happen today: the season's events at ports you serve, ship calls at harbors you serve, and the statewide ones
 function eventChoices() { const s = season(), out = []; EVENTS.forEach(e => { const ss = e.ss || (e.s !== undefined ? [e.s] : null); if (ss && ss.indexOf(s) < 0) return;
-  if (e.glob) { out.push([e, null]); return; } const ports = (e.any ? PORTS.map(p => p.id) : e.ports || [e.port]).filter(id => G.ports[id].open); if (ports.length) out.push([e, pick(ports)]); }); return out; }
+  if (e.glob) { out.push([e, null]); return; }
+  if (e.circuit) { const ps = PORTS.filter(p => G.ports[p.id].open && has(p, e.circuit)); if (ps.length >= 2) out.push([e, ps[0].id]); return; } const ports = (e.any ? PORTS.map(p => p.id) : e.ports || [e.port]).filter(id => G.ports[id].open); if (ports.length) out.push([e, pick(ports)]); }); return out; }
 function startRandomEvent() { const c = eventChoices(); if (!c.length) return false; const x = pick(c); startEvent(x[0], x[1]); return true; }
 function urgentRun() { const open = PORTS.filter(p => G.ports[p.id].open); if (open.length < 2) return null; const far = open.filter(p => has(p, 'island') || has(p, 'remote')), from = pick(far.length ? far : open);
   const to = open.filter(p => p.id !== from.id).sort((a, b) => b.size - a.size)[0], s = season(), fl = jobFlavor('p', from, to, s);
   const j = { id: G.nextId++, from: from.id, to: to.id, kind: 'p', pay: payFor(from, to, 'p', s, false) * 3, label: 'Medical run: a patient for ' + to.name, ic: fl[1], urgent: G.t + 300 };
   G.ports[from.id].jobs.unshift(j); news('Urgent: a patient at ' + from.name + ' needs a ride to ' + to.name + '. Triple fare if someone takes it within five minutes.', 'bad'); emit('urgent', { from: from.id, to: to.id }); return j; }
 function expireUrgent() { PORTS.forEach(p => { const st = G.ports[p.id]; if (!st.open) return; for (let i = st.jobs.length - 1; i >= 0; i--) if (st.jobs[i].urgent && G.t > st.jobs[i].urgent) { st.jobs.splice(i, 1); SIM.dirty = true; } }); }
+// The season's events are drawn up ahead of time, so the Almanac can say what is coming: three of them, on the second, fourth and sixth days.
+const seasonDay = () => dayOf(G.t) % SEASON_DAYS;
+function planSeason() { G.calS = season(); if (!feat('events')) { G.cal = []; return; } const c = eventChoices(), d0 = seasonDay(), days = (d0 ? [d0 + 1, d0 + 3, d0 + 5] : [1, 3, 5]).filter(d => d < SEASON_DAYS), picks = [];
+  while (picks.length < days.length && c.length) { const x = c.splice((Math.random() * c.length) | 0, 1)[0]; picks.push({ id: x[0].id, name: x[0].name, port: x[0].circuit ? null : x[1], day: days[picks.length] }); } G.cal = picks; }
 function rollEvent() { if (!feat('events')) return;
   if (G.ev && G.t >= G.ev.until) { news(G.ev.name + ' is over.', 'idle'); G.ev = null; emit('event', {}); }
-  if (!G.ev && portsOwned() > 1 && Math.random() < 0.6) startRandomEvent();
+  else if (G.ev && G.ev.circuit) moveCircuit();
+  if (!G.cal || G.calS !== season()) planSeason();
+  if (!G.ev && portsOwned() > 1) { const d = seasonDay(), k = G.cal.find(q => !q.done && q.day <= d); if (k) { k.done = 1; const e = EVENTS.find(q => q.id === k.id); if (e && (!k.port || G.ports[k.port].open)) startEvent(e, e.circuit ? undefined : k.port); } }
   if (Math.random() < 0.4) urgentRun(); }
+// after a storm blows through, the place that took the worst of it needs things in a hurry
+function reliefRun(c) { if (!feat('events') || Math.random() < 0.5) return null; const open = PORTS.filter(p => G.ports[p.id].open); if (open.length < 2) return null;
+  const hit = open.filter(p => Math.hypot(p.x - c.x, p.y - c.y) < c.r + 45).sort((a, b) => Math.hypot(a.x - c.x, a.y - c.y) - Math.hypot(b.x - c.x, b.y - c.y))[0]; if (!hit) return null;
+  const from = open.filter(p => p.id !== hit.id).sort((a, b) => b.size - a.size || Math.hypot(a.x - hit.x, a.y - hit.y) - Math.hypot(b.x - hit.x, b.y - hit.y))[0], s = season(), out = [];
+  [['c', 'Storm relief: generators for ' + hit.name, 'parts'], ['c', 'Storm relief: fuel and line for ' + hit.name, 'drum'], ['p', 'Storm relief: a line crew for ' + hit.name, 'cap']].forEach(q => { const j = { id: G.nextId++, from: from.id, to: hit.id, kind: q[0], pay: Math.round(payFor(from, hit, q[0], s, false) * 2.5 / 5) * 5, label: q[1], ic: q[2], urgent: G.t + 480, relief: 1 }; G.ports[from.id].jobs.unshift(j); out.push(j); });
+  news('Storm relief: ' + hit.name + ' took the worst of it. A crew and supplies are waiting at ' + from.name + ', at two and a half times the rate, for eight minutes.', 'bad'); emit('urgent', { from: from.id, to: hit.id, relief: 1 }); return out; }
 
 /* ---------- catch & traps ---------- */
 const TRAP_SOAK = 480, TRAP_BAIT = 30;     // a string is at its best after eight minutes in the water; bait each time it is set or hauled

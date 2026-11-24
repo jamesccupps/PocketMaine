@@ -65,7 +65,7 @@ function tutMark(k) { if (G.tutDone) return; const m = { send: 'sent', fish: 'fi
 /* ---------- levels, fleet slots, prices (the Pocket Planes progression spine) ---------- */
 function xpNeed(l) { return Math.round(60 * Math.pow(l, 1.7)); }
 function gainXp(n) { G.xp += n; while (G.xp >= xpNeed(G.level)) { G.xp -= xpNeed(G.level); G.level++; const bonus = 100 * G.level; G.money += bonus;
-    const un = CRAFT.filter(T => T.lvl === G.level).map(T => T.name); news('Level ' + G.level + '! ' + money(bonus) + ' bonus.' + (un.length ? ' Now for sale: ' + un.join(', ') + '.' : ''), 'good'); const fs = FEATURES.filter(f => f.lvl === G.level); fs.forEach(f => news('New at level ' + G.level + ': ' + f.name + '. ' + f.desc, 'good')); if (G.level === FEATURE_BY.crew.lvl) refreshHall();
+    const un = CRAFT.filter(T => T.lvl === G.level && !T.rare).map(T => T.name); news('Level ' + G.level + '! ' + money(bonus) + ' bonus.' + (un.length ? ' Now for sale: ' + un.join(', ') + '.' : ''), 'good'); const fs = FEATURES.filter(f => f.lvl === G.level); fs.forEach(f => news('New at level ' + G.level + ': ' + f.name + '. ' + f.desc, 'good')); if (G.level === FEATURE_BY.crew.lvl) refreshHall();
     emit('level', { level: G.level, bonus, unlocked: un, feats: fs.map(f => f.id) }); awardPart('Level ' + G.level); fs.forEach(f => onUnlock(f.id)); } }
 function slotCost() { return Math.round(400 * Math.pow(1.55, G.slots - 4) / 50) * 50; }
 function buySlot() { const c = slotCost(); if (G.money < c) return 'Can\'t afford it yet.'; G.money -= c; G.slots++; emit('buy', {}); return null; }
@@ -93,18 +93,19 @@ function wxBlock(c, x, y) { const T = CRAFT_BY[c.type], w = wxAt(x, y);
 function nearestPortName(x, y) { let b = null, bd = 1e9; PORTS.forEach(p => { const d = Math.hypot(p.x - x, p.y - y); if (d < bd) { bd = d; b = p; } }); return b.name; }
 function spawnWeather() {
   const s = season(); if (G.wx.length >= 2) return;
+  const mine = PORTS.filter(p => G.ports[p.id].open), wxPorts = f => { const a = mine.filter(f); return a.length ? a : PORTS.filter(f); }, A = pick(wxPorts(() => true));
   const r = Math.random();
-  if (r < [0.4, 0.55, 0.3, 0.12][s]) { const sp = pick(PORTS.filter(p => p.water === 'sea'));
+  if (r < [0.4, 0.55, 0.3, 0.12][s]) { const sp = pick(wxPorts(p => p.water === 'sea'));
     const c = { type: 'fog', x: sp.x + rnd(-25, 10), y: sp.y + rnd(0, 25), r: rnd(38, 62), vx: rnd(0.02, 0.06), vy: rnd(-0.035, 0.006), t0: G.t, life: rnd(330, 600) }; G.wx.push(c);
     news(pick(['Fog bank making up off ', 'Thick o\' fog rolling in at ', 'Pea soup expected around ']) + nearestPortName(c.x, c.y) + '.', 'wx'); return; }
   if (r < [0.4, 0.55, 0.3, 0.12][s] + [0.2, 0.28, 0.34, 0.3][s]) {
-    if (s === SUMMER) { const c = { type: 'storm', x: rnd(40, 160), y: rnd(120, 400), r: rnd(30, 44), vx: rnd(0.11, 0.18), vy: rnd(-0.02, 0.05), t0: G.t, life: rnd(300, 450) }; G.wx.push(c); news('Thunderheads building near ' + nearestPortName(c.x, c.y) + '. Light planes will sit this one out.', 'wx'); }
-    else { const c = { type: 'storm', x: rnd(90, 150), y: rnd(470, 520), r: rnd(60, 88), vx: rnd(0.11, 0.16), vy: rnd(-0.1, -0.06), t0: G.t, life: rnd(380, 560) }; G.wx.push(c); news(s === WINTER ? 'Nor\'easter working up the coast. Small boats and light planes stay put.' : 'Gale warning, Casco Bay to Eastport. Small craft stay put.', 'wx'); }
+    if (s === SUMMER) { const c = { type: 'storm', x: A.x - rnd(60, 150), y: A.y + rnd(-70, 70), r: rnd(30, 44), vx: rnd(0.11, 0.18), vy: rnd(-0.02, 0.05), t0: G.t, life: rnd(300, 450) }; G.wx.push(c); news('Thunderheads building near ' + nearestPortName(c.x, c.y) + '. Light planes will sit this one out.', 'wx'); }
+    else { const c = { type: 'storm', x: A.x - rnd(10, 70), y: A.y + rnd(90, 150), r: rnd(60, 88), vx: rnd(0.11, 0.16), vy: rnd(-0.1, -0.06), t0: G.t, life: rnd(380, 560) }; G.wx.push(c); news(s === WINTER ? 'Nor\'easter working up the coast. Small boats and light planes stay put.' : 'Gale warning, Casco Bay to Eastport. Small craft stay put.', 'wx'); }
     return; }
-  if (s === WINTER && r < 0.75) { const c = { type: 'snow', x: rnd(20, 120), y: rnd(60, 330), r: rnd(55, 85), vx: rnd(0.07, 0.13), vy: rnd(-0.012, 0.035), t0: G.t, life: rnd(330, 520) }; G.wx.push(c); news('Snow squalls moving across ' + nearestPortName(c.x + 60, c.y) + ' way. Light planes are grounded in it.', 'wx'); }
+  if (s === WINTER && r < 0.75) { const c = { type: 'snow', x: A.x - rnd(90, 190), y: A.y + rnd(-90, 60), r: rnd(55, 85), vx: rnd(0.07, 0.13), vy: rnd(-0.012, 0.035), t0: G.t, life: rnd(330, 520) }; G.wx.push(c); news('Snow squalls moving across ' + nearestPortName(c.x + 60, c.y) + ' way. Light planes are grounded in it.', 'wx'); }
 }
 function updateWeather(dt) {
-  for (let i = G.wx.length - 1; i >= 0; i--) { const c = G.wx[i]; c.x += c.vx * dt; c.y += c.vy * dt; if (G.t - c.t0 > c.life + 30) G.wx.splice(i, 1); }
+  for (let i = G.wx.length - 1; i >= 0; i--) { const c = G.wx[i]; c.x += c.vx * dt; c.y += c.vy * dt; if (G.t - c.t0 > c.life + 30) { G.wx.splice(i, 1); if (c.type === 'storm') reliefRun(c); } }
   G.wxNext -= dt; if (G.wxNext <= 0) { G.wxNext = rnd(300, 600); spawnWeather(); }
 }
 
@@ -260,7 +261,7 @@ function arrive(c) {
   // once catch & traps are unlocked a boat comes home with its catch still aboard: nothing to collect, you choose where to sell
   if (r.kind === 'fishBack' && feat('catch')) { c.state = 'dock'; c.plan = null; emit('fishIn', { c, pid, x: port.x, y: port.y }); return; }
   let pay = 0, units = 0, bonus = 0; const keep = [];
-  c.jobs.forEach(j => { if (j.to !== pid) { keep.push(j); return; } const p = Math.round(j.pay * (j.bonus ? 1.25 : 1) * (j.kind === 'p' && crewHas(c, 'charm') ? 1.1 : 1)); pay += p; if (j.urgent) bonusXp(20, 'medical run'); if (j.vip) vipDeliver(j, c, pid); if (j.bonus) bonus += p - j.pay; units += slotsOf(j); addXp(pid, j.n ? 3 : 1); if (G.ports[j.from]) addXp(j.from, 0.5);
+  c.jobs.forEach(j => { if (j.to !== pid) { if (j.vip) j.hops = (j.hops || 0) + 1; keep.push(j); return; } const p = Math.round(j.pay * (j.bonus ? 1.25 : 1) * (j.kind === 'p' && crewHas(c, 'charm') ? 1.1 : 1)); pay += p; if (j.urgent) bonusXp(20, j.relief ? 'storm relief' : 'medical run'); if (j.vip && !vipDeliver(j, c, pid) && j.vip === 'tip') pay -= Math.round(p * 0.5); if (j.bonus) bonus += p - j.pay; units += slotsOf(j); addXp(pid, j.n ? 3 : 1); if (G.ports[j.from]) addXp(j.from, 0.5);
     if (j.kid) { const k = G.active.find(x => x.id === j.kid); if (k) { k.loaded--; k.delivered++; if (k.delivered >= k.total) completeContract(k); } } });
   c.jobs = keep;
   // an excursion boat is paid at every stop of its loop; a harbor it has already shown them pays half
@@ -331,7 +332,7 @@ function partPrice(T) { return Math.max(50, Math.round(T.price * PART_FRAC / 50)
 function partName(t, s) { const T = CRAFT_BY[t]; return T.name + ' ' + PART_NAMES[T.cls][s].toLowerCase(); }
 function canAssemble(t) { return partsHeld(t).every(n => n > 0); }
 // what a yard might carry: craft it can launch, up to two levels past where you are
-function partPool(pid, kind) { const port = PORT_BY[pid]; return CRAFT.filter(T => yardKind(T) === kind && canBase(T, port) && T.lvl <= G.level + 2); }
+function partPool(pid, kind) { const port = PORT_BY[pid]; return CRAFT.filter(T => !T.rare && yardKind(T) === kind && canBase(T, port) && T.lvl <= G.level + 2); }
 function rollPart(pool) { if (!pool.length) return null;
   // four times in ten the yard has something you are already collecting
   const want = []; pool.forEach(T => { const h = partsHeld(T.id); if (h.some(n => n > 0)) h.forEach((n, s) => { if (!n) want.push([T, s]); }); });
@@ -346,7 +347,7 @@ function givePart(t, s) { const k = partKey(t, s); G.parts[k] = (G.parts[k] || 0
 function buyPart(pid, id) { const st = G.ports[pid], i = (st.shelf || []).findIndex(x => x.id === id); if (i < 0) return 'That one is gone.'; const it = st.shelf[i];
   const price = shelfPrice(it); if (G.money < price) return 'Can\'t afford it yet.'; G.money -= price; givePart(it.t, it.s); st.shelf.splice(i, 1); emit('buy', {}); return null; }
 // a free part: contracts and new levels pay one out
-function awardPart(why) { const pool = CRAFT.filter(T => T.lvl <= G.level + 1), r = rollPart(pool); if (!r) return; givePart(r[0].id, r[1]);
+function awardPart(why, rare) { const fancy = rare ? CRAFT.filter(T => T.rare && T.lvl <= G.level + 2) : [], pool = fancy.length && Math.random() < 0.5 ? fancy : CRAFT.filter(T => !T.rare && T.lvl <= G.level + 1), r = rollPart(pool); if (!r) return; givePart(r[0].id, r[1]);
   news(why + ': a crate with a ' + partName(r[0].id, r[1]) + ' in it.', 'good'); emit('crate', { t: r[0].id, s: r[1], why }); }
 // a finished craft goes into the fleet if there is a slot, into storage if not
 function placeCraft(typeId, pid, name, upg) { const T = CRAFT_BY[typeId];
@@ -354,7 +355,7 @@ function placeCraft(typeId, pid, name, upg) { const T = CRAFT_BY[typeId];
   if (G.stored.length < STORE_CAP) { const r = { type: typeId, name: name || newName(T), upg: upg || {}, stored: true }; G.stored.push(r); return r; }
   return null; }
 function roomForCraft() { return G.crafts.length < G.slots || G.stored.length < STORE_CAP; }
-function buyCraft(typeId, pid) { const T = CRAFT_BY[typeId]; if (G.level < T.lvl) return 'Unlocks at level ' + T.lvl + '.'; if (!G.ports[pid].open) return 'Open the port first.';
+function buyCraft(typeId, pid) { const T = CRAFT_BY[typeId]; if (T.rare) return 'Not for sale. It is built from parts that come in VIP crates.'; if (G.level < T.lvl) return 'Unlocks at level ' + T.lvl + '.'; if (!G.ports[pid].open) return 'Open the port first.';
   if (!hasYard(pid, T)) return 'No ' + yardWord(T) + ' here.'; if (!canBase(T, PORT_BY[pid])) return 'It can\'t operate from here.';
   if (!roomForCraft()) return 'No free fleet slot, and storage is full.'; if (G.money < T.price) return 'Can\'t afford it yet.';
   G.money -= T.price; const c = placeCraft(typeId, pid); news('New in the fleet: ' + T.name + ' "' + c.name + '," ' + (c.stored ? 'put in storage.' : 'delivered to ' + PORT_BY[pid].name + '.'), 'good'); emit('buy', { c }); logFirst('types', typeId, 15, 'new type: ' + T.name); return c; }

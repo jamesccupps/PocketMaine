@@ -27,7 +27,7 @@ with sync_playwright() as p:
     expect(ev("()=>logCount('vip')")==1, 'logbook has the VIP')
     ev("()=>{ openMenu('almanac'); }"); pg.wait_for_timeout(500); alm=ev("()=>document.getElementById('sbody').innerText"); expect('VIPs met 1 of' in alm and '1 carried' in alm, 'almanac shows VIPs carried and met')
     expect(('THANKSGIVING' in alm.upper()) == bool(ev("()=>!!holidayNow()")), 'almanac ON NOW matches the calendar')
-    for i in range(8): tap('[data-act=holiday]')
+    for i in range(ev("()=>HOLIDAYS.length")+2): tap('[data-act=holiday]')
     expect(ev("()=>holidayPref()")=='auto', 'the HOLIDAYS switch cycles back to AUTO')
     ev("()=>{ deselect(); gainXp(xpNeed(G.level)-G.xp); }"); pg.wait_for_timeout(700); card=ev("()=>document.getElementById('mbox').innerText"); expect('EVENTS' in card.upper() and ev("()=>!!G.ev"), 'level 3 card announces events and one is on: '+str(ev("()=>G.ev&&G.ev.name")))
     tap('#mbox .btn.go'); ev("()=>{ openMenu('almanac'); }"); pg.wait_for_timeout(500); alm=ev("()=>document.getElementById('sbody').innerText"); expect(ev("()=>G.ev.name").upper() in alm.upper() and 'Ends in' in alm, 'almanac describes the event')

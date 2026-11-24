@@ -849,6 +849,8 @@ const CRAFT = [
    desc:'Six-seat hauler on fat tires. The pickup truck of the north woods.' },
  { id:'beav', lvl:6,    cls:'plane', name:'Old Beav',        price:16000,  pax:4,  cargo:4,  speed:7.5,  range:420, fuel:0.24, wheels:0, floats:true,  light:true,  spr:'beav',
    desc:'Radial-engine floatplane. Loud, slow, carries a moose (quartered).' },
+ { id:'gilt', lvl:6,    cls:'plane', name:'Gilded Beav',     price:28000,  pax:6,  cargo:4,  speed:9.5,  range:520, fuel:0.26, wheels:0, floats:true,  light:true,  rare:1, spr:'gilt',
+   desc:'A showpiece radial floatplane, faster and roomier than the old one. Never for sale: its parts only come in a VIP\'s crate.' },
  { id:'twin', lvl:8,    cls:'plane', name:'Island Twin',     price:30000,  pax:7,  cargo:3,  speed:9.5,  range:500, fuel:0.30, wheels:1, floats:false, light:false, spr:'twin',
    desc:'Two engines, short-field legs, shrugs off weather that grounds the little fellas.' },
  { id:'amphib', lvl:11,  cls:'plane', name:'Caravan Amphib',  price:62000,  pax:8,  cargo:6,  speed:10.5, range:650, fuel:0.40, wheels:2, floats:true,  light:false, spr:'amphib',
@@ -1328,7 +1330,7 @@ function tutMark(k) { if (G.tutDone) return; const m = { send: 'sent', fish: 'fi
 /* ---------- levels, fleet slots, prices (the Pocket Planes progression spine) ---------- */
 function xpNeed(l) { return Math.round(60 * Math.pow(l, 1.7)); }
 function gainXp(n) { G.xp += n; while (G.xp >= xpNeed(G.level)) { G.xp -= xpNeed(G.level); G.level++; const bonus = 100 * G.level; G.money += bonus;
-    const un = CRAFT.filter(T => T.lvl === G.level).map(T => T.name); news('Level ' + G.level + '! ' + money(bonus) + ' bonus.' + (un.length ? ' Now for sale: ' + un.join(', ') + '.' : ''), 'good'); const fs = FEATURES.filter(f => f.lvl === G.level); fs.forEach(f => news('New at level ' + G.level + ': ' + f.name + '. ' + f.desc, 'good')); if (G.level === FEATURE_BY.crew.lvl) refreshHall();
+    const un = CRAFT.filter(T => T.lvl === G.level && !T.rare).map(T => T.name); news('Level ' + G.level + '! ' + money(bonus) + ' bonus.' + (un.length ? ' Now for sale: ' + un.join(', ') + '.' : ''), 'good'); const fs = FEATURES.filter(f => f.lvl === G.level); fs.forEach(f => news('New at level ' + G.level + ': ' + f.name + '. ' + f.desc, 'good')); if (G.level === FEATURE_BY.crew.lvl) refreshHall();
     emit('level', { level: G.level, bonus, unlocked: un, feats: fs.map(f => f.id) }); awardPart('Level ' + G.level); fs.forEach(f => onUnlock(f.id)); } }
 function slotCost() { return Math.round(400 * Math.pow(1.55, G.slots - 4) / 50) * 50; }
 function buySlot() { const c = slotCost(); if (G.money < c) return 'Can\'t afford it yet.'; G.money -= c; G.slots++; emit('buy', {}); return null; }
@@ -1356,18 +1358,19 @@ function wxBlock(c, x, y) { const T = CRAFT_BY[c.type], w = wxAt(x, y);
 function nearestPortName(x, y) { let b = null, bd = 1e9; PORTS.forEach(p => { const d = Math.hypot(p.x - x, p.y - y); if (d < bd) { bd = d; b = p; } }); return b.name; }
 function spawnWeather() {
   const s = season(); if (G.wx.length >= 2) return;
+  const mine = PORTS.filter(p => G.ports[p.id].open), wxPorts = f => { const a = mine.filter(f); return a.length ? a : PORTS.filter(f); }, A = pick(wxPorts(() => true));
   const r = Math.random();
-  if (r < [0.4, 0.55, 0.3, 0.12][s]) { const sp = pick(PORTS.filter(p => p.water === 'sea'));
+  if (r < [0.4, 0.55, 0.3, 0.12][s]) { const sp = pick(wxPorts(p => p.water === 'sea'));
     const c = { type: 'fog', x: sp.x + rnd(-25, 10), y: sp.y + rnd(0, 25), r: rnd(38, 62), vx: rnd(0.02, 0.06), vy: rnd(-0.035, 0.006), t0: G.t, life: rnd(330, 600) }; G.wx.push(c);
     news(pick(['Fog bank making up off ', 'Thick o\' fog rolling in at ', 'Pea soup expected around ']) + nearestPortName(c.x, c.y) + '.', 'wx'); return; }
   if (r < [0.4, 0.55, 0.3, 0.12][s] + [0.2, 0.28, 0.34, 0.3][s]) {
-    if (s === SUMMER) { const c = { type: 'storm', x: rnd(40, 160), y: rnd(120, 400), r: rnd(30, 44), vx: rnd(0.11, 0.18), vy: rnd(-0.02, 0.05), t0: G.t, life: rnd(300, 450) }; G.wx.push(c); news('Thunderheads building near ' + nearestPortName(c.x, c.y) + '. Light planes will sit this one out.', 'wx'); }
-    else { const c = { type: 'storm', x: rnd(90, 150), y: rnd(470, 520), r: rnd(60, 88), vx: rnd(0.11, 0.16), vy: rnd(-0.1, -0.06), t0: G.t, life: rnd(380, 560) }; G.wx.push(c); news(s === WINTER ? 'Nor\'easter working up the coast. Small boats and light planes stay put.' : 'Gale warning, Casco Bay to Eastport. Small craft stay put.', 'wx'); }
+    if (s === SUMMER) { const c = { type: 'storm', x: A.x - rnd(60, 150), y: A.y + rnd(-70, 70), r: rnd(30, 44), vx: rnd(0.11, 0.18), vy: rnd(-0.02, 0.05), t0: G.t, life: rnd(300, 450) }; G.wx.push(c); news('Thunderheads building near ' + nearestPortName(c.x, c.y) + '. Light planes will sit this one out.', 'wx'); }
+    else { const c = { type: 'storm', x: A.x - rnd(10, 70), y: A.y + rnd(90, 150), r: rnd(60, 88), vx: rnd(0.11, 0.16), vy: rnd(-0.1, -0.06), t0: G.t, life: rnd(380, 560) }; G.wx.push(c); news(s === WINTER ? 'Nor\'easter working up the coast. Small boats and light planes stay put.' : 'Gale warning, Casco Bay to Eastport. Small craft stay put.', 'wx'); }
     return; }
-  if (s === WINTER && r < 0.75) { const c = { type: 'snow', x: rnd(20, 120), y: rnd(60, 330), r: rnd(55, 85), vx: rnd(0.07, 0.13), vy: rnd(-0.012, 0.035), t0: G.t, life: rnd(330, 520) }; G.wx.push(c); news('Snow squalls moving across ' + nearestPortName(c.x + 60, c.y) + ' way. Light planes are grounded in it.', 'wx'); }
+  if (s === WINTER && r < 0.75) { const c = { type: 'snow', x: A.x - rnd(90, 190), y: A.y + rnd(-90, 60), r: rnd(55, 85), vx: rnd(0.07, 0.13), vy: rnd(-0.012, 0.035), t0: G.t, life: rnd(330, 520) }; G.wx.push(c); news('Snow squalls moving across ' + nearestPortName(c.x + 60, c.y) + ' way. Light planes are grounded in it.', 'wx'); }
 }
 function updateWeather(dt) {
-  for (let i = G.wx.length - 1; i >= 0; i--) { const c = G.wx[i]; c.x += c.vx * dt; c.y += c.vy * dt; if (G.t - c.t0 > c.life + 30) G.wx.splice(i, 1); }
+  for (let i = G.wx.length - 1; i >= 0; i--) { const c = G.wx[i]; c.x += c.vx * dt; c.y += c.vy * dt; if (G.t - c.t0 > c.life + 30) { G.wx.splice(i, 1); if (c.type === 'storm') reliefRun(c); } }
   G.wxNext -= dt; if (G.wxNext <= 0) { G.wxNext = rnd(300, 600); spawnWeather(); }
 }
 
@@ -1523,7 +1526,7 @@ function arrive(c) {
   // once catch & traps are unlocked a boat comes home with its catch still aboard: nothing to collect, you choose where to sell
   if (r.kind === 'fishBack' && feat('catch')) { c.state = 'dock'; c.plan = null; emit('fishIn', { c, pid, x: port.x, y: port.y }); return; }
   let pay = 0, units = 0, bonus = 0; const keep = [];
-  c.jobs.forEach(j => { if (j.to !== pid) { keep.push(j); return; } const p = Math.round(j.pay * (j.bonus ? 1.25 : 1) * (j.kind === 'p' && crewHas(c, 'charm') ? 1.1 : 1)); pay += p; if (j.urgent) bonusXp(20, 'medical run'); if (j.vip) vipDeliver(j, c, pid); if (j.bonus) bonus += p - j.pay; units += slotsOf(j); addXp(pid, j.n ? 3 : 1); if (G.ports[j.from]) addXp(j.from, 0.5);
+  c.jobs.forEach(j => { if (j.to !== pid) { if (j.vip) j.hops = (j.hops || 0) + 1; keep.push(j); return; } const p = Math.round(j.pay * (j.bonus ? 1.25 : 1) * (j.kind === 'p' && crewHas(c, 'charm') ? 1.1 : 1)); pay += p; if (j.urgent) bonusXp(20, j.relief ? 'storm relief' : 'medical run'); if (j.vip && !vipDeliver(j, c, pid) && j.vip === 'tip') pay -= Math.round(p * 0.5); if (j.bonus) bonus += p - j.pay; units += slotsOf(j); addXp(pid, j.n ? 3 : 1); if (G.ports[j.from]) addXp(j.from, 0.5);
     if (j.kid) { const k = G.active.find(x => x.id === j.kid); if (k) { k.loaded--; k.delivered++; if (k.delivered >= k.total) completeContract(k); } } });
   c.jobs = keep;
   // an excursion boat is paid at every stop of its loop; a harbor it has already shown them pays half
@@ -1594,7 +1597,7 @@ function partPrice(T) { return Math.max(50, Math.round(T.price * PART_FRAC / 50)
 function partName(t, s) { const T = CRAFT_BY[t]; return T.name + ' ' + PART_NAMES[T.cls][s].toLowerCase(); }
 function canAssemble(t) { return partsHeld(t).every(n => n > 0); }
 // what a yard might carry: craft it can launch, up to two levels past where you are
-function partPool(pid, kind) { const port = PORT_BY[pid]; return CRAFT.filter(T => yardKind(T) === kind && canBase(T, port) && T.lvl <= G.level + 2); }
+function partPool(pid, kind) { const port = PORT_BY[pid]; return CRAFT.filter(T => !T.rare && yardKind(T) === kind && canBase(T, port) && T.lvl <= G.level + 2); }
 function rollPart(pool) { if (!pool.length) return null;
   // four times in ten the yard has something you are already collecting
   const want = []; pool.forEach(T => { const h = partsHeld(T.id); if (h.some(n => n > 0)) h.forEach((n, s) => { if (!n) want.push([T, s]); }); });
@@ -1609,7 +1612,7 @@ function givePart(t, s) { const k = partKey(t, s); G.parts[k] = (G.parts[k] || 0
 function buyPart(pid, id) { const st = G.ports[pid], i = (st.shelf || []).findIndex(x => x.id === id); if (i < 0) return 'That one is gone.'; const it = st.shelf[i];
   const price = shelfPrice(it); if (G.money < price) return 'Can\'t afford it yet.'; G.money -= price; givePart(it.t, it.s); st.shelf.splice(i, 1); emit('buy', {}); return null; }
 // a free part: contracts and new levels pay one out
-function awardPart(why) { const pool = CRAFT.filter(T => T.lvl <= G.level + 1), r = rollPart(pool); if (!r) return; givePart(r[0].id, r[1]);
+function awardPart(why, rare) { const fancy = rare ? CRAFT.filter(T => T.rare && T.lvl <= G.level + 2) : [], pool = fancy.length && Math.random() < 0.5 ? fancy : CRAFT.filter(T => !T.rare && T.lvl <= G.level + 1), r = rollPart(pool); if (!r) return; givePart(r[0].id, r[1]);
   news(why + ': a crate with a ' + partName(r[0].id, r[1]) + ' in it.', 'good'); emit('crate', { t: r[0].id, s: r[1], why }); }
 // a finished craft goes into the fleet if there is a slot, into storage if not
 function placeCraft(typeId, pid, name, upg) { const T = CRAFT_BY[typeId];
@@ -1617,7 +1620,7 @@ function placeCraft(typeId, pid, name, upg) { const T = CRAFT_BY[typeId];
   if (G.stored.length < STORE_CAP) { const r = { type: typeId, name: name || newName(T), upg: upg || {}, stored: true }; G.stored.push(r); return r; }
   return null; }
 function roomForCraft() { return G.crafts.length < G.slots || G.stored.length < STORE_CAP; }
-function buyCraft(typeId, pid) { const T = CRAFT_BY[typeId]; if (G.level < T.lvl) return 'Unlocks at level ' + T.lvl + '.'; if (!G.ports[pid].open) return 'Open the port first.';
+function buyCraft(typeId, pid) { const T = CRAFT_BY[typeId]; if (T.rare) return 'Not for sale. It is built from parts that come in VIP crates.'; if (G.level < T.lvl) return 'Unlocks at level ' + T.lvl + '.'; if (!G.ports[pid].open) return 'Open the port first.';
   if (!hasYard(pid, T)) return 'No ' + yardWord(T) + ' here.'; if (!canBase(T, PORT_BY[pid])) return 'It can\'t operate from here.';
   if (!roomForCraft()) return 'No free fleet slot, and storage is full.'; if (G.money < T.price) return 'Can\'t afford it yet.';
   G.money -= T.price; const c = placeCraft(typeId, pid); news('New in the fleet: ' + T.name + ' "' + c.name + '," ' + (c.stored ? 'put in storage.' : 'delivered to ' + PORT_BY[pid].name + '.'), 'good'); emit('buy', { c }); logFirst('types', typeId, 15, 'new type: ' + T.name); return c; }
@@ -1709,7 +1712,9 @@ function logCount(kind) { return Object.keys((G.log || {})[kind] || {}).length; 
 /* ---------- names & paint ---------- */
 const LIVERIES = [['Factory', null, null], ['Barn red', 'r', 'R'], ['Harbor blue', 'b', 'B'], ['Spruce', 'e', 'E'], ['School bus', 'y', 'Y'], ['Lupine', 'v', 'B'], ['Buoy orange', 'o', 'R']];
 function renameCraft(c, name) { if (!feat('names')) return 'Names unlock at level ' + FEATURE_BY.names.lvl + '.'; name = String(name || '').replace(/[<>"&]/g, '').trim().slice(0, 16); if (!name) return 'Give it a name.'; c.name = name; emit('yard', {}); return null; }
-function paintCraft(c, i) { if (!feat('names')) return 'Paint unlocks at level ' + FEATURE_BY.names.lvl + '.'; if (!LIVERIES[i]) return 'No such paint.'; c.liv = i; emit('yard', {}); return null; }
+function hasPaint(i) { const L = LIVERIES[i]; return !!L && (!L[3] || !!(G.liv || {})[L[3]]); }
+function earnPaint(key, why) { const i = LIVERIES.findIndex(L => L[3] === key); if (i < 0) return; const m = G.liv || (G.liv = {}); if (m[key]) return; m[key] = 1; news('New paint earned: ' + LIVERIES[i][0] + '. ' + why, 'good'); emit('paintWon', { name: LIVERIES[i][0] }); }
+function paintCraft(c, i) { if (!feat('names')) return 'Paint unlocks at level ' + FEATURE_BY.names.lvl + '.'; if (!LIVERIES[i]) return 'No such paint.'; if (!hasPaint(i)) return 'That paint has to be earned.'; c.liv = i; emit('yard', {}); return null; }
 
 /* ---------- wear & overhaul ---------- */
 const condOf = c => c.cond === undefined ? 100 : c.cond;
@@ -1761,6 +1766,7 @@ const EVENTS = [
   { id: 'yardsale',  any: 1, ss: [SPRING, SUMMER, FALL], kind: 'c', mult: 1.4, from: 1, name: 'Town-wide yard sale', blurb: 'Somebody bought it and now it has to get home.' },
   { id: 'fuelwar',   glob: 'fuel', name: 'Fuel price war', blurb: 'Two dealers are undercutting each other.', text: 'Fuel is 30% off everywhere.' },
   { id: 'swapmeet',  glob: 'swap', name: 'Parts swap meet', blurb: 'Every yard has its spares out on tables.', text: 'Parts on every hangar and boatyard shelf are 40% off.' },
+  { id: 'races',     ss: [SUMMER], circuit: 'lobster', kind: 'p', mult: 1.5, name: 'Lobster boat races', blurb: 'The fleet races at a different harbor every day.' },
   { id: 'fishrun',   glob: 'fish', ss: [SPRING, SUMMER, FALL], name: 'The fish are running', blurb: 'Everybody with a boat is out.', text: 'Catches are half again as big.' }
 ];
 function evActive() { return G.ev && G.t < G.ev.until ? G.ev : null; }
@@ -1775,21 +1781,39 @@ function seedEvent() { const e = G.ev; if (!e.port) return; const P = PORT_BY[e.
     for (let k = 0; k < (e.from ? (e.ship ? 5 : 3) : 1); k++) { const d = pick(dests), n = 2 + ((Math.random() * 3) | 0), fl = jobFlavor(e.kind, o, d, s), pay = payFor(o, d, e.kind, s, false);
       for (let i = 0; i < n; i++) st.jobs.unshift({ id: G.nextId++, from: o.id, to: d.id, kind: e.kind, pay, label: fl[0], ic: fl[1], ev: 1 }); } }); SIM.dirty = true; }
 function startEvent(e, port) { if (port === undefined) port = e.port || null;
-  G.ev = { id: e.id, name: e.name, port: port || null, kind: e.kind || null, mult: e.mult || 1, from: !!e.from, ship: e.ship || null, glob: e.glob || null, until: G.t + DAY_LEN * 2 }; G.ev.text = evText(e.text ? e : G.ev); seedEvent();
-  news(e.name + (port ? ' at ' + PORT_BY[port].name : '') + '. ' + e.blurb + ' ' + G.ev.text + ' Two days.', 'good'); emit('event', { start: true, port: port || null, name: e.name, text: G.ev.text }); }
+  G.ev = { id: e.id, name: e.name, port: port || null, kind: e.kind || null, mult: e.mult || 1, from: !!e.from, ship: e.ship || null, glob: e.glob || null, until: G.t + DAY_LEN * 2 };
+  // a circuit visits up to four harbors, a day at each
+  if (e.circuit) { const ps = PORTS.filter(p => G.ports[p.id].open && has(p, e.circuit)).map(p => p.id).sort(() => Math.random() - 0.5).slice(0, 4); G.ev.circuit = ps; G.ev.ci = 0; G.ev.port = port = ps[0]; G.ev.until = G.t + DAY_LEN * ps.length; }
+  G.ev.text = evText(e.text ? e : G.ev); seedEvent(); const len = G.ev.circuit ? 'A day at each of ' + G.ev.circuit.length + ' harbors.' : 'Two days.';
+  news(e.name + (port ? ' at ' + PORT_BY[port].name : '') + '. ' + e.blurb + ' ' + G.ev.text + ' ' + len, 'good'); emit('event', { start: true, port: port || null, name: e.name, text: G.ev.text, len }); }
+function moveCircuit() { const e = G.ev; if (!e || !e.circuit || e.ci + 1 >= e.circuit.length) return; e.ci++; e.port = e.circuit[e.ci]; e.text = evText(Object.assign({}, e, { text: '' })); seedEvent();
+  news(e.name + ' move on to ' + PORT_BY[e.port].name + '. ' + e.text, 'good'); emit('event', { start: true, port: e.port, name: e.name, text: e.text, len: 'Today only.' }); }
 // what could happen today: the season's events at ports you serve, ship calls at harbors you serve, and the statewide ones
 function eventChoices() { const s = season(), out = []; EVENTS.forEach(e => { const ss = e.ss || (e.s !== undefined ? [e.s] : null); if (ss && ss.indexOf(s) < 0) return;
-  if (e.glob) { out.push([e, null]); return; } const ports = (e.any ? PORTS.map(p => p.id) : e.ports || [e.port]).filter(id => G.ports[id].open); if (ports.length) out.push([e, pick(ports)]); }); return out; }
+  if (e.glob) { out.push([e, null]); return; }
+  if (e.circuit) { const ps = PORTS.filter(p => G.ports[p.id].open && has(p, e.circuit)); if (ps.length >= 2) out.push([e, ps[0].id]); return; } const ports = (e.any ? PORTS.map(p => p.id) : e.ports || [e.port]).filter(id => G.ports[id].open); if (ports.length) out.push([e, pick(ports)]); }); return out; }
 function startRandomEvent() { const c = eventChoices(); if (!c.length) return false; const x = pick(c); startEvent(x[0], x[1]); return true; }
 function urgentRun() { const open = PORTS.filter(p => G.ports[p.id].open); if (open.length < 2) return null; const far = open.filter(p => has(p, 'island') || has(p, 'remote')), from = pick(far.length ? far : open);
   const to = open.filter(p => p.id !== from.id).sort((a, b) => b.size - a.size)[0], s = season(), fl = jobFlavor('p', from, to, s);
   const j = { id: G.nextId++, from: from.id, to: to.id, kind: 'p', pay: payFor(from, to, 'p', s, false) * 3, label: 'Medical run: a patient for ' + to.name, ic: fl[1], urgent: G.t + 300 };
   G.ports[from.id].jobs.unshift(j); news('Urgent: a patient at ' + from.name + ' needs a ride to ' + to.name + '. Triple fare if someone takes it within five minutes.', 'bad'); emit('urgent', { from: from.id, to: to.id }); return j; }
 function expireUrgent() { PORTS.forEach(p => { const st = G.ports[p.id]; if (!st.open) return; for (let i = st.jobs.length - 1; i >= 0; i--) if (st.jobs[i].urgent && G.t > st.jobs[i].urgent) { st.jobs.splice(i, 1); SIM.dirty = true; } }); }
+// The season's events are drawn up ahead of time, so the Almanac can say what is coming: three of them, on the second, fourth and sixth days.
+const seasonDay = () => dayOf(G.t) % SEASON_DAYS;
+function planSeason() { G.calS = season(); if (!feat('events')) { G.cal = []; return; } const c = eventChoices(), d0 = seasonDay(), days = (d0 ? [d0 + 1, d0 + 3, d0 + 5] : [1, 3, 5]).filter(d => d < SEASON_DAYS), picks = [];
+  while (picks.length < days.length && c.length) { const x = c.splice((Math.random() * c.length) | 0, 1)[0]; picks.push({ id: x[0].id, name: x[0].name, port: x[0].circuit ? null : x[1], day: days[picks.length] }); } G.cal = picks; }
 function rollEvent() { if (!feat('events')) return;
   if (G.ev && G.t >= G.ev.until) { news(G.ev.name + ' is over.', 'idle'); G.ev = null; emit('event', {}); }
-  if (!G.ev && portsOwned() > 1 && Math.random() < 0.6) startRandomEvent();
+  else if (G.ev && G.ev.circuit) moveCircuit();
+  if (!G.cal || G.calS !== season()) planSeason();
+  if (!G.ev && portsOwned() > 1) { const d = seasonDay(), k = G.cal.find(q => !q.done && q.day <= d); if (k) { k.done = 1; const e = EVENTS.find(q => q.id === k.id); if (e && (!k.port || G.ports[k.port].open)) startEvent(e, e.circuit ? undefined : k.port); } }
   if (Math.random() < 0.4) urgentRun(); }
+// after a storm blows through, the place that took the worst of it needs things in a hurry
+function reliefRun(c) { if (!feat('events') || Math.random() < 0.5) return null; const open = PORTS.filter(p => G.ports[p.id].open); if (open.length < 2) return null;
+  const hit = open.filter(p => Math.hypot(p.x - c.x, p.y - c.y) < c.r + 45).sort((a, b) => Math.hypot(a.x - c.x, a.y - c.y) - Math.hypot(b.x - c.x, b.y - c.y))[0]; if (!hit) return null;
+  const from = open.filter(p => p.id !== hit.id).sort((a, b) => b.size - a.size || Math.hypot(a.x - hit.x, a.y - hit.y) - Math.hypot(b.x - hit.x, b.y - hit.y))[0], s = season(), out = [];
+  [['c', 'Storm relief: generators for ' + hit.name, 'parts'], ['c', 'Storm relief: fuel and line for ' + hit.name, 'drum'], ['p', 'Storm relief: a line crew for ' + hit.name, 'cap']].forEach(q => { const j = { id: G.nextId++, from: from.id, to: hit.id, kind: q[0], pay: Math.round(payFor(from, hit, q[0], s, false) * 2.5 / 5) * 5, label: q[1], ic: q[2], urgent: G.t + 480, relief: 1 }; G.ports[from.id].jobs.unshift(j); out.push(j); });
+  news('Storm relief: ' + hit.name + ' took the worst of it. A crew and supplies are waiting at ' + from.name + ', at two and a half times the rate, for eight minutes.', 'bad'); emit('urgent', { from: from.id, to: hit.id, relief: 1 }); return out; }
 
 /* ---------- catch & traps ---------- */
 const TRAP_SOAK = 480, TRAP_BAIT = 30;     // a string is at its best after eight minutes in the water; bait each time it is set or hauled
@@ -1860,6 +1884,21 @@ function tourPay(c, pid, dist, again) { const T = CRAFT_BY[c.type], p = PORT_BY[
    and brings a reward on delivery. They turn up on a timer, wait eight minutes, and never more than three at once. */
 const VIP_STAY = 480, VIP_MAX = 3;
 const VIP_REWARD = { tip: 'BIG TIP', xp: 'XP', part: 'PARTS CRATE', word: 'GOOD WORD' };
+// some VIPs are particular. Meet the condition or there is no reward (and half the tip).
+const VIP_PREF = { direct: 'NO STOPS', day: 'BY DAYLIGHT', fit: 'SOUND CRAFT' };
+const VIP_PREF_WHY = { direct: 'there was a stop on the way', day: 'it was dark when they got there', fit: 'the craft was running rough' };
+function vipMet(j, c) { if (j.pref === 'direct') return !j.hops; if (j.pref === 'day') { const h = hourOf(G.t); return h >= 6 && h < 20; } if (j.pref === 'fit') return condOf(c) >= 60; return true; }
+// a few VIPs keep coming back until they have been everywhere on their list. Finishing a list earns a paint no yard sells.
+const CHAINS = [
+  { id: 'lights', vip: 'The lighthouse inspector|suit', need: 5, want: p => has(p, 'coast') || has(p, 'island'), goal: 'five different harbors', paint: ['Lighthouse', 'w', 'r'] },
+  { id: 'critic', vip: 'A food critic from away|tourist', need: 4, want: p => has(p, 'city') || has(p, 'tourist'), goal: 'four towns worth eating in', paint: ['Blue plate', 'b', 'w'] },
+  { id: 'judge',  vip: 'A circuit judge|suit', need: 6, want: () => true, goal: 'six different courthouses', paint: ['Judge\'s black', 'k', 'y'] }
+];
+CHAINS.forEach(ch => { ch.label = ch.vip.split('|')[0]; LIVERIES.push([ch.paint[0], ch.paint[1], ch.paint[2], 'chain:' + ch.id]); });
+function chainState(id) { const m = G.chains || (G.chains = {}); return m[id] || (m[id] = { n: 0, seen: {} }); }
+function chainStep(j, pid) { const ch = CHAINS.find(q => q.label === j.label); if (!ch) return; const st = chainState(ch.id), p = PORT_BY[pid]; if (st.done || st.seen[pid] || !ch.want(p)) return;
+  st.seen[pid] = 1; st.n++; if (st.n >= ch.need) { st.done = 1; earnPaint('chain:' + ch.id, ch.label + ' has been to ' + ch.goal + '.'); awardPart('List finished', true); awardPart('List finished', true); bonusXp(100, 'a VIP\'s list finished'); emit('chain', { label: ch.label, done: true, n: st.n, need: ch.need }); }
+  else { news(ch.label + ': ' + st.n + ' of ' + ch.need + '.', 'good'); emit('chain', { label: ch.label, n: st.n, need: ch.need }); } }
 const VIPS = {
   p: ['A film location scout|tourist', 'The lighthouse inspector|suit', 'A famous author, incognito|any', 'A food critic from away|tourist', 'A bride, running late|any', 'A hockey scout|cap',
       'A fiddle champion on tour|any', 'A summer-colony matriarch and her dog|elder', 'A country doctor on her rounds|nurse', 'A puffin researcher|guide', 'A lobster dealer with a deadline|fisher', 'A circuit judge|suit'],
@@ -1876,9 +1915,12 @@ function spawnVip(o) {
   const dests = k => PORTS.filter(d => d.id !== o.id && G.ports[d.id].open && bestCapFor(o, d, k) > 0);
   let ds = dests(kind); if (!ds.length) { kind = kind === 'p' ? 'c' : 'p'; ds = dests(kind); } if (!ds.length) return null;
   let tot = 0; const ws = ds.map(d => { const w = 40 + Math.hypot(d.x - o.x, d.y - o.y); tot += w; return w; }); let r = Math.random() * tot, d = ds[0]; for (let i = 0; i < ds.length; i++) { r -= ws[i]; if (r <= 0) { d = ds[i]; break; } }
-  const h = holidayNow(), list = h && Math.random() < 0.6 ? h.vip[kind] : VIPS[kind], fl = pick(list).split('|');
+  const h = holidayNow(), list = h && Math.random() < 0.6 ? h.vip[kind] : VIPS[kind]; let fl = pick(list).split('|');
+  // three times in ten, somebody with a list: sent somewhere they have not been yet
+  if (Math.random() < 0.3) { const ch = pick(CHAINS), st = chainState(ch.id), go = st.done ? [] : PORTS.filter(q => q.id !== o.id && G.ports[q.id].open && ch.want(q) && !st.seen[q.id] && bestCapFor(o, q, 'p') > 0); if (go.length) { kind = 'p'; d = pick(go); fl = ch.vip.split('|'); } }
   const roll = Math.random(), reward = roll < 0.3 ? 'tip' : roll < 0.6 ? 'xp' : roll < 0.85 ? 'part' : 'word';
   const j = { id: G.nextId++, from: o.id, to: d.id, kind, pay: Math.round(payFor(o, d, kind, s, false) * (reward === 'tip' ? 4 : 3) / 5) * 5, label: fl[0], ic: fl[1], vip: reward, exp: G.t + VIP_STAY };
+  if (Math.random() < 0.4) j.pref = pick(feat('wear') ? ['direct', 'day', 'fit'] : ['direct', 'day']);
   G.ports[o.id].jobs.unshift(j); SIM.dirty = true; emit('vip', { from: o.id, to: d.id, label: j.label, pay: j.pay }); return j;
 }
 function updateVips() {
@@ -1887,42 +1929,61 @@ function updateVips() {
   if (G.t >= G.vipNext) { G.vipNext = G.t + rnd(200, 340) * (holidayNow() ? 0.7 : 1); if (vipJobs().length < VIP_MAX) spawnVip(); }
 }
 function vipDeliver(j, c, pid) {
-  G.stats.vips = (G.stats.vips || 0) + 1; let txt = '';
+  G.stats.vips = (G.stats.vips || 0) + 1; let txt = ''; const met = vipMet(j, c);
   const first = logFirst('vip', j.label, 10, 'new in the logbook: ' + j.label);
-  if (j.vip === 'xp') { const n = 20 + 6 * G.level; bonusXp(n, 'VIP delivered'); txt = '+' + n + ' XP.'; }
-  else if (j.vip === 'part') { awardPart('VIP delivered'); txt = 'A parts crate came with it.'; }
+  if (!met) txt = 'But ' + VIP_PREF_WHY[j.pref] + ', so ' + (j.vip === 'tip' ? 'the tip was half what it might have been.' : 'that was all there was to it.');
+  else if (j.vip === 'xp') { const n = 20 + 6 * G.level; bonusXp(n, 'VIP delivered'); txt = '+' + n + ' XP.'; }
+  else if (j.vip === 'part') { awardPart('VIP delivered', true); txt = 'A parts crate came with it.'; }
   else if (j.vip === 'word') { addXp(pid, 15); if (G.ports[j.from]) addXp(j.from, 15); txt = 'Your name is good at both ends of that run.'; }
   else txt = 'The tip is in the fare.';
-  if (!first && j.vip !== 'xp') bonusXp(5, 'VIP delivered');
-  news('Delivered: ' + j.label + ', to ' + PORT_BY[pid].name + '. ' + txt, 'good'); emit('vipDone', { label: j.label, reward: j.vip, txt, x: PORT_BY[pid].x, y: PORT_BY[pid].y });
+  if (!first && (j.vip !== 'xp' || !met)) bonusXp(5, 'VIP delivered');
+  if (met) { chainStep(j, pid); HOLIDAYS.forEach(h => { if (h.paint && (h.vip.p.concat(h.vip.c)).some(q => q.split('|')[0] === j.label)) earnPaint(h.id, 'For carrying ' + j.label.charAt(0).toLowerCase() + j.label.slice(1) + '.'); }); }
+  news('Delivered: ' + j.label + ', to ' + PORT_BY[pid].name + '. ' + txt, met ? 'good' : 'idle'); emit('vipDone', { label: j.label, reward: j.vip, txt, met, x: PORT_BY[pid].x, y: PORT_BY[pid].y }); return met;
 }
 // what a level brings is on the board the moment it is reached
-function onUnlock(id) { if (id === 'vip') { spawnVip(); G.vipNext = G.t + 200; } if (id === 'events' && !G.ev && portsOwned() > 1) startRandomEvent(); }
+function onUnlock(id) { if (id === 'vip') { spawnVip(); G.vipNext = G.t + 200; } if (id === 'events') { if (!G.ev && portsOwned() > 1) startRandomEvent(); planSeason(); } }
 
 /* ---------- holidays: the real calendar dresses the game up ---------- */
 let HOLIDAY_FORCE = null;      // tests set this: 'off', or a holiday id
-function thanksgivingDay(y) { const w = new Date(y, 10, 1).getDay(); return 1 + ((4 - w + 7) % 7) + 21; }
+function nthDay(y, m, wd, n) { const w = new Date(y, m - 1, 1).getDay(); return 1 + ((wd - w + 7) % 7) + (n - 1) * 7; }     // the nth Monday, say, of a month
+function lastDay(y, m, wd) { const e = new Date(y, m, 0); return e.getDate() - ((e.getDay() - wd + 7) % 7); }
+function thanksgivingDay(y) { return nthDay(y, 11, 4, 4); }
 const HOLIDAYS = [
-  { id: 'newyear', name: 'New Year', on: (m, d) => (m === 12 && d >= 30) || (m === 1 && d <= 2), fx: 'fireworks', deco: 'gold', greet: 'Happy New Year. Fireworks over every harbor tonight.',
+  { id: 'newyear', paint: ['Midnight', 'B', 'y'], name: 'New Year', on: (m, d) => (m === 12 && d >= 30) || (m === 1 && d <= 2), fx: 'fireworks', deco: 'gold', greet: 'Happy New Year. Fireworks over every harbor tonight.',
     jobs: { p: ['Somebody who stayed up too late|any', 'A polar-dip swimmer, still shivering|cap', 'First-day hiker|guide'], c: ['Party hats and noisemakers|box', 'Leftover fireworks|crate', 'Black-eyed peas for luck|grocery'] },
     vip: { p: ['Last night\'s band, heading home|any'], c: ['The big lighted ball for the drop|crate'] } },
-  { id: 'valentine', name: 'Valentine\'s Day', on: (m, d) => m === 2 && d >= 8 && d <= 14, fx: 'hearts', deco: 'pink', greet: 'Valentine\'s week. Flowers and chocolates are moving by the crate.',
+  { id: 'valentine', paint: ['Valentine', 'p', 'r'], name: 'Valentine\'s Day', on: (m, d) => m === 2 && d >= 8 && d <= 14, fx: 'hearts', deco: 'pink', greet: 'Valentine\'s week. Flowers and chocolates are moving by the crate.',
     jobs: { p: ['A fella with flowers and a plan|suit', 'Long-distance sweetheart|any', 'Two people not speaking|any'], c: ['Roses, two dozen|heart', 'Needhams by the tin|heart', 'A very large stuffed bear|gift'] },
     vip: { p: ['A nervous fella with a ring|suit'], c: ['A hundred dozen roses|heart'] } },
-  { id: 'fourth', name: 'Independence Day', on: (m, d) => m === 7 && d >= 1 && d <= 5, fx: 'fireworks', deco: 'flags', greet: 'Fourth of July week. Parades by day, fireworks after dark.',
+  { id: 'stpat', paint: ['Shamrock', 'e', 'w'], name: 'St. Patrick\'s Day', on: (m, d) => m === 3 && d >= 13 && d <= 17, fx: '', deco: 'green', greet: 'St. Patrick\'s week. Pipes, parades and green everything.',
+    jobs: { p: ['A piper, warming up|any', 'Somebody\'s Irish uncle|elder', 'Parade marcher in green|kid'], c: ['Corned beef and cabbage|grocery', 'Soda bread|pie', 'Green carnations|box'] },
+    vip: { p: ['The parade\'s head piper|any'], c: ['A harp, crated carefully|crate'] } },
+  { id: 'maple', paint: ['Sugarhouse', 'n', 'y'], name: 'Maple Sunday', on: (m, d, y) => { const t = nthDay(y, 3, 0, 4); return m === 3 && d >= t - 2 && d <= t; }, fx: 'snow', deco: 'maple', greet: 'Maple Sunday weekend. Every sugarhouse has its doors open.',
+    jobs: { p: ['A family bound for a pancake breakfast|kid', 'A sugarmaker\'s helper|cap', 'A fella who only wants the candy|any'], c: ['Maple syrup by the case|syrup', 'Sap buckets|barrel', 'Maple candy|box', 'Pancake mix|grocery'] },
+    vip: { p: ['The syrup contest judge|elder'], c: ['The first boil of the year|syrup'] } },
+  { id: 'patriots', paint: ['Minuteman', 'b', 'w'], name: 'Patriots\' Day', on: (m, d, y) => { const t = nthDay(y, 4, 1, 3); return m === 4 && d >= t - 2 && d <= t; }, fx: '', deco: 'flags', greet: 'Patriots\' Day weekend. Reenactors at dawn and a marathon after.',
+    jobs: { p: ['A minuteman, with musket|any', 'A marathon runner|kid', 'A fife player|kid'], c: ['Tricorn hats|box', 'Running shoes by the case|box', 'Lanterns, two|crate'] },
+    vip: { p: ['A rider with urgent news|any'], c: ['A cannon for the reenactment|crate'] } },
+  { id: 'memorial', paint: ['Bunting', 'r', 'b'], name: 'Memorial Day', on: (m, d, y) => { const t = lastDay(y, 5, 1); return m === 5 && d >= t - 3 && d <= t; }, fx: '', deco: 'flags', greet: 'Memorial Day weekend. Parades, flags, and camps opening for the summer.',
+    jobs: { p: ['A veteran in his old uniform|elder', 'Summer person opening camp|tourist', 'The band\'s tuba player|kid'], c: ['Flags for the cemetery|box', 'Geraniums|box', 'The dock, in sections|lumber', 'Charcoal|grocery'] },
+    vip: { p: ['The parade\'s oldest veteran|elder'], c: ['A wreath for the monument|wreath'] } },
+  { id: 'fourth', paint: ['Fireworks', 'b', 'r'], name: 'Independence Day', on: (m, d) => m === 7 && d >= 1 && d <= 5, fx: 'fireworks', deco: 'flags', greet: 'Fourth of July week. Parades by day, fireworks after dark.',
     jobs: { p: ['Fife and drum corps member|any', 'Kid with a sparkler|kid', 'Somebody\'s uncle in a flag shirt|cap'], c: ['Fireworks (keep dry)|crate', 'Strawberry shortcake fixings|grocery', 'Lobsters for the bake|lobster', 'Bunting by the yard|box'] },
     vip: { p: ['The parade\'s grand marshal|elder'], c: ['The whole fireworks show, crated|crate'] } },
-  { id: 'halloween', name: 'Halloween', on: (m, d) => m === 10 && d >= 24, fx: 'bats', deco: 'pumpkins', greet: 'Halloween week. Pumpkins on every wharf, and things flying about after dark.',
+  { id: 'labor', paint: ['Lunch pail', 'g', 'y'], name: 'Labor Day', on: (m, d, y) => { const t = nthDay(y, 9, 1, 1); return (m === 9 && d <= t && d >= t - 3) || (m === 8 && t - 3 < 1 && d >= 31 + t - 3); }, fx: '', deco: 'flags', greet: 'Labor Day weekend. Last swim, last lobster roll, camps closing up.',
+    jobs: { p: ['Summer person closing camp|tourist', 'A kid dreading school|kid', 'A fair-goer|any'], c: ['The dock, coming out|lumber', 'School supplies|books', 'Blueberry pie for the fair|pie'] },
+    vip: { p: ['The fair\'s pie judge|elder'], c: ['The prize ox, somehow|crate'] } },
+  { id: 'halloween', paint: ['Jack-o\'-lantern', 'o', 'N'], name: 'Halloween', on: (m, d) => m === 10 && d >= 24, fx: 'bats', deco: 'pumpkins', greet: 'Halloween week. Pumpkins on every wharf, and things flying about after dark.',
     jobs: { p: ['A ghost (sheet, two holes)|kid', 'Trick-or-treater|kid', 'A witch running late|any', 'A fella in a moose costume|cap'], c: ['Pumpkins|pumpkin', 'Candy by the case|box', 'Cider and doughnuts|grocery'] },
     vip: { p: ['The hayride\'s headless horseman|any'], c: ['The giant pumpkin for the regatta|pumpkin'] } },
-  { id: 'thanks', name: 'Thanksgiving', on: (m, d, y) => { const t = thanksgivingDay(y); return m === 11 && d >= t - 6 && d <= t + 1; }, fx: 'leaves', deco: 'harvest', greet: 'Thanksgiving week. Everybody is going home and bringing a pie.',
+  { id: 'thanks', paint: ['Harvest', 'n', 'y'], name: 'Thanksgiving', on: (m, d, y) => { const t = thanksgivingDay(y); return m === 11 && d >= t - 6 && d <= t + 1; }, fx: 'leaves', deco: 'harvest', greet: 'Thanksgiving week. Everybody is going home and bringing a pie.',
     jobs: { p: ['College kid home for the holiday|kid', 'Grandmother bringing the pies herself|elder', 'An uncle with opinions|cap', 'Hunter back from camp for dinner|hunter'], c: ['A twenty-pound turkey|turkey', 'Pies, four kinds|pie', 'Cranberries|berries', 'Squash and potatoes|potato', 'Extra folding chairs|box'] },
     vip: { p: ['Everybody\'s favorite grandmother|elder'], c: ['Every turkey for the church supper|turkey'] } },
-  { id: 'christmas', name: 'Christmas', on: (m, d) => m === 12 && d >= 10 && d <= 26, fx: 'snow', deco: 'lights', greet: 'Christmas is coming. Lights are up in every port and the mail is all packages.',
+  { id: 'christmas', paint: ['Candy cane', 'r', 'w'], name: 'Christmas', on: (m, d) => m === 12 && d >= 10 && d <= 26, fx: 'snow', deco: 'lights', greet: 'Christmas is coming. Lights are up in every port and the mail is all packages.',
     jobs: { p: ['Kid home for Christmas|kid', 'Carolers, off key|any', 'Last-minute shopper|any', 'Somebody\'s grandmother with presents|elder'], c: ['A Christmas tree|tree', 'Wreaths|wreath', 'Presents|gift', 'Mail-order packages|gift', 'A fruitcake, regifted|box'] },
     vip: { p: ['A man in a red suit, in a hurry|elder'], c: ['A sleigh\'s worth of presents|gift'] } }
 ];
-const HOLIDAY_BY = {}; HOLIDAYS.forEach(h => { HOLIDAY_BY[h.id] = h; });
+const HOLIDAY_BY = {}; HOLIDAYS.forEach(h => { HOLIDAY_BY[h.id] = h; if (h.paint) LIVERIES.push([h.paint[0], h.paint[1], h.paint[2], h.id]); });
 function holidayOn(date) { const m = date.getMonth() + 1, d = date.getDate(), y = date.getFullYear(); for (let i = 0; i < HOLIDAYS.length; i++) if (HOLIDAYS[i].on(m, d, y)) return HOLIDAYS[i]; return null; }
 const holCache = { k: -1, h: null };
 function holidayNow() { const pref = HOLIDAY_FORCE !== null ? HOLIDAY_FORCE : (G && G.hol) || 'auto'; if (pref === 'off') return null; if (pref !== 'auto') return HOLIDAY_BY[pref] || null;
@@ -1989,6 +2050,17 @@ const CRAFT_ART = {
   'ww....wwwccwccwwkk..',
   'www..wwwwccwccwwGGk.',
   '.eeeeeeeeeeeeeeeGGG.',
+  '..wwwwwwwwwwwwwwGGk.',
+  '.....k......k..k....',
+  '..ggggggggggggggggg.',
+  '...GGGGGGGGGGGGGG...'],
+ gilt: [
+  '....YYYYYYYYYYYYYY..',
+  '....yyyyyyyyyyyyyy..',
+  'w........k.....k....',
+  'ww....wwwccwccwwkk..',
+  'www..wwwwccwccwwGGk.',
+  '.yyyyyyyyyyyyyyyGGG.',
   '..wwwwwwwwwwwwwwGGk.',
   '.....k......k..k....',
   '..ggggggggggggggggg.',
@@ -2383,6 +2455,7 @@ function drawMap(now, ui) {
     if (st.open) { x.fillStyle = '#c8402f'; x.fillRect(sx - r + 1, sy - r + 1, r * 2 - 1, r * 2 - 1); x.fillStyle = '#fff3d6'; x.fillRect(sx, sy, 1, 1); } else { x.fillStyle = '#4c5562'; x.fillRect(sx - r + 1, sy - r + 1, r * 2 - 1, r * 2 - 1); }
     { const ev = evActive(); if (ev && ev.port === p.id && st.open) { const yy = sy - r - 7 - (Math.floor(t * 3) % 2); x.fillStyle = '#14273d'; x.fillRect(sx - 3, yy - 1, 7, 5); x.fillRect(sx - 1, yy - 3, 3, 9); x.fillStyle = '#ffd23f'; x.fillRect(sx - 2, yy, 5, 3); x.fillRect(sx, yy - 2, 1, 7); } }
     { const ev = evActive(); if (ev && ev.ship && ev.port === p.id && st.open) { const q = shipSpot(p), sp = SPR[ev.ship === 'cruise' ? 'cruise' : 'freighter']; if (q) x.drawImage(sp, wx2s(q[0]) - 12, wy2s(q[1]) - 5 + (Math.sin(t * 1.4) > 0 ? 0 : 1)); } }
+    { const hd = holidayNow(); if (hd && st.open && k >= 1) drawHolidayPin(x, hd.deco, sx - r - 5, sy + r + 1, t); }
     if (st.open && vipAt(p.id)) { const xx = sx + r + 2, yy = sy - r - 8 + (Math.floor(t * 3) % 2); x.fillStyle = '#14273d'; x.fillRect(xx - 1, yy - 1, 7, 6); x.fillStyle = '#ffd23f'; x.fillRect(xx + 2, yy, 1, 1); x.fillRect(xx, yy + 1, 5, 1); x.fillRect(xx + 1, yy + 2, 3, 1); x.fillRect(xx + 1, yy + 3, 1, 1); x.fillRect(xx + 3, yy + 3, 1, 1); }
     if (p.yard) { x.fillStyle = '#ffd23f'; x.fillRect(sx - r - 1, sy - r - 1, 2, 2); x.fillRect(sx + r, sy - r - 1, 2, 2); x.fillRect(sx - r - 1, sy + r, 2, 2); x.fillRect(sx + r, sy + r, 2, 2); }
     if (reach === true) ring(x, sx, sy, 6 + (((t * 3) | 0) % 2), '#7dff8a'); else if (reach && ui.stops.indexOf(p.id) < 0 && st.open) { x.fillStyle = '#ff6a5a'; x.fillRect(sx - 4, sy - r - 4, 1, 1); x.fillRect(sx - 3, sy - r - 3, 1, 1); x.fillRect(sx - 2, sy - r - 4, 1, 1); x.fillRect(sx - 4, sy - r - 2, 1, 1); x.fillRect(sx - 2, sy - r - 2, 1, 1); }
@@ -2577,10 +2650,13 @@ function drawHolidayDeco(x, deco, waterX, GND, t, night) {
   else if (deco === 'lights') { string(['#ff4a3a', '#3fd05a', '#ffd23f', '#4fa0ff'], false); const tx = base + 10; drawPine(x, tx, GND + 3, 10, '#2f6d37', false);
     [[0, -3, '#ff4a3a'], [-2, -5, '#ffd23f'], [1, -6, '#4fa0ff'], [-1, -8, '#ff4a3a'], [2, -2, '#ffd23f']].forEach((o, i) => { if (((t * 2 + i) | 0) % 3) { x.fillStyle = o[2]; x.fillRect(tx + o[0], GND + 3 + o[1], 1, 1); } }); x.fillStyle = '#ffe36a'; x.fillRect(tx, GND - 8, 1, 2); x.fillRect(tx - 1, GND - 7, 3, 1); }
   else if (deco === 'flags') string(['#d8402f', '#ffffff', '#3f7fc8'], true);
+  else if (deco === 'green') string(['#3fa04a', '#ffffff', '#f08a2c'], true);
+  else if (deco === 'maple') string(['#c8402f', '#f2c230', '#e08a2c'], true);
   else if (deco === 'pink') string(['#ff7aa8', '#ffffff', '#d8402f'], true);
   else if (deco === 'gold') string(['#ffd23f', '#ffffff'], false);
 }
 function drawHolidayFx(x, W, H, t, fx, night, n) {
+  if (!fx) return;
   if (fx === 'bats' && night <= 0.3) fx = 'leaves';
   if (fx === 'fireworks') { if (night <= 0.3) return; const pal = ['#ff6a5a', '#ffe36a', '#7dff8a', '#8fd8ee', '#ff9ad0'];
     for (let b = 0; b < 3; b++) { const cyc = t / 2.6 + hash2(b, 97) * 5, k = Math.floor(cyc), ph = cyc - k, cx = hash2(k, 98 + b) * W, cy = (0.08 + hash2(k, 109 + b) * 0.42) * H, rr = 2 + ph * 9; if (ph > 0.85) continue; x.fillStyle = pal[(k + b) % pal.length];
@@ -2591,6 +2667,13 @@ function drawHolidayFx(x, W, H, t, fx, night, n) {
   const sp = fx === 'snow' ? 8 : fx === 'hearts' ? -5 : 11, span = H + 8;
   for (let i = 0; i < n; i++) { const py = ((((t * sp * (0.7 + hash2(i, 91) * 0.6) + hash2(i, 92) * span) % span) + span) % span | 0) - 4, px = ((((hash2(i, 93) * W + Math.sin(t * 1.3 + i) * 5 + (fx === 'leaves' ? py * 0.5 : 0)) % W) + W) % W) | 0;
     x.fillStyle = cols[i % cols.length]; if (fx === 'hearts') { x.fillRect(px, py, 1, 1); x.fillRect(px + 2, py, 1, 1); x.fillRect(px, py + 1, 3, 1); x.fillRect(px + 1, py + 2, 1, 1); } else x.fillRect(px, py, fx === 'leaves' && i % 2 ? 2 : 1, 1); }
+}
+// a small sign of the season beside each port you serve, on the map
+function drawHolidayPin(x, deco, px, py, t) {
+  x.fillStyle = '#14273d'; x.fillRect(px - 1, py - 1, 5, 6);
+  if (deco === 'pumpkins' || deco === 'harvest') { x.fillStyle = '#e07a1c'; x.fillRect(px, py + 1, 3, 3); x.fillStyle = '#3f8f3a'; x.fillRect(px + 1, py, 1, 1); }
+  else if (deco === 'lights') { x.fillStyle = '#3fa04a'; x.fillRect(px + 1, py + 1, 1, 1); x.fillRect(px, py + 2, 3, 2); x.fillStyle = ((t * 2) | 0) % 2 ? '#ffe36a' : '#ff4a3a'; x.fillRect(px + 1, py, 1, 1); }
+  else { x.fillStyle = '#d3d8dd'; x.fillRect(px, py, 1, 4); x.fillStyle = deco === 'green' ? '#3fa04a' : deco === 'maple' ? '#e08a2c' : deco === 'pink' ? '#ff7aa8' : deco === 'gold' ? '#ffd23f' : '#d8402f'; x.fillRect(px + 1, py, 2, 2); if (deco === 'flags') { x.fillStyle = '#3f7fc8'; x.fillRect(px + 1, py, 1, 1); } }
 }
 
 /* =====================================================================
@@ -2658,10 +2741,12 @@ function htmlAlmanac() {
   { const ev = evActive(), hd = holidayNow(); if (ev || hd) h += '<h3>ON NOW</h3>';
     if (hd) h += '<div class="card" style="margin-top:0"><b class="sk" style="font-size:13px">' + esc(hd.name.toUpperCase()) + '</b><div class="sub">' + esc(hd.greet) + ' Jobs marked HOLIDAY pay 25% more, and VIPs come by more often.</div></div>';
     if (ev) h += '<div class="card"' + (hd ? '' : ' style="margin-top:0"') + '><b class="sk" style="font-size:13px">' + esc(ev.name.toUpperCase()) + (ev.port ? ' \u00b7 ' + esc(PORT_BY[ev.port].name.toUpperCase()) : '') + '</b><div class="sub">' + esc(evText(ev)) + ' Ends in ' + secs(ev.until - G.t) + '.</div></div>'; }
+  if (feat('events') && G.cal && G.cal.some(q => !q.done)) h += '<h3>COMING UP THIS ' + SEASON_NAMES[s].toUpperCase() + '</h3><div class="lst">' + G.cal.filter(q => !q.done).map(q => '<div class="item"><div class="tx"><b>' + esc(q.name) + (q.port ? ' \u00b7 ' + esc(PORT_BY[q.port].name) : '') + '</b><small>' + (q.day <= d ? 'Starts when what is on now is over.' : 'Starts on day ' + (q.day + 1) + ' of ' + SEASON_DAYS + '.') + '</small></div></div>').join('') + '</div>';
   h += '<h3 id="lvtop">LEVELS <em>LEVEL ' + G.level + ' \u00b7 ' + Math.floor(G.xp) + '/' + xpNeed(G.level) + ' XP</em></h3><div class="sub">XP comes from fares, catches, contracts, new ports, new craft types and first landings. Each level pays a bonus and a parts crate.</div><div class="lst" style="margin-top:8px">';
   FEATURES.forEach(f => { const on = G.level >= f.lvl; h += '<div class="item' + (on ? '' : ' dim') + '"><div class="tx"><b>' + esc(f.name) + '</b><small>' + esc(on ? f.desc : 'Unlocks at level ' + f.lvl + '.') + '</small></div><span class="tag' + (on ? ' green' : '') + '">' + (on ? 'OPEN' : 'LEVEL ' + f.lvl) + '</span></div>'; });
   h += '</div><h3>LOGBOOK</h3><div class="card" style="margin-top:0"><div class="sub">Ports served <b>' + portsOwned() + '</b> of ' + PORTS.length + ' \u00b7 craft types flown <b>' + logCount('types') + '</b> of ' + CRAFT.length + ' \u00b7 species landed <b>' + logCount('sp') + '</b> of ' + Object.keys(FISH).length + ' \u00b7 VIPs met <b>' + logCount('vip') + '</b> of ' + vipTotal() + '</div></div>';
-  h += '<h3>SAVE CODE</h3><div class="sub">Copy this code to carry your game to another phone or computer, then paste it there and hit LOAD.</div><div class="row wrap" style="margin-top:8px"><button class="btn" data-act="showCode">MAKE A CODE</button><button class="btn plain" data-act="loadCode">LOAD A CODE</button></div><textarea id="codebox" class="code" spellcheck="false" placeholder="Paste a save code here"></textarea>';
+  if (feat('vip')) h += '<div class="lst" style="margin-top:8px">' + CHAINS.map(ch => { const st = (G.chains || {})[ch.id] || { n: 0 }; return '<div class="item' + (st.n ? '' : ' dim') + '"><div class="tx"><b>' + esc(ch.label) + '</b><small>Wants to be taken to ' + esc(ch.goal) + '. Finishing the list earns the ' + esc(ch.paint[0]) + ' paint.</small></div><span class="tag' + (st.done ? ' green' : '') + '">' + (st.done ? 'DONE' : st.n + ' OF ' + ch.need) + '</span></div>'; }).join('') + '</div>';
+  h += '<h3>SAVE CODE</h3><div class="sub">Copy this code to carry your game to another phone or computer, then paste it there and hit LOAD.</div><div class="row wrap" style="margin-top:8px"><button class="btn" data-act="showCode">MAKE A CODE</button><button class="btn plain" data-act="loadCode">LOAD A CODE</button><button class="btn plain" data-act="saveFile">SAVE TO A FILE</button><button class="btn plain" data-act="loadFile">LOAD A FILE</button></div><textarea id="codebox" class="code" spellcheck="false" placeholder="Paste a save code here"></textarea>';
   h += '<h3>HOW IT WORKS</h3><button class="btn" data-act="tutRestart" style="margin-bottom:8px">REPLAY THE TUTORIAL</button><div class="sub"><p style="margin:4px 0"><b>The loop.</b> Open a craft to see its port. Every passenger and parcel is one slot: hit LOAD, then FLY (CAST OFF for a boat), pick the stops on the map, and hit it again. Fuel is paid when it leaves. When it shows ARRIVED, open it to collect the fare and the XP.</p><p style="margin:4px 0"><b>Time.</b> Real time, no pause. Hops take minutes; job boards refresh every four. The game keeps running while it is closed (up to twelve hours), so send everything out and check back.</p><p style="margin:4px 0"><b>Growing.</b> XP raises your level, which unlocks bigger craft. Fleet slots and ports cost coins, and each costs more than the last. Improve a port for a bigger job board.</p><p style="margin:4px 0"><b>Hangars and boatyards.</b> Some towns have one (the map marks them H and B). Each keeps a few parts on the shelf and restocks daily. Collect an airframe, engine and controls (hull, engine and wheelhouse for a boat) and build the craft there for about two thirds of the new price. Contracts and new levels pay out a free crate. A craft tied up empty at a yard can go into storage, which gives its fleet slot back; take it out again at any yard that suits it.</p><p style="margin:4px 0"><b>Full-load bonus.</b> Fill every slot with jobs for a single destination and that delivery pays 25% more.</p><p style="margin:4px 0"><b>Layovers.</b> Put a job ashore at an in-between port and it waits there for another craft.</p><p style="margin:4px 0"><b>Who lands where.</b> Wheels need a strip (bush planes take grass and gravel; bigger ones want pavement). Floats need water. Boats need a harbor and go around the land, not over it.</p><p style="margin:4px 0"><b>Seasons.</b> Seven days each. Winter freezes the lakes (fit skis). Spring mud closes rough strips (fit tundra tires). Demand, fish and prices move with the calendar.</p><p style="margin:4px 0"><b>Riding along.</b> Watch a craft under way and coins drift past in the picture; click them.</p><p style="margin:4px 0"><b>Keys.</b> Tab next craft that needs you \u00b7 Enter GO \u00b7 Esc back \u00b7 wheel or +/- zooms.</p></div>';
   h += '<h3>THE DOORYARD DISPATCH</h3>' + G.news.slice(0, 14).map(n => '<div class="news ' + n.kind + '"><small>' + SEASON_NAMES[seasonOf(n.t)].slice(0, 3).toUpperCase() + ' ' + (dayOf(n.t) % SEASON_DAYS + 1) + '</small>' + esc(n.msg) + '</div>').join('');
   h += '<h3>GAME</h3><div class="row wrap"><button class="btn sm" data-act="save">SAVE NOW</button><button class="btn sm plain" data-act="sound">SOUND: ' + (G.sound ? 'ON' : 'OFF') + '</button><button class="btn sm plain" data-act="holiday">HOLIDAYS: ' + (holidayPref() === 'auto' ? 'AUTO' : holidayPref() === 'off' ? 'OFF' : esc(HOLIDAY_BY[holidayPref()].name.toUpperCase()) + ' (PREVIEW)') + '</button><button class="btn sm plain" data-act="help">ABOUT</button><button class="btn sm red" data-act="askNew">NEW GAME</button></div><div class="sub" style="margin-top:6px">Holidays follow the real calendar: decorations, holiday jobs and VIPs. Tap HOLIDAYS to switch them off or preview one.</div><div class="sub" style="margin-top:6px">Saves to this browser automatically.</div></div>';
@@ -2873,7 +2958,7 @@ function jobRowsHTML(pid, c) {
     d.groups.sort((a, b) => ((b.j.vip ? 1 : 0) - (a.j.vip ? 1 : 0)) || ((b.lay || 0) - (a.lay || 0)) || (b.pay - a.pay));
     d.groups.forEach(g => { const room = c ? roomFor(c, g.kind) : 0, need = g.j.n || 1, many = Math.min(g.n, Math.floor(room / need));
       const btn = !c ? '' : (!d.ok && !any) ? '<button class="btn load" disabled>LOAD</button>' : many > 1 ? '<button class="btn load' + (d.ok ? '' : ' far') + '" data-act="loadIds" data-arg="' + g.ids.slice(0, many).join(',') + '">LOAD ' + many + '</button>' : '<button class="btn load' + (!d.ok && room > 0 ? ' far' : '') + '" data-act="load" data-arg="' + g.ids[0] + '"' + (room >= need ? '' : ' disabled data-tip="' + (need > 1 && room > 0 ? 'Takes ' + need + (g.kind === 'p' ? ' seats' : ' cargo slots') : 'No ' + (g.kind === 'p' ? 'seats' : 'cargo room') + ' left') + '"') + '>LOAD</button>';
-      h += row((g.kind === 'c' ? 'c' : 'p') + (g.j.vip ? ' vip' : '') + (d.ok ? '' : ' no'), jobIconURL(g.j), g.j.label, g.n, g.j.n ? '<span class="tag org">' + (g.kind === 'p' ? 'GROUP' : 'LOT') + ' OF ' + g.j.n + '</span>' : g.j.vip ? '<span class="tag gold"><img src="' + ICON_URL.star + '" alt="">VIP \u00b7 ' + VIP_REWARD[g.j.vip] + '</span>' : g.j.urgent ? '<span class="tag red">URGENT ' + secs(Math.max(0, g.j.urgent - G.t)) + '</span>' : g.lay ? '<span class="tag blue">LAYOVER</span>' : g.j.ev ? '<span class="tag yel">EVENT</span>' : g.j.hol ? '<span class="tag hol">HOLIDAY</span>' : '', g.pay, g.n > 1, btn); });
+      h += row((g.kind === 'c' ? 'c' : 'p') + (g.j.vip ? ' vip' : '') + (d.ok ? '' : ' no'), jobIconURL(g.j), g.j.label, g.n, g.j.n ? '<span class="tag org">' + (g.kind === 'p' ? 'GROUP' : 'LOT') + ' OF ' + g.j.n + '</span>' : g.j.vip ? '<span class="tag gold"><img src="' + ICON_URL.star + '" alt="">VIP \u00b7 ' + VIP_REWARD[g.j.vip] + (g.j.pref ? ' \u00b7 ' + VIP_PREF[g.j.pref] : '') + '</span>' : g.j.urgent ? '<span class="tag red">URGENT ' + secs(Math.max(0, g.j.urgent - G.t)) + '</span>' : g.lay ? '<span class="tag blue">LAYOVER</span>' : g.j.ev ? '<span class="tag yel">EVENT</span>' : g.j.hol ? '<span class="tag hol">HOLIDAY</span>' : '', g.pay, g.n > 1, btn); });
     h += '</div>'; });
   if (far.length && any) h += '<button class="farbtn" data-act="showFar">' + (UI.showFar ? 'HIDE' : 'SHOW') + ' ' + farN + (farN === 1 ? ' JOB' : ' JOBS') + ' ' + (c ? esc(c.name.toUpperCase()) + ' CAN\'T DELIVER' : '') + '</button>';
   if (!isFull) h += ab;
@@ -2963,7 +3048,7 @@ function yardHTML(pid, townHTML) { const port = PORT_BY[pid], st = G.ports[pid],
     if (here.length) h += '</div>'; }
   else if (seg === 'new') {
     h += fullNote + '<div class="lst">';
-    CRAFT.forEach(T => { if (!fitsHere(T)) return; const locked = G.level < T.lvl; h += '<div class="item' + (locked ? ' dim' : '') + '" data-tip="' + esc(T.desc) + '"><div class="sp">' + sprImg(T, 96, 3) + '</div><div class="tx"><b>' + esc(T.name) + '</b><small>' + craftLine(T) + '</small></div>' +
+    CRAFT.forEach(T => { if (T.rare || !fitsHere(T)) return; const locked = G.level < T.lvl; h += '<div class="item' + (locked ? ' dim' : '') + '" data-tip="' + esc(T.desc) + '"><div class="sp">' + sprImg(T, 96, 3) + '</div><div class="tx"><b>' + esc(T.name) + '</b><small>' + craftLine(T) + '</small></div>' +
       (locked ? '<span class="tag">LEVEL ' + T.lvl + '</span>' : '<button class="btn" data-act="buy" data-arg="' + T.id + '"' + (G.money >= T.price && roomForCraft() ? '' : ' disabled') + '>' + money(T.price) + '</button>') + '</div>'; });
     h += '</div>'; }
   else h += townHTML;
@@ -2984,7 +3069,7 @@ function htmlYard() { let h = '<div class="pad"><div class="sub">Buy parts, buil
 function shopHTML(pid) { const port = PORT_BY[pid], free = G.slots - G.crafts.length; let h = '<h3>HANGAR &amp; BOATYARD <em>' + free + ' FREE SLOT' + (free === 1 ? '' : 'S') + '</em></h3>';
   if (free <= 0) h += '<div class="row between" style="margin-bottom:8px"><span class="sub">All ' + G.slots + ' fleet slots are in use.</span><button class="btn" data-act="buySlot"' + (G.money >= slotCost() ? '' : ' disabled') + '>ADD SLOT ' + money(slotCost()) + '</button></div>';
   h += '<div class="lst">';
-  CRAFT.forEach(T => { if (!canBase(T, port)) return; const locked = G.level < T.lvl; h += '<div class="item' + (locked ? ' dim' : '') + '" data-tip="' + esc(T.desc) + '"><div class="sp">' + sprImg(T, 96, 3) + '</div><div class="tx"><b>' + esc(T.name) + '</b><small>' + craftLine(T) + '</small></div>' +
+  CRAFT.forEach(T => { if (T.rare || !canBase(T, port)) return; const locked = G.level < T.lvl; h += '<div class="item' + (locked ? ' dim' : '') + '" data-tip="' + esc(T.desc) + '"><div class="sp">' + sprImg(T, 96, 3) + '</div><div class="tx"><b>' + esc(T.name) + '</b><small>' + craftLine(T) + '</small></div>' +
     (locked ? '<span class="tag">LEVEL ' + T.lvl + '</span>' : '<button class="btn" data-act="buy" data-arg="' + T.id + '"' + (G.money >= T.price && free > 0 ? '' : ' disabled') + '>' + money(T.price) + '</button>') + '</div>'; });
   return h + '</div><div class="sub" style="margin-top:8px">' + (port.water === 'sea' ? '' : 'Boats are sold at harbors. ') + (port.strip ? '' : 'Wheeled planes need an airstrip. ') + 'New craft are delivered right here. Bigger craft unlock as you level up.</div>'; }
 function condTags(p) { const s = season(), w = wxAt(p.x, p.y), conds = []; if (w.fog) conds.push('FOG'); if (w.storm) conds.push(s === WINTER ? 'NOR\'EASTER' : 'STORM'); if (w.snow) conds.push('SNOW SQUALL'); if (p.water === 'lake' && s === WINTER) conds.push('LAKE FROZEN'); if (p.strip === 1 && s === SPRING) conds.push('MUD: STRIP CLOSED');
@@ -3020,7 +3105,8 @@ function tabCraft(c) { const T = CRAFT_BY[c.type], segs = [['gear', 'GEAR']]; if
     h += '</div>'; }
   else if (seg === 'looks') {
     h += '<h3>NAME</h3><div class="row"><input id="nmin" class="nmin" maxlength="16" value="' + esc(c.name) + '" spellcheck="false"><button class="btn" data-act="rename">RENAME</button></div><h3>PAINT</h3><div class="swatches">' +
-      LIVERIES.map((L, i) => '<button class="sw' + ((c.liv || 0) === i ? ' on' : '') + '" data-act="paint" data-arg="' + i + '"><i style="background:' + (L[1] ? INK[L[1]] : '#d3d8dd') + '"></i>' + L[0].toUpperCase() + '</button>').join('') + '</div>'; }
+      LIVERIES.map((L, i) => hasPaint(i) ? '<button class="sw' + ((c.liv || 0) === i ? ' on' : '') + '" data-act="paint" data-arg="' + i + '"><i style="background:' + (L[1] ? INK[L[1]] : '#d3d8dd') + '"></i>' + L[0].toUpperCase() + '</button>' : '').join('') + '</div>' +
+      '<div class="sub" style="margin-top:8px">' + LIVERIES.filter((L, i) => !hasPaint(i)).length + ' more paints are earned, not bought: one for each holiday\'s VIP, and one for each VIP whose list you finish.</div>'; }
   else if (seg === 'crew') {
     if (c.crew) { const P = PERKS[c.crew.perk]; h += '<h3>ABOARD</h3><div class="item"><img class="ic" src="' + portraitURL(c.crew.seed, 'worker') + '" alt=""><div class="tx"><b>' + esc(c.crew.name) + ' · ' + P.n + '</b><small>' + P.d + '</small></div><button class="btn red" data-act="dismiss">LET GO</button></div>'; }
     h += '<h3>FOR HIRE <em>NEW FACES DAILY</em></h3><div class="lst">';
@@ -3064,7 +3150,7 @@ function sheetSig() {
   const pid = UI.selPort; if (pid) { const st = G.ports[pid]; s += '|' + st.open + st.lvl + ':' + st.jobs.length + ':' + (st.jobs.length ? st.jobs[st.jobs.length - 1].id + '.' + st.jobs[0].id : '') + ':' + st.lay.length + ':' + Math.floor(st.xp) + ':' + craftsAt(pid).map(q => q.id + q.state + q.jobs.length).join(','); const w = wxAt(PORT_BY[pid].x, PORT_BY[pid].y); s += w.fog + '' + w.storm + w.snow; }
   if (c) s += '|' + c.state + c.jobs.length + (c.last ? 'L' + c.last.pay : '') + (c.fish ? 'f' : '') + (c.holdWhy || '') + (c.plan && c.plan.stops ? c.plan.i : '') + Object.keys(c.upg).length;
   if (c) s += '|n' + c.name + (c.liv || 0) + Math.round(condOf(c) / 2) + (c.crew ? c.crew.name + c.crew.perk : '') + (c.run ? 'r' + c.run.trips + '.' + c.run.earned : '') + (c.fish ? c.fish.units : '');
-  s += '|f' + UI.cseg + (G.hall || []).map(x => x.id).join('.') + trapCount() + (G.ev ? G.ev.id : '') + (pid && G.ports[pid].works ? Object.keys(G.ports[pid].works).join('') : '') + (pid ? G.ports[pid].jobs.filter(j => j.urgent || j.ev || j.vip).length : '') + (holidayNow() ? holidayNow().id : '') + (G.hol || '') + runCount() + logCount('sp') + logCount('types');
+  s += '|f' + UI.cseg + (G.hall || []).map(x => x.id).join('.') + trapCount() + (G.ev ? G.ev.id + (G.ev.port || '') : '') + (G.cal ? G.cal.filter(q => !q.done).length : '') + Object.keys(G.liv || {}).length + Object.keys(G.chains || {}).map(k2 => G.chains[k2].n).join('') + (pid && G.ports[pid].works ? Object.keys(G.ports[pid].works).join('') : '') + (pid ? G.ports[pid].jobs.filter(j => j.urgent || j.ev || j.vip).length : '') + (holidayNow() ? holidayNow().id : '') + (G.hol || '') + runCount() + logCount('sp') + logCount('types');
   s += '|y' + UI.yseg + UI.showFar + partsCount() + '.' + G.stored.length + (pid && G.ports[pid].shelf ? G.ports[pid].shelf.map(x => x.id).join('.') : '') + (UI.sheet === 'yard' ? PORTS.map(p => p.yard ? (G.ports[p.id].open ? 1 : 0) + '' + (G.ports[p.id].shelf ? G.ports[p.id].shelf.length : 0) : '').join('') : '');
   if (UI.sheet === 'contracts') s += '|' + G.offers.map(o => o.id).join(',') + '|' + G.active.map(k => k.id + ':' + k.delivered + ':' + k.loaded).join(',');
   if (UI.sheet === 'market') s += '|' + Math.floor(G.t / 10);
@@ -3164,10 +3250,12 @@ function handleEvents() {
       case 'fishIn': if (e.c.fish) { popup(e.x, e.y, 'CATCH IN', '#8fe0f0'); toast(e.c.name + ' is in with ' + e.c.fish.units + fishUnit(e.c.fish.sp, e.c.fish.units) + ' of ' + FISH[e.c.fish.sp].name.toLowerCase() + '. Sell it on the FISHING tab.', 'good'); } sfx.land(); forcePanel(); break;
       case 'sold': popup(e.x, e.y, '+$' + e.pay, '#ffe36a'); sfx.pay(); toast('Sold ' + e.units + fishUnit(e.sp, e.units) + ' at ' + money(e.price) + ' each: ' + money(e.pay) + ' \u00b7 +' + e.xp + ' XP', 'good'); forcePanel(); break;
       case 'trapset': popup(e.x, e.y, 'TRAPS SET', '#8fe0f0'); sfx.splash(); break;
-      case 'event': if (e.start) { banner(e.name + (e.port ? ' \u00b7 ' + portName(e.port) : ''), e.text + ' Two days.'); sfx.big(); } forcePanel(); break;
+      case 'event': if (e.start) { banner(e.name + (e.port ? ' \u00b7 ' + portName(e.port) : ''), e.text + ' ' + (e.len || 'Two days.')); sfx.big(); } forcePanel(); break;
       case 'vip': toast('VIP at ' + portName(e.from) + ': ' + e.label + ', for ' + portName(e.to) + '. Pays ' + money(e.pay) + '.', 'good'); sfx.land(); forcePanel(); break;
-      case 'vipDone': popup(e.x, e.y, 'VIP!', '#ffd23f'); toast('VIP delivered: ' + e.label + '. ' + e.txt, 'good'); forcePanel(); break;
-      case 'urgent': toast('Urgent medical run waiting at ' + portName(e.from) + '. Triple fare.', 'bad'); sfx.horn(); forcePanel(); break;
+      case 'vipDone': popup(e.x, e.y, 'VIP!', '#ffd23f'); toast('VIP delivered: ' + e.label + '. ' + e.txt, e.met === false ? '' : 'good'); forcePanel(); break;
+      case 'urgent': toast(e.relief ? 'Storm relief for ' + portName(e.to) + ' is waiting at ' + portName(e.from) + '. Two and a half times the rate.' : 'Urgent medical run waiting at ' + portName(e.from) + '. Triple fare.', 'bad'); sfx.horn(); forcePanel(); break;
+      case 'chain': toast(e.done ? e.label + ' has finished the list.' : e.label + ': ' + e.n + ' of ' + e.need + ' on the list.', 'good'); if (e.done) sfx.big(); forcePanel(); break;
+      case 'paintWon': banner('New paint', e.name + ' is yours. Find it under LOOKS on any craft.'); forcePanel(); break;
       case 'worn': toast(e.c.name + ' is running rough and needs an overhaul.', 'bad'); break;
       case 'catch': popup(e.x, e.y, e.units ? '+' + e.units + ' ' + FISH[e.sp].name : 'SKUNKED', e.units ? '#8fe0f0' : '#ff9a8a'); sfx.splash(); break;
       case 'news': showNews(e); if (e.kind === 'wx') sfx.horn(); break;
@@ -3240,6 +3328,9 @@ function act(a, arg, el) {
     case 'acceptK': err = acceptContract(+arg); if (!err) sfx.pay(); break;
     case 'dropK': { const k = G.active.find(x => x.id === +arg); if (k) dropContract(k, false); } break;
     case 'sound': G.sound = !G.sound; sfx.click(); break;
+    case 'saveFile': try { const a2 = document.createElement('a'); a2.href = URL.createObjectURL(new Blob([exportSave()], { type: 'text/plain' })); a2.download = 'pocket-maine-save.txt'; document.body.appendChild(a2); a2.click(); a2.remove(); setTimeout(() => URL.revokeObjectURL(a2.href), 4000); toast('Save file written. Look in your downloads.', 'good'); } catch (x) { toast('This browser would not write a file. Use MAKE A CODE.', 'bad'); } break;
+    case 'loadFile': { const inp = document.createElement('input'); inp.type = 'file'; inp.accept = '.txt,text/plain'; inp.onchange = () => { const f = inp.files && inp.files[0]; if (!f) return; const rd = new FileReader();
+        rd.onload = () => { const bad = importSave(String(rd.result || '')); if (bad) toast(bad, 'bad'); else { UI.selCraftId = null; deselect(); startView(); computeReach(); toast('Save file loaded.', 'good'); } }; rd.readAsText(f); }; inp.click(); break; }
     case 'holiday': { const hd = cycleHoliday(); holidayGreet(); toast(hd ? 'Holiday theme: ' + hd.name + '.' : 'Holiday themes ' + (holidayPref() === 'off' ? 'off.' : 'follow the calendar: nothing on today.'), ''); sfx.click(); forcePanel(); break; }
     case 'save': toast(saveGame(STORE) ? 'Saved.' : 'This browser would not let me save.', ''); break;
     case 'zin': zoomBy(1); break; case 'zout': zoomBy(-1); break; case 'zhome': VIEW.zi = fitZoom(); centerOn(WORLD_W * 0.42, WORLD_H * 0.5); break;

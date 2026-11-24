@@ -266,6 +266,8 @@ const CRAFT = [
    desc:'Six-seat hauler on fat tires. The pickup truck of the north woods.' },
  { id:'beav', lvl:6,    cls:'plane', name:'Old Beav',        price:16000,  pax:4,  cargo:4,  speed:7.5,  range:420, fuel:0.24, wheels:0, floats:true,  light:true,  spr:'beav',
    desc:'Radial-engine floatplane. Loud, slow, carries a moose (quartered).' },
+ { id:'gilt', lvl:6,    cls:'plane', name:'Gilded Beav',     price:28000,  pax:6,  cargo:4,  speed:9.5,  range:520, fuel:0.26, wheels:0, floats:true,  light:true,  rare:1, spr:'gilt',
+   desc:'A showpiece radial floatplane, faster and roomier than the old one. Never for sale: its parts only come in a VIP\'s crate.' },
  { id:'twin', lvl:8,    cls:'plane', name:'Island Twin',     price:30000,  pax:7,  cargo:3,  speed:9.5,  range:500, fuel:0.30, wheels:1, floats:false, light:false, spr:'twin',
    desc:'Two engines, short-field legs, shrugs off weather that grounds the little fellas.' },
  { id:'amphib', lvl:11,  cls:'plane', name:'Caravan Amphib',  price:62000,  pax:8,  cargo:6,  speed:10.5, range:650, fuel:0.40, wheels:2, floats:true,  light:false, spr:'amphib',
