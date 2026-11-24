@@ -39,7 +39,7 @@ Also in the game: 23 ports on a hand-drawn map of Maine, 14 craft, hangars and b
 
 **Holidays** follow the real calendar. For New Year, Valentine's Day, Independence Day, Halloween, Thanksgiving and Christmas the ports are decorated, holiday passengers and freight turn up on the boards and pay 25% more, and holiday VIPs come by. The Almanac has a switch to turn this off or preview a holiday.
 
-What comes next is in the [roadmap](ROADMAP.md): ships you own, routes beyond Maine, more holidays.
+What comes next is in the [roadmap](ROADMAP.md): ships you own, the rest of New England, more holidays.
 
 ## Design choices
 
@@ -88,6 +88,7 @@ python3 test/tutorial.py 386x630x3             # follows the tutorial by tapping
 python3 test/levels.py 386x630x3 casco         # levels up and uses each unlock by taps
 python3 test/playtest.py 386x630x3 casco       # a long tap-driven session, checking the wording per craft
 python3 test/vip.py 386x630x3                  # VIPs, holidays and events by taps, through a save and reload
+python3 test/away.py 386x630x3                 # closes the page mid-trip and reopens it: a real wait, two hours, twenty hours
 python3 test/shot.py 1440 900 stress           # 3,000 random steps through every system
 ```
 

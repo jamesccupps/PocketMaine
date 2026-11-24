@@ -20,12 +20,16 @@ Today a cruise ship or freighter only visits. The next step is owning them.
 - **Cost:** a new job type, a harbor depth flag, three sprites and their port scenes, and a balance pass. Medium to large.
 - **Risk:** late-game money piles up faster. It needs something to spend on, most likely a second tier of port works.
 
-### 2. Beyond Maine
+### 2. Beyond Maine: New England
 
-Two ways to do it. The first is cheap and gets most of the feel; the second is a real project.
+The direction is New England. Canada stays as gateways only.
 
-- **A. Gateways (recommended first).** Ports just off the edge of the map, shown as arrows on the border: Portsmouth and Boston to the south, Saint John and Yarmouth across the Bay of Fundy, Quebec City past Jackman. Each is a long haul with a large fare, opened by level and a fee. Canadian gateways hold a craft at customs for a minute on arrival. This reuses ports, routes, fares and events as they are; the only new thing is a port that is not on the drawn map.
-- **B. A second map.** New Brunswick and Nova Scotia, or the rest of New England, as a region of its own with ports, fishing grounds and events, reached through a gateway. The coastline is drawn by hand as geometry, so each region is days of work, and sea routes have to cross between regions.
+- **Step A. Gateways.** Ports just off the edge of the map, shown as arrows on the border: Portsmouth and Boston to the south, Burlington to the west, and Saint John, Yarmouth and Quebec City for Canada. Each is a long haul with a large fare, opened by level and a fee. This reuses ports, routes, fares and events as they are; the only new thing is a port that is not on the drawn map. It is the quick way to make the world feel bigger while the map is being drawn.
+- **Step B. New Hampshire and Vermont.** The map grows west: Portsmouth, Lake Winnipesaukee, North Conway and Mount Washington, Berlin, Burlington and Lake Champlain, Stowe, Montpelier. Mostly mountains and lakes, so it suits floatplanes and ski season, and it has little coastline to draw.
+- **Step C. Massachusetts, Rhode Island and Connecticut.** The map grows south: Boston, Gloucester, Provincetown and the Cape, Nantucket, Martha's Vineyard, New Bedford, Providence, Newport, Block Island, New London, Hartford. This is where ferries and the owned ships earn their keep. It is also the most work, because the coast from Cape Ann around Cape Cod to Long Island Sound is drawn by hand.
+- **One map, not several.** The plan is one continuous map that scrolls, so a boat can follow the coast from Eastport to Block Island. The other way, a separate map per state with a button to switch, is less work per step but breaks coastal trips into hops.
+- **What it costs.** The drawn area roughly doubles, so the map takes more memory and longer to build at startup, and a zoomed-out phone screen holds twice as many ports. Names already show only for ports you serve, which keeps that readable. Each step also needs its own ports, fares, events and fishing grounds balanced against Maine's.
+- **The name stays.** Maine is the home base and where every new game starts.
 
 ### 3. More holidays
 
