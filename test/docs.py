@@ -1,5 +1,5 @@
 # Retakes the screenshots in docs/ from the built page, so the README shows the game as it is now.
-#   python3 test/docs.py            # writes docs/desktop-map.png, desktop-port.png, phone-map/port/ferry/yard.png, social.png
+#   python3 test/docs.py            # writes docs/desktop-map.png, desktop-port.png, phone-map/port/ferry/yard/lesson.png, social.png
 # docs/social.png (1280x640) is the picture GitHub and chat apps show for a link to the repository or the game.
 # The game is staged the same way each time: holidays off, a clear summer day, a mid-game fleet across New England.
 import os, sys
@@ -7,7 +7,7 @@ from playwright.sync_api import sync_playwright
 
 OUT = 'docs/'
 STAGE = """() => {
-  G.tutDone = true; ['Tin Goose', 'Whiskey Jack', 'Sea Smoke', 'Three Sons'].forEach((n, i) => { if (G.crafts[i]) G.crafts[i].name = n; });
+  G.tutDone = true; G.lesOff = true; ['Tin Goose', 'Whiskey Jack', 'Sea Smoke', 'Three Sons'].forEach((n, i) => { if (G.crafts[i]) G.crafts[i].name = n; });
   G.level = 12; G.xp = 0; G.money = 48250; G.slots = 12;
   G.wx = []; G.wxNext = 1e12; G.vipNext = 1e12; G.reqNext = 1e12; G.rivalNext = 1e12; G.t = 300 * 0.42;
   ['pwm','rkd','vin','lew','aug','bbh','bgr','bhb','sto','mat','rng','gls','psm','mht','btv','leb','bos','pvc','ack','hya','pvd','npt','hvn']
@@ -47,6 +47,9 @@ def run(pg, W):
         st.jobs.slice(0, 10).forEach(j => loadJob(f, j.id)); selectCraft(f.id, true); }"""); shot('phone-ferry')
     # the yard
     ev("() => { deselect(); givePart('beav', 0); givePart('beav', 1); givePart('loon', 2); stockShelf('pwm'); selectPort('pwm', true); act('stab', 'port'); }"); shot('phone-yard')
+    # a lesson: Aunt Bev pointing at the goods for sale
+    ev("""() => { deselect(); G.lesOff = false; G.les = {}; LESSON_ORDER.forEach(id => { G.les[id] = 1; }); delete G.les.trade; UI.lesWait = 0; UI.lesCur = '';
+        const c = DOC.wagon; c.jobs.slice().forEach(j => unloadJob(c, j.id)); selectCraft(c.id, true); }"""); pg.wait_for_timeout(900); shot('phone-lesson'); ev("() => { G.lesOff = true; }")
 
 SOCIAL = """(phone) => {
   HOLIDAY_FORCE = 'off'; deselect(); VIEW.zi = 1; const pw = PORT_BY.pwm; centerOn(pw.x - 78, pw.y + 5);

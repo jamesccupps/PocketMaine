@@ -72,7 +72,7 @@ function htmlAlmanac() {
   h += '<h3>SAVE CODE</h3><div class="sub">Copy this code to carry your game to another phone or computer, then paste it there and hit LOAD.</div><div class="row wrap" style="margin-top:8px"><button class="btn" data-act="showCode">MAKE A CODE</button><button class="btn plain" data-act="loadCode">LOAD A CODE</button><button class="btn plain" data-act="saveFile">SAVE TO A FILE</button><button class="btn plain" data-act="loadFile">LOAD A FILE</button></div><textarea id="codebox" class="code" spellcheck="false" placeholder="Paste a save code here"></textarea>';
   h += '<h3>HOW IT WORKS</h3><button class="btn" data-act="tutRestart" style="margin-bottom:8px">REPLAY THE TUTORIAL</button><div class="sub"><p style="margin:4px 0"><b>The loop.</b> Open a craft to see its port. Every passenger and parcel is one slot: hit LOAD, then FLY (CAST OFF for a boat), pick the stops on the map, and hit it again. Fuel is paid when it leaves. When it shows ARRIVED, open it to collect the fare and the XP.</p><p style="margin:4px 0"><b>Time.</b> Real time, no pause. Hops take minutes; job boards refresh every four. The game keeps running while it is closed (up to twelve hours), so send everything out and check back.</p><p style="margin:4px 0"><b>Growing.</b> XP raises your level, which unlocks bigger craft. Fleet slots and ports cost coins, and each costs more than the last. Improve a port for a bigger job board.</p><p style="margin:4px 0"><b>Hangars and boatyards.</b> Some towns have one (the map marks them H and B). Each keeps a few parts on the shelf and restocks daily. Collect an airframe, engine and controls (hull, engine and wheelhouse for a boat) and build the craft there for about two thirds of the new price. Contracts and new levels pay out a free crate. A craft tied up empty at a yard can go into storage, which gives its fleet slot back; take it out again at any yard that suits it.</p><p style="margin:4px 0"><b>Full-load bonus.</b> Fill every slot with jobs for a single destination and that delivery pays 25% more.</p><p style="margin:4px 0"><b>Layovers.</b> Put a job ashore at an in-between port and it waits there for another craft.</p><p style="margin:4px 0"><b>Who lands where.</b> Wheels need a strip (bush planes take grass and gravel; bigger ones want pavement). Floats need water. Boats need a harbor and go around the land, not over it.</p><p style="margin:4px 0"><b>Seasons.</b> Seven days each. Winter freezes the lakes (fit skis). Spring mud closes rough strips (fit tundra tires). Demand, fish and prices move with the calendar.</p><p style="margin:4px 0"><b>Riding along.</b> Watch a craft under way and coins drift past in the picture; click them.</p><p style="margin:4px 0"><b>Keys.</b> Tab next craft that needs you \u00b7 Enter GO \u00b7 Esc back \u00b7 wheel or +/- zooms.</p></div>';
   h += '<h3>THE DOORYARD DISPATCH</h3>' + G.news.slice(0, 14).map(n => '<div class="news ' + n.kind + '"><small>' + SEASON_NAMES[seasonOf(n.t)].slice(0, 3).toUpperCase() + ' ' + (dayOf(n.t) % SEASON_DAYS + 1) + '</small>' + esc(n.msg) + '</div>').join('');
-  h += '<h3>GAME</h3><div class="row wrap"><button class="btn sm" data-act="save">SAVE NOW</button><button class="btn sm plain" data-act="sound">SOUND: ' + (G.sound ? 'ON' : 'OFF') + '</button>' + (feat('rival') ? '<button class="btn sm plain" data-act="rival">RIVAL: ' + (G.rivalOff ? 'OFF' : 'ON') + '</button>' : '') + '<button class="btn sm plain" data-act="holiday">HOLIDAYS: ' + (holidayPref() === 'auto' ? 'AUTO' : holidayPref() === 'off' ? 'OFF' : esc(HOLIDAY_BY[holidayPref()].name.toUpperCase()) + ' (PREVIEW)') + '</button><button class="btn sm plain" data-act="help">ABOUT</button><button class="btn sm red" data-act="askNew">NEW GAME</button></div><div class="sub" style="margin-top:6px">Holidays follow the real calendar: decorations, holiday jobs and VIPs. Tap HOLIDAYS to switch them off or preview one.</div><div class="sub" style="margin-top:6px">Saves to this browser automatically.</div></div>';
+  h += '<h3>GAME</h3><div class="row wrap"><button class="btn sm" data-act="save">SAVE NOW</button><button class="btn sm plain" data-act="sound">SOUND: ' + (G.sound ? 'ON' : 'OFF') + '</button>' + (feat('rival') ? '<button class="btn sm plain" data-act="rival">RIVAL: ' + (G.rivalOff ? 'OFF' : 'ON') + '</button>' : '') + '<button class="btn sm plain" data-act="holiday">HOLIDAYS: ' + (holidayPref() === 'auto' ? 'AUTO' : holidayPref() === 'off' ? 'OFF' : esc(HOLIDAY_BY[holidayPref()].name.toUpperCase()) + ' (PREVIEW)') + '</button><button class="btn sm plain" data-act="lesToggle">LESSONS: ' + (G.lesOff ? 'OFF' : 'ON') + '</button><button class="btn sm plain" data-act="help">ABOUT</button><button class="btn sm red" data-act="askNew">NEW GAME</button></div><div class="sub" style="margin-top:6px">Lessons: Aunt Bev shows each new thing once, when its level opens it. REPLAY THE TUTORIAL brings them all back.</div><div class="sub" style="margin-top:6px">Holidays follow the real calendar: decorations, holiday jobs and VIPs. Tap HOLIDAYS to switch them off or preview one.</div><div class="sub" style="margin-top:6px">Saves to this browser automatically.</div></div>';
   return h;
 }
 function craftProgress(c) { if (c.state === 'move') return c.route.pos / c.route.len; if (c.state === 'fish') return c.fishT / c.fishDur; return 0; }
@@ -92,10 +92,10 @@ function closeModal() { $('modal').classList.remove('show'); }
 function showTitle(about) {
   const hasSave = UI.hasSave, fleet = ['skiff', 'cub', 'down', 'loon', 'mail', 'beav', 'dragger'].map(k => '<img src="' + SPR[k].url + '" style="width:' + SPR[k].w * 3 + 'px" alt="">').join('');
   $('mbox').innerHTML = '<h1>POCKET MAINE<small>AIR AND SEA \u00b7 A MAINE TRANSPORT COMPANY</small></h1><div class="titlefleet">' + fleet + '</div>' +
-    '<p>You run a small, scrappy outfit moving people and freight around Maine by bush plane, floatplane, ferry and lobster boat. Islands that need their groceries. Sports headed upta camp. Potatoes, wreaths, and more lobster than you can lift.</p>' +
-    '<ul><li>Open a craft, hit <b>LOAD</b> on the jobs you want, then <b>FLY</b> (or <b>CAST OFF</b> for a boat) and pick where on the map.</li><li>Trips take a few minutes of real time. When a craft shows <b>ARRIVED</b>, open it to <b>collect</b> the fare and earn XP.</li><li>Fill a craft with jobs for <b>one destination</b> for a 25% bonus. Job boards refresh every four minutes.</li><li><b>Level up</b> to unlock bigger craft. Buy <b>fleet slots</b> and <b>new ports</b> as you earn.</li><li>Towns with a <b>hangar</b> or <b>boatyard</b> sell parts: three parts build a craft for less than a new one. Spare craft wait in <b>storage</b>.</li><li>Boats can skip the jobs and <b>go fishing</b>. Fog, gales, frozen lakes and mud season change what can go where.</li></ul>' +
+    '<p>You run a small, scrappy outfit moving people and freight by bush plane, floatplane, ferry and lobster boat. It starts on the Maine coast and grows across New England. Islands that need their groceries. Sports headed upta camp. Potatoes, wreaths, and more lobster than you can lift.</p>' +
+    '<ul><li>Open a craft, hit <b>LOAD</b> on the jobs you want, then <b>FLY</b> (or <b>CAST OFF</b> for a boat) and pick where on the map.</li><li>Trips take a few minutes of real time. When a craft shows <b>ARRIVED</b>, open it to <b>collect</b> the fare and earn XP.</li><li>Fill a craft with jobs for <b>one destination</b> for a 25% bonus. Job boards refresh every four minutes.</li><li><b>Level up</b> to unlock bigger craft. Buy <b>fleet slots</b> and <b>new ports</b> as you earn.</li><li>Towns with a <b>hangar</b> or <b>boatyard</b> sell parts: three parts build a craft for less than a new one. Spare craft wait in <b>storage</b>.</li><li>Boats can skip the jobs and <b>go fishing</b>. Fog, gales, frozen lakes and mud season change what can go where.</li><li>Levels 2 to 8 each open something new: <b>VIPs</b>, <b>events</b>, <b>goods</b> to trade, the rest of <b>New England</b>, crew, a rival, standing runs. Aunt Bev shows you each one when it arrives.</li></ul>' +
     '<div class="acts">' + (about ? '<button class="btn go" data-act="closeModal">BACK TO WORK</button><button class="btn plain" data-act="tutRestart">REPLAY TUTORIAL</button>' : (hasSave ? '<button class="btn go" data-act="continue">CONTINUE</button><button class="btn plain" data-act="askNew">NEW GAME</button>' : '<button class="btn go" data-act="chooseStart">START \u25b8</button>')) + '</div>' +
-    '<p class="sub" style="margin-top:14px">It keeps running while it is closed, so check back in. Nothing to buy. Saves in this browser.</p>';
+    '<p class="sub" style="margin-top:14px">It keeps running while it is closed or behind another window, so check back in. Nothing to buy. Saves in this browser.</p>';
   $('modal').classList.add('show');
 }
 function showStart() {
@@ -142,7 +142,7 @@ function computeReach() {
 function selectCraft(id, center) {
   UI.selCraftId = id; refreshSel(); const c = UI.selCraft; if (!c) return; tutMark('pick');
   if (c.state === 'landed') collect(c);            // opening a LANDED craft collects its fare
-  UI.stops = []; UI.filter = null; UI.fexp = false; UI.showFar = false; UI.flash = null; UI.selPort = c.at || null; UI.sheet = 'craft'; UI.screen = 'sheet'; VIEW.follow = null;
+  UI.toTop = true; UI.stops = []; UI.filter = null; UI.fexp = false; UI.showFar = false; UI.flash = null; UI.selPort = c.at || null; UI.sheet = 'craft'; UI.screen = 'sheet'; VIEW.follow = null;
   if (UI.stab !== 'jobs') UI.stab = 'jobs';
   if (center) { if (c.state === 'move' || c.state === 'fish') centerOn(c.x, c.y); else centerOn(PORT_BY[c.at].x, PORT_BY[c.at].y); }
   computeReach(); forcePanel(); sfx.click();
@@ -150,10 +150,10 @@ function selectCraft(id, center) {
 function selectPort(pid, noAuto) {
   const st = G.ports[pid], here = craftsAt(pid).filter(c => c.state === 'dock' || c.state === 'landed');
   if (!noAuto && st.open && here.length) { const best = here.find(c => c.state === 'landed') || here.find(c => !c.jobs.length) || here[0]; selectCraft(best.id, false); return; }
-  UI.selCraftId = null; UI.selCraft = null; UI.selPort = pid; UI.stops = []; UI.filter = null; UI.sheet = 'port'; UI.screen = 'sheet'; UI.stab = st.open ? (noAuto ? 'port' : 'jobs') : 'port'; VIEW.follow = null;
+  UI.toTop = true; UI.selCraftId = null; UI.selCraft = null; UI.selPort = pid; UI.stops = []; UI.filter = null; UI.sheet = 'port'; UI.screen = 'sheet'; UI.stab = st.open ? (noAuto ? 'port' : 'jobs') : 'port'; VIEW.follow = null;
   computeReach(); forcePanel(); sfx.click();
 }
-function openMenu(kind) { UI.selCraftId = null; UI.selCraft = null; UI.selPort = null; UI.stops = []; UI.sheet = kind; UI.screen = 'sheet'; computeReach(); forcePanel(); sfx.click(); }
+function openMenu(kind) { UI.toTop = true; UI.selCraftId = null; UI.selCraft = null; UI.selPort = null; UI.stops = []; UI.sheet = kind; UI.screen = 'sheet'; computeReach(); forcePanel(); sfx.click(); }
 function deselect() { UI.screen = 'map'; UI.sheet = null; UI.selCraftId = null; UI.selCraft = null; UI.selPort = null; UI.stops = []; UI.flash = null; UI.filter = null; computeReach(); forcePanel(); }
 // FLY pressed on the port screen: go to the map and pick where
 function startRouting(pick) {
@@ -183,14 +183,14 @@ function tutFirstCraft() { const dock = G.crafts.filter(c => c.state === 'dock')
   return dock.find(c => !isBoat(c) && can(c)) || dock.find(can) || dock[0] || null; }
 function tutBoat() { return G.crafts.find(b => CRAFT_BY[b.type].fish && b.state === 'dock' && !b.jobs.length && PORT_BY[b.at].dock && fishOptions(b).some(o => o.inRange)) || null; }
 function coachStep() {
-  if (!UI.started || G.tutDone || $('modal').classList.contains('show')) return null;
+  if (!UI.started || $('modal').classList.contains('show')) return null; if (G.tutDone) return lessonStep();
   const T = G.tut, c = UI.selCraft, onMap = UI.screen === 'map', q = sel => { const e = document.querySelector(sel); return e && e.offsetParent !== null ? e : null; }, card = cr => q('#fleet .fc[data-arg="' + cr.id + '"]'), back = () => q('#shead [data-act=toMap]');
   if (!T.intro) return onMap ? { id: 'intro', text: 'Welcome aboard. I\'m Aunt Bev and I run dispatch. Let me walk you through your first run.', next: 'SHOW ME', center: true } : null;
   if (!T.sent) {
     if (UI.screen === 'route' && c) { if (UI.stops.length) return { id: 'go', text: 'That is the route: how long it takes and what it pays. Hit ' + goWord(c) + ' to send it.', target: q('#routebar .btn.go'), avoid: q('#routebar'), soft: true };
       const ids = Object.keys(UI.reach || {}).filter(id => UI.reach[id] === true), want = c.jobs.map(q => q.to).find(t => ids.indexOf(t) >= 0) || ids[0]; return want ? { id: 'dest', text: (c.jobs.some(q => q.to === want) ? 'Now choose where it goes. Your load is for ' + PORT_BY[want].name + ': tap it on the map.' : 'Now choose where it goes. Tap a ringed port on the map.'), port: want, soft: true } : { id: 'noreach', text: 'Nowhere in reach for this one. Hit BACK.', target: q('#routebar [data-act=cancelRoute]') }; }
     if (UI.screen === 'sheet' && UI.sheet === 'craft' && c && c.state === 'dock') {
-      if (c.jobs.length) return { id: 'fly', text: 'Aboard. Each job takes one seat or one cargo slot. Now hit ' + goWord(c) + ' to pick where it goes.', target: q('#sfoot .btn.go') };
+      if (c.jobs.length) return { id: 'fly', text: 'Aboard. Each job takes one seat or one cargo slot: the yellow card is the craft in hand, with its seats and cargo counted. Now hit ' + goWord(c) + ' to pick where it goes.', target: q('#sfoot .btn.go') };
       if (UI.stab !== 'jobs') return { id: 'tabjobs', text: 'Back to the JOBS tab.', target: q('.stab[data-arg=jobs]') };
       const b = q('#sbody .dg:not(.no):not(.ab) .btn.load:not([disabled])'); if (b) return { id: 'load', text: 'This is the job board, grouped by where each job is going. Hit LOAD to put one aboard.', target: b };
       return { id: 'nojobs', text: 'Nothing here for ' + c.name + ' just now. Go back and pick another.', target: back() }; }
@@ -211,10 +211,82 @@ function coachStep() {
   if (!T.ports) return onMap ? { id: 'ports', text: 'Last thing: the grey dots are towns you do not serve yet. Tap one to see what it costs to open. More ports, more jobs. That\'s the whole trick, dear.', next: 'GOT IT' } : null;
   return null;
 }
-function tutNext() { const id = UI.coachId, T = G.tut; if (id === 'intro') T.intro = 1; else if (id === 'loop') T.loop = 1; else if (id === 'yard2') { T.yard = 1; deselect(); } else if (id === 'ports') { T.ports = 1; G.tutDone = true; news('Aunt Bev: "Now go make us some money."', 'good'); toast('Tutorial done. You can replay it from the Almanac.', 'good'); }
+/* ---------- lessons ----------
+   After the first run, Aunt Bev comes back once for each thing a new level opens, and shows where it is by pointing at it.
+   The rules are the tutorial's: every step is worked out from what is on screen, so a lesson cannot get stuck, and nothing
+   is blocked while one shows. SKIP drops that lesson. The Almanac switches them all off, and REPLAY brings them back. */
+const LESSON_ORDER = ['vip', 'names', 'events', 'trade', 'reg1', 'wear', 'catch', 'fits', 'reg2', 'crew', 'works', 'rival', 'reg3', 'runs'];
+const LESSON_GAP = 15000;      // a breath between two lessons, in milliseconds
+function lessonDone(id) { (G.les || (G.les = {}))[id] = 1; if (UI.lesCur === id) UI.lesCur = ''; UI.lesWait = performance.now() + LESSON_GAP; UI.coachKey = ''; SIM.dirty = true; }
+function lessonFor(id) {
+  const L = G.les, c = UI.selCraft, onMap = UI.screen === 'map', inSheet = UI.screen === 'sheet', inCraft = inSheet && UI.sheet === 'craft' && c && c.state === 'dock';
+  const q = sel => { const e = document.querySelector(sel); return e && e.offsetParent !== null ? e : null; }, card = cr => q('#fleet .fc[data-arg="' + cr.id + '"]');
+  // most of what unlocks lives on a craft's CRAFT tab: from the map to a craft, to the tab, to its section, then what it is for
+  const craftTab = (seg, intro, body, pick) => {
+    if (onMap) { const d = G.crafts.find(x => x.state === 'dock' && (!pick || pick(x))); return d && card(d) ? { n: 1, text: intro + ' Tap ' + d.name + '.', target: card(d), soft: true } : null; }
+    if (!inCraft) return null;
+    if (UI.stab !== 'craft') return { n: 2, text: intro + ' Tap CRAFT.', target: q('.stab[data-arg=craft]'), soft: true };
+    const sb = q('.seg[data-arg=' + seg + ']'); if (UI.cseg !== seg && sb) return { n: 3, text: 'Tap ' + sb.textContent + '.', target: sb, soft: true };
+    return { n: 4, text: body, next: 'GOT IT' }; };
+  const region = (lvl, text) => { if (!onMap) return null; const mine = PORTS.filter(p => G.ports[p.id].open), cand = PORTS.filter(p => p.lvl === lvl && !G.ports[p.id].open);
+    if (!cand.length || cand.length < PORTS.filter(p => p.lvl === lvl).length) { lessonDone(id); return null; }
+    const near = cand.map(p => ({ p, d: Math.min.apply(null, mine.map(m => Math.hypot(m.x - p.x, m.y - p.y))) })).sort((a, b) => a.d - b.d)[0].p;
+    return { n: 1, text: text + ' ' + near.name + ' is the nearest. The grey dots are ports you can open: tap one to see what it costs.', port: near.id, next: 'GOT IT', soft: true }; };
+  switch (id) {
+    case 'vip': { if (G.crafts.some(x => x.jobs.some(j => j.vip))) { lessonDone(id); return null; }
+      const P = PORTS.find(p => vipAt(p.id)); if (!P) return null; const j = G.ports[P.id].jobs.find(x => x.vip);
+      if (onMap) return { n: 1, text: 'See the gold star? ' + j.label + ' is waiting at ' + P.name + '. A VIP pays about triple and brings a tip, XP, a parts crate or a favor, and waits eight minutes. Tap ' + P.name + '.', port: P.id, soft: true };
+      if (!inSheet || UI.selPort !== P.id || UI.stab !== 'jobs') return null; const row = q('#sbody .jrow.vip');
+      return { n: 2, text: (row ? 'The gold row is the VIP. Load it like any job.' : 'The VIP is on this board, but ' + (c ? c.name : 'this craft') + ' cannot take it there, so it is folded away at the bottom. Another craft might.') + ' A gold tag is a condition: NO STOPS, BY DAYLIGHT or SOUND CRAFT. Keep to it for the full reward.', target: row || q('#sbody .farbtn'), soft: true, next: 'GOT IT' }; }
+    case 'names': return craftTab('looks', 'You can name and paint your craft now.', 'LOOKS: type a new name and pick a paint. A few paints are not for sale and have to be earned.');
+    case 'events': { if (inSheet && UI.sheet === 'almanac') return { n: 2, text: 'ON NOW is today. COMING UP is the rest of the season, so you can have a craft in the right harbor when a festival or a ship comes in.', next: 'GOT IT', low: true };
+      return onMap ? { n: 1, text: 'There are events now: festivals, ships in port, boat races and price wars, two days at a time. The Almanac lists them. Tap ALMANAC.', target: q('#menu .mbtn[data-arg=almanac]'), soft: true } : null; }
+    case 'trade': { const has = G.crafts.some(x => goodsCount(x)); if (has) L.tradeB = 1;
+      if (L.tradeB) { if (!has) { lessonDone(id); return null; }
+        return inCraft && UI.stab === 'jobs' && goodsCount(c) ? { n: 3, text: 'They are aboard, under GOODS ABOARD. Carry them where that row says they sell for more and hit SELL there. Buying pushes a price up, selling pushes it down, and a port that asks for a thing pays 60% over.', target: q('#sbody [data-act=sellGood]'), soft: true, next: 'GOT IT' } : null; }
+      if (inCraft && UI.stab === 'jobs') { const b = q('#sbody [data-act=buyGood]:not([disabled])'); return b ? { n: 2, text: 'Goods are at the bottom of the board. ' + PORT_BY[c.at].name + ' makes these, so they are cheap here. BUY fills the cargo room your jobs leave, and the line beside it says where they sell best.', target: b, soft: true } : null; }
+      if (!onMap) return null; const d = G.crafts.find(x => x.state === 'dock' && !CRAFT_BY[x.type].tour && roomFor(x, 'c') > 0 && goodsFor(x.at).some(g => G.money >= goodBuyPrice(x.at, g.id)));
+      return d && card(d) ? { n: 1, text: 'New: goods. Buy a thing where it is made and sell it where it is wanted. ' + d.name + ' has cargo room at ' + PORT_BY[d.at].name + ': tap it.', target: card(d), soft: true } : null; }
+    case 'reg1': return region(4, 'New Hampshire and Vermont can be opened now.');
+    case 'reg2': return region(6, 'Southern New England can be opened now: Boston, the Cape and the islands, Rhode Island and Connecticut.');
+    case 'reg3': return region(8, 'Canada can be opened now. Customs holds a craft for a minute each time it crosses the border.');
+    case 'wear': return craftTab('gear', 'Craft wear out with use now, and a worn one runs slow.', 'GEAR shows this craft\'s condition. A hangar or boatyard overhauls it, for coins or for a spare part.');
+    case 'fits': return craftTab('gear', 'New: fits.', 'Under GEAR, a fit sets a craft up for one thing: range, speed, thrift or freight. Each gives something up, a craft takes one at a time, and it is fitted at a hangar or boatyard.');
+    case 'crew': return craftTab('crew', 'New: crew.', 'CREW: hire one hand for this craft. Each brings one skill, and gets better with the trips they make.');
+    case 'runs': { if (G.crafts.some(x => x.run)) { lessonDone(id); return null; }
+      return craftTab('run', 'New: standing runs. A craft can work a route by itself.', 'RUN: pick the port at the other end, and this craft loads, goes and collects by itself, even while you are away. A run can take up to four stops.'); }
+    case 'catch': { const boat = x => !!CRAFT_BY[x.type].fish;
+      if (inCraft && boat(c)) return UI.stab !== 'fish' ? { n: 2, text: 'New for the boats. Tap FISHING.', target: q('.stab[data-arg=fish]'), soft: true } : { n: 3, text: 'A boat keeps its catch aboard now, so you can land it where the price is best: FISH on the map lists the prices. Lobster boats can set a string of traps and haul it later.', next: 'GOT IT' };
+      if (!onMap) return null; const d = G.crafts.find(x => x.state === 'dock' && boat(x) && PORT_BY[x.at].dock); return d && card(d) ? { n: 1, text: 'New for the boats: the catch stays aboard until you sell it, and lobster traps. Tap ' + d.name + '.', target: card(d), soft: true } : null; }
+    case 'works': { if (onMap) { const P = PORTS.find(p => G.ports[p.id].open); return P ? { n: 1, text: 'New: port works. Any port you serve can have a fuel dock, a lobster pound or an inn. Tap ' + P.name + '.', port: P.id, soft: true } : null; }
+      if (!inSheet || !(UI.sheet === 'craft' || UI.sheet === 'port')) return null; const tab = q('.stab[data-arg=port]');
+      if (UI.stab !== 'port') return tab ? { n: 2, text: 'Tap ' + tab.textContent.replace(/[0-9 ]+$/, '') + '.', target: tab, soft: true } : null;
+      const sb = q('.seg[data-arg=town]'); if (sb && UI.yseg !== 'town') return { n: 3, text: 'Tap TOWN.', target: sb, soft: true };
+      return { n: 4, text: 'These are the works. A fuel dock makes fuel 30% cheaper leaving here, a lobster pound pays 20% more for the catch, and an inn puts four more jobs on the board.', next: 'GOT IT' }; }
+    case 'rival': { if (G.rivalOff) { lessonDone(id); return null; } if (!onMap) return null; const P = PORTS.find(p => G.ports[p.id].open && G.ports[p.id].jobs.some(j => j.rv)); if (!P) return null;
+      return { n: 1, text: RIVAL + ' has its eye on a load at ' + P.name + '. Load it before the RIVAL tag runs out, or let them have it. They keep away from ports where your standing is high, and the Almanac can switch them off.', port: P.id, next: 'GOT IT', soft: true }; }
+  }
+  return null;
+}
+function lessonStep() {
+  if (G.lesOff) return null; if (!G.les) G.les = {}; if (UI.lesWait && performance.now() < UI.lesWait) return null;
+  // the lesson already on screen keeps the floor; otherwise the first one, in the order things unlock, that has something to point at
+  const ids = LESSON_ORDER.filter(id => !G.les[id] && feat(id)); if (UI.lesCur && ids.indexOf(UI.lesCur) > 0) { ids.splice(ids.indexOf(UI.lesCur), 1); ids.unshift(UI.lesCur); }
+  for (let i = 0; i < ids.length; i++) { const st = lessonFor(ids[i]);
+    if (!st) { if (ids[i] === UI.lesCur && UI.screen !== 'map') return null; continue; }      // mid-lesson and looking at something else: wait, do not start another
+    UI.lesCur = ids[i]; st.id = 'les-' + ids[i] + '-' + st.n; st.les = ids[i];
+    // bring the thing she points at into view, by scrolling the job list and nothing else
+    if (st.target && UI.lesScroll !== st.id) { UI.lesScroll = st.id; ['sbody', 'scols'].forEach(k => { const sc = $(k); if (!sc || sc.scrollHeight <= sc.clientHeight + 2 || !sc.contains(st.target)) return; const tr = st.target.getBoundingClientRect(), sr = sc.getBoundingClientRect(); sc.scrollTop += (tr.top + tr.height / 2) - (sr.top + sr.height / 2); }); }
+    return st; }
+  return null;
+}
+function lesNext() { if (UI.lesCur) lessonDone(UI.lesCur); sfx.click(); }
+function lesSkip() { if (UI.lesCur) lessonDone(UI.lesCur); UI.lesWait = 0; }
+function lesToggle() { G.lesOff = !G.lesOff; UI.coachKey = ''; UI.lesWait = 0; toast(G.lesOff ? 'Aunt Bev will keep her lessons to herself.' : 'Aunt Bev will show you each new thing as it unlocks.', ''); SIM.dirty = true; }
+function tutNext() { const id = UI.coachId, T = G.tut; if (id === 'intro') T.intro = 1; else if (id === 'loop') T.loop = 1; else if (id === 'yard2') { T.yard = 1; deselect(); } else if (id === 'ports') { T.ports = 1; G.tutDone = true; UI.lesWait = performance.now() + LESSON_GAP; news('Aunt Bev: "Now go make us some money."', 'good'); toast('Tutorial done. You can replay it from the Almanac.', 'good'); }
   UI.coachKey = ''; SIM.dirty = true; sfx.click(); }
-function tutSkip() { G.tutDone = true; UI.coachKey = ''; SIM.dirty = true; toast('Tutorial off. You can replay it from the Almanac.', ''); }
-function tutRestart() { G.tut = {}; G.tutDone = false; UI.coachKey = ''; closeModal(); deselect(); SIM.dirty = true; }
+function tutSkip() { G.tutDone = true; UI.lesWait = performance.now() + LESSON_GAP; UI.coachKey = ''; SIM.dirty = true; toast('Tutorial off. You can replay it from the Almanac.', ''); }
+function tutRestart() { G.tut = {}; G.tutDone = false; G.les = {}; G.lesOff = false; UI.lesCur = ''; UI.lesWait = 0; UI.coachKey = ''; closeModal(); deselect(); SIM.dirty = true; }
 function renderCoach() {
   const box = $('coach'), st = coachStep(); if (!st) { if (UI.coachOn) { UI.coachOn = false; UI.coachKey = ''; UI.coachId = ''; box.classList.remove('on'); } return; }
   const vw = window.innerWidth, vh = window.innerHeight, ring = $('coachring'), bub = $('coachbub'); let R = null;
@@ -224,7 +296,7 @@ function renderCoach() {
   const key = st.id + '|' + st.text + '|' + (R ? [R.l, R.t, R.r, R.b].map(Math.round).join(',') : '-') + '|' + vw + 'x' + vh; if (key === UI.coachKey) return; UI.coachKey = key; UI.coachId = st.id; UI.coachOn = true; box.classList.add('on');
   // the bubble: rebuilt only when its words change, so a button is never swapped out from under a finger
   const hk = st.id + '|' + st.text; if (hk !== UI.coachHtml) { UI.coachHtml = hk; const done = TUT_PHASES.filter(k => G.tut[k]).length;
-    bub.innerHTML = '<img src="' + portraitURL(4242, 'elder') + '" alt=""><div class="cb"><div class="cbh"><b>AUNT BEV · ' + Math.min(TUT_PHASES.length, done + 1) + ' OF ' + TUT_PHASES.length + '</b><button class="cskip" data-act="tutSkip">SKIP</button></div><p>' + esc(st.text) + '</p>' + (st.next ? '<div class="cbrow"><button class="btn go" data-act="tutNext">' + st.next + '</button></div>' : '') + '</div><i class="tip"></i>'; }
+    bub.innerHTML = '<img src="' + portraitURL(4242, 'elder') + '" alt=""><div class="cb"><div class="cbh"><b>AUNT BEV · ' + (st.les ? 'NEW: ' + esc(FEATURE_BY[st.les].name.toUpperCase()) : Math.min(TUT_PHASES.length, done + 1) + ' OF ' + TUT_PHASES.length) + '</b><button class="cskip" data-act="' + (st.les ? 'lesSkip' : 'tutSkip') + '">SKIP</button></div><p>' + esc(st.text) + '</p>' + (st.next ? '<div class="cbrow"><button class="btn go" data-act="' + (st.les ? 'lesNext' : 'tutNext') + '">' + st.next + '</button></div>' : '') + '</div><i class="tip"></i>'; }
   ring.className = R ? 'on' + (st.soft ? '' : ' spot') : ''; if (R) { ring.style.left = (R.l - 5) + 'px'; ring.style.top = (R.t - 5) + 'px'; ring.style.width = (R.r - R.l + 10) + 'px'; ring.style.height = (R.b - R.t + 10) + 'px'; }
   const w = bub.offsetWidth, h = bub.offsetHeight, tip = bub.querySelector('.tip'); let left = (vw - w) / 2, top = 58;
   let A = R; if (R && st.avoid) { const a = st.avoid.getBoundingClientRect(); A = { l: Math.min(R.l, a.left), t: Math.min(R.t, a.top), r: Math.max(R.r, a.right), b: Math.max(R.b, a.bottom) }; }
@@ -513,7 +585,8 @@ function renderPanel(now) {
   if (!show) { UI.sig = ''; return; }
   const ae = document.activeElement; if (ae && (ae.tagName === 'INPUT' || ae.tagName === 'TEXTAREA') && !UI.forceOnce) return; UI.forceOnce = false;
   if (UI.pointerDown || now - UI.lastRender < 160) return; const sig = sheetSig(); if (sig === UI.sig) return; UI.sig = sig; UI.lastRender = now;
-  const c = UI.selCraft, body = $('sbody'), cols = $('scols'), sc = body.scrollTop, sc2 = cols.scrollTop; let head = '', tabs = '', left = null, h = '', foot = '', tut = '';
+  // a sheet that has just been opened starts at its top; one that is only being redrawn keeps its place
+  const c = UI.selCraft, body = $('sbody'), cols = $('scols'), fresh = UI.toTop, sc = fresh ? 0 : body.scrollTop, sc2 = fresh ? 0 : cols.scrollTop; UI.toTop = false; let head = '', tabs = '', left = null, h = '', foot = '', tut = '';
   if (UI.sheet === 'contracts' || UI.sheet === 'market' || UI.sheet === 'almanac' || UI.sheet === 'yard') { head = BACK + '<div class="grow"><h2>' + (UI.sheet === 'contracts' ? 'Contracts' : UI.sheet === 'market' ? 'Fish Market' : UI.sheet === 'yard' ? 'Hangar &amp; Boatyard' : 'Almanac') + '</h2></div>';
     h = UI.sheet === 'contracts' ? htmlContracts() : UI.sheet === 'market' ? htmlMarket() : UI.sheet === 'yard' ? htmlYard() : htmlAlmanac(); }
   else if (c && c.state !== 'dock') { const T = CRAFT_BY[c.type];
@@ -698,6 +771,7 @@ function act(a, arg, el) {
     case 'continue': UI.started = true; UI.paused = false; closeModal(); startView(); sfx.click(); break;
     case 'closeModal': closeModal(); break;
     case 'tutNext': tutNext(); break; case 'tutSkip': tutSkip(); break; case 'tutRestart': tutRestart(); break;
+    case 'lesNext': lesNext(); break; case 'lesSkip': lesSkip(); break; case 'lesToggle': lesToggle(); forcePanel(); break;
   }
   if (err) toast(err, 'bad');
   computeReach(); forcePanel();

@@ -8,15 +8,15 @@ A cozy pixel-art transport game that starts in Maine and grows to cover New Engl
 
 In Chrome, choose Install or Add to Home screen and it becomes an app: its own icon, full screen, and it opens with no connection once it has been loaded once.
 
-The whole game is one self-contained `index.html`. It runs in any modern browser, on a phone or a desktop, with nothing to install. It saves in the browser, and keeps running while it is closed.
+The whole game is one self-contained `index.html`. It runs in any modern browser, on a phone or a desktop, with nothing to install. It saves in the browser, and keeps running while it is closed or behind another window.
 
 ## Screenshots
 
 On a phone:
 
-| The map | A port | A big craft | A yard |
-|---|---|---|---|
-| ![The map on a phone: ports along the Maine coast, with planes and boats on their way](docs/phone-map.png) | ![Portland on a phone: a bush plane with two passengers and a parcel aboard, above the job board](docs/phone-port.png) | ![Rockland on a phone: a ferry whose load is listed by destination](docs/phone-ferry.png) | ![A yard on a phone: craft parts for sale on the shelf](docs/phone-yard.png) |
+| The map | A port | A big craft | A yard | A lesson |
+|---|---|---|---|---|
+| ![The map on a phone: ports along the Maine coast, with planes and boats on their way](docs/phone-map.png) | ![Portland on a phone: a bush plane with two passengers and a parcel aboard, above the job board](docs/phone-port.png) | ![Rockland on a phone: a ferry whose load is listed by destination](docs/phone-ferry.png) | ![A yard on a phone: craft parts for sale on the shelf](docs/phone-yard.png) | ![A lesson on a phone: Aunt Bev pointing at the BUY button for goods](docs/phone-lesson.png) |
 
 On a desktop:
 
@@ -31,7 +31,7 @@ On a desktop:
 3. Fill a craft with jobs for one destination for a 25% bonus.
 4. Spend what you earn on new ports, fleet slots and craft. Planes go from a hangar town, boats from a boatyard town.
 
-A guided tutorial walks a new player through the first run. It can be skipped, and replayed from the Almanac.
+A guided tutorial walks a new player through the first run. After that, Aunt Bev comes back once for each thing a new level opens (VIPs, goods, events, the new regions, crew, the rival, standing runs and the rest) and points at where it is on screen. The tutorial and each lesson can be skipped; the Almanac switches the lessons off and replays everything.
 
 ### What unlocks as you level
 
@@ -66,7 +66,7 @@ What is done, what is not, and what could come next is in the [roadmap](ROADMAP.
 
 ## Design choices
 
-- **Real time, no energy.** Trips take real minutes and the game runs while closed, capped at twelve hours. There are no energy timers, no premium currency and nothing to buy.
+- **Real time, no energy.** Trips take real minutes, and the game keeps going while it is closed or hidden, capped at twelve hours. There are no energy timers, no premium currency and nothing to buy.
 - **One job, one slot.** Every passenger or parcel takes one seat or one cargo slot, and jobs arrive in same-destination groups, so a bigger craft is still quick to fill. Standing runs take over the repetitive routes late in the game.
 - **You choose where to go.** Nothing picks a destination for you. The ports your load is bound for flash on the map.
 - **You can see what you are holding.** The craft in hand has a yellow card with its picture, its seats and cargo counted, and every slot drawn. A craft with ten or more slots lists its load by destination. The same craft is bracketed in the port scene and on the map.
@@ -112,11 +112,12 @@ The rest drive the built page in headless Chrome through Playwright (`pip instal
 ```
 python3 test/audit.py 386x630x3 1280x720x1     # nothing clipped, cropped or off screen, on every screen
 python3 test/tutorial.py 386x630x3             # follows the tutorial by tapping only what it highlights
+python3 test/lessons.py 386x630x3              # follows each of Aunt Bev's lessons the same way, one per unlock
 python3 test/levels.py 386x630x3 casco         # levels up and uses each unlock by taps
 python3 test/playtest.py 386x630x3 casco       # a long tap-driven session, checking the wording per craft
 python3 test/vip.py 386x630x3                  # VIPs, holidays and events by taps, through a save and reload
 python3 test/depth.py 386x630x3                # goods, a request, a fit, a three-stop run and the rival switch by taps
-python3 test/away.py 386x630x3                 # closes the page mid-trip and reopens it: a real wait, two hours, twenty hours
+python3 test/away.py 386x630x3                 # hides the page mid-trip, then closes and reopens it: a real wait, two hours, twenty hours
 python3 test/shot.py 1440 900 stress           # 3,000 random steps through every system
 python3 test/docs.py                           # retakes the screenshots in docs/ and the link preview picture
 ```
