@@ -12,13 +12,15 @@ Everything on the first version of this roadmap is in the game.
 - **Events.** A calendar of the season in the Almanac, boat races that move from harbor to harbor, storm relief runs, cruise ships and freighters calling at the new harbors.
 - **Holidays.** Eleven, each with decorations, jobs, a VIP, a paint to earn, and a marker beside each port on the map.
 - **Saving.** To a file as well as a code.
+- **Depth.** Goods with prices that move, port requests, connection jobs, standing runs of up to four stops that hand loads to each other, a rival, fits with a trade-off, crew that improve.
+- **An app.** Installed from Chrome it has its own icon, runs full screen and opens with no connection.
 
 ## Not done
 
 These need a person, not more code.
 
 - **A test on real phones.** Everything is tested in headless Chrome at phone sizes: layout, taps, the tutorial, a long session. Nobody has held it yet.
-- **Balance past three hours.** A simulated player reaches level 10 and twelve ports in three hours. The prices of the New England ports, the excursion boat and the freighter are first guesses and have not been played by hand.
+- **Balance.** A simulated player that neither trades nor answers the rival reaches level 9 and eleven ports in three hours. The numbers behind goods, requests, fits, the rival and the New England ports are first guesses, and nobody has played them by hand. This is the thing most likely to need changing.
 - **Old saves.** A save from the Maine-only map is moved onto the bigger one when it loads. That is tested in the rules, but only one save has been through it.
 
 ## Ideas, not promises

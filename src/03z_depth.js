@@ -61,7 +61,7 @@ const RIVAL = 'Quoddy Air & Freight', RIVAL_WAIT = 80;
 function updateRival() {
   PORTS.forEach(p => { const st = G.ports[p.id]; if (!st.open) return; let n = 0, to = null; for (let i = st.jobs.length - 1; i >= 0; i--) { const j = st.jobs[i]; if (j.rv && G.t >= j.rv) { to = j.to; st.jobs.splice(i, 1); n++; } }
     if (n) { G.stats.lost = (G.stats.lost || 0) + n; news(RIVAL + ' took ' + n + (n === 1 ? ' job' : ' jobs') + ' out of ' + p.name + ' for ' + PORT_BY[to].name + '.', 'bad'); emit('rival', { pid: p.id, to, n, took: true }); SIM.dirty = true; } });
-  if (!feat('rival') || G.rivalOff) return; if (G.rivalNext === undefined) G.rivalNext = G.t + 90; if (G.t < G.rivalNext) return; G.rivalNext = G.t + rnd(110, 190);
+  if (!feat('rival') || G.rivalOff) return; if (G.rivalNext === undefined) G.rivalNext = G.t + 90; if (G.t < G.rivalNext) return; G.rivalNext = G.t + rnd(170, 280);
   const free = j => !j.vip && !j.urgent && !j.rv, ports = PORTS.filter(p => G.ports[p.id].open && G.ports[p.id].jobs.filter(free).length >= 5); if (!ports.length) return null;
   const p = pick(ports); if (Math.random() < 0.12 * standingLevel(p.id)) return null;
   const by = {}; G.ports[p.id].jobs.forEach(j => { if (free(j)) (by[j.to] || (by[j.to] = [])).push(j); }); let best = null, bv = 0; for (const k in by) { const v = by[k].reduce((a, j) => a + j.pay, 0); if (v > bv) { bv = v; best = k; } } if (!best) return null;

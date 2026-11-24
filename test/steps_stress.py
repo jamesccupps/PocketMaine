@@ -27,6 +27,7 @@ res = pg.evaluate("""() => {
     // level features: poke every one of them at random
     { const cs=G.crafts, c=cs[(Math.random()*cs.length)|0], open=PORTS.filter(p=>G.ports[p.id].open);
       if(c){ if(Math.random()<0.02) renameCraft(c,'Test '+((Math.random()*99)|0)); if(Math.random()<0.02) paintCraft(c,(Math.random()*LIVERIES.length)|0);
+        if(c.state==='dock'&&Math.random()<0.25){ const gs=goodsFor(c.at); if(gs.length) buyGood(c,gs[(Math.random()*gs.length)|0].id,1+((Math.random()*4)|0)); } if(c.state==='dock'&&c.goods&&c.goods.length&&Math.random()<0.5) sellGood(c,c.goods[0].g); if(c.state==='dock'&&Math.random()<0.03) setFit(c,['range','speed','thrift','haul',''][(Math.random()*5)|0]); if(c.state==='dock'&&c.run&&Math.random()<0.05){ const o=PORTS.filter(p=>G.ports[p.id].open); setRun(c,o[(Math.random()*o.length)|0].id); }
         if(condOf(c)<60&&Math.random()<0.3) overhaul(c,Math.random()<0.5); if(c.fish&&c.state==='dock'&&Math.random()<0.7) sellCatch(c);
         if((G.hall||[]).length&&Math.random()<0.03) hireCrew(c,G.hall[0].id); if(c.crew&&Math.random()<0.005) dismissCrew(c);
         if(!c.run&&c.state==='dock'&&Math.random()<0.02&&open.length>1) setRun(c,open[(Math.random()*open.length)|0].id); if(c.run&&Math.random()<0.004) stopRun(c);

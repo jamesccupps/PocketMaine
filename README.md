@@ -4,6 +4,8 @@ A cozy pixel-art transport game that starts in Maine and grows to cover New Engl
 
 **Play it:** https://jamesccupps.github.io/PocketMaine/
 
+In Chrome, choose Install or Add to Home screen and it becomes an app: its own icon, full screen, and it opens with no connection once it has been loaded once.
+
 The whole game is one self-contained `index.html`. It runs in any modern browser, on a phone or a desktop, with nothing to install. It saves in the browser, and keeps running while it is closed.
 
 | Map | Port | Hangar |
@@ -28,11 +30,11 @@ XP comes from fares, catches, contracts, new ports, new craft types and first la
 | Level | Unlocks |
 |---|---|
 | 2 | VIPs and special freight: gold jobs that pay three to four times the fare and bring a tip, XP, a parts crate or a favor at both ports. Some want no stops, a daylight landing or a craft in good repair. Also names and paint |
-| 3 | Events, planned a season ahead and listed in the Almanac: festivals, a cruise ship or freighter in port, boat races that move from harbor to harbor, fuel price wars, parts swap meets, storm relief and urgent medical runs |
+| 3 | Events, planned a season ahead and listed in the Almanac: festivals, a cruise ship or freighter in port, boat races that move from harbor to harbor, fuel price wars, parts swap meets, storm relief and urgent medical runs. Goods and requests: buy where a thing is made, sell where it is wanted, and bring ports what they ask for |
 | 4 | New Hampshire and Vermont open. Wear and overhaul: craft wear with use and are fixed at a yard |
-| 5 | Catch and traps: sell the catch where the price is best, set lobster trap strings |
+| 5 | Catch and traps: sell the catch where the price is best, set lobster trap strings. Fits: set a craft up for range, speed, thrift or freight, one at a time |
 | 6 | Southern New England opens: Boston, the Cape and islands, Rhode Island, Connecticut. Crew: hire one hand per craft, each with one skill |
-| 7 | Port works: fuel dock, lobster pound, inn |
+| 7 | Port works: fuel dock, lobster pound, inn. A rival outfit that claims loads you leave (it can be switched off) |
 | 8 | Canada opens: Saint John, Yarmouth, Quebec City, Montreal, with a minute at customs each crossing. Standing runs: a craft shuttles between two ports by itself |
 
 Also in the game:
@@ -41,6 +43,11 @@ Also in the game:
 - **16 craft.** Nine planes and seven boats. The ferry and the freighter take groups and lots of ten or twenty in one tap. The excursion boat takes no jobs at all: pick two to four deep-water harbors and it is paid at every stop. Freighters and excursion boats need a deep-water harbor.
 - **Yards.** Hangars and boatyards sell parts (three parts build a craft) and store spare craft. One plane, the Gilded Beav, is never for sale: its parts only come in VIP crates.
 - **VIPs with lists.** Three of them keep coming back until they have been everywhere on their list. Finishing a list earns a paint no yard sells.
+- **Goods.** Eight of them, each made at some ports and wanted at others. A unit is cheap where it is made and dearer the farther it is carried. Buying pushes the price up, selling pushes it down, and both drift back. Goods fill whatever cargo room the jobs leave.
+- **Requests.** A port asks for a good, two requests at a time across the map. Filling one pays 60% over the price and that port's fares pay 3% more from then on, up to 15%. Letting one lapse costs standing there.
+- **Connections.** A job no single craft of yours can deliver is marked CONNECTION and pays 35% more. Standing runs take up to four stops, and two runs that share a port hand loads to each other there.
+- **A rival.** From level 7 another outfit claims the best load at one of your ports; load it within eighty seconds or it is gone. It stays away from ports where your standing is high.
+- **Crew that improve.** Twenty trips with a craft makes a hand seasoned and sixty an old hand, each worth 4% on every fare.
 - **The rest.** Contracts, a fish market and 17 fishing grounds, weather that holds craft on the ground, and four seasons that freeze lakes and close grass strips in mud season.
 
 **Holidays** follow the real calendar, eleven of them: New Year, Valentine's Day, St. Patrick's Day, Maple Sunday, Patriots' Day, Memorial Day, Independence Day, Labor Day, Halloween, Thanksgiving and Christmas. The ports are decorated, holiday passengers and freight turn up on the boards and pay 25% more, and carrying the holiday's VIP earns its paint. The Almanac has a switch to turn this off or preview a holiday.
@@ -73,10 +80,12 @@ It needs only Python 3. The three fonts in `fonts/` are inlined into the page.
 | `src/03_sim.js` | The rules: jobs, routes, weather, fishing, yards, parts |
 | `src/03x_more.js` | Everything that unlocks with levels, and events |
 | `src/03y_vip.js` | VIPs and the holiday calendar |
+| `src/03z_depth.js` | Goods, requests, the rival, fits, crew ranks |
 | `src/04_art.js` | Sprites, icons, generated portraits, the pixel font |
 | `src/05_render.js` | Drawing the map and the port scenes |
 | `src/06_ui.js` | Screens, the tutorial, input |
 | `src/07_main.js` | Saving, the frame loop, startup |
+| `manifest.webmanifest`, `sw.js`, `icon-*.png` | What makes the site installable as an app and able to open offline |
 
 ## Testing
 
@@ -94,6 +103,7 @@ python3 test/tutorial.py 386x630x3             # follows the tutorial by tapping
 python3 test/levels.py 386x630x3 casco         # levels up and uses each unlock by taps
 python3 test/playtest.py 386x630x3 casco       # a long tap-driven session, checking the wording per craft
 python3 test/vip.py 386x630x3                  # VIPs, holidays and events by taps, through a save and reload
+python3 test/depth.py 386x630x3                # goods, a request, a fit, a three-stop run and the rival switch by taps
 python3 test/away.py 386x630x3                 # closes the page mid-trip and reopens it: a real wait, two hours, twenty hours
 python3 test/shot.py 1440 900 stress           # 3,000 random steps through every system
 ```
