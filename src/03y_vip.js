@@ -2,9 +2,9 @@
    A VIP is one gold job on a port's board: somebody important or something precious. It pays about triple
    and brings a reward on delivery. They turn up on a timer, wait eight minutes, and never more than three at once. */
 const VIP_STAY = 480, VIP_MAX = 3;
-const VIP_REWARD = { tip: 'BIG TIP', xp: 'XP', part: 'CRATE', word: 'GOOD WORD' };
+const VIP_REWARD = { tip: 'BIG TIP', xp: 'XP', part: 'CRATE', word: 'FAVOR' };      // FAVOR: better standing at both ports
 // some VIPs are particular. Meet the condition or there is no reward (and half the tip).
-const VIP_PREF = { direct: 'DIRECT', day: 'BY DAY', fit: 'FIT' };      // no stops on the way; land in daylight; a craft in good repair
+const VIP_PREF = { direct: 'NO STOPS', day: 'BY DAYLIGHT', fit: 'SOUND CRAFT' };
 const VIP_PREF_WHY = { direct: 'there was a stop on the way', day: 'it was dark when they got there', fit: 'the craft was running rough' };
 function vipMet(j, c) { if (j.pref === 'direct') return !j.hops; if (j.pref === 'day') { const h = hourOf(G.t); return h >= 6 && h < 20; } if (j.pref === 'fit') return condOf(c) >= 60; return true; }
 // a few VIPs keep coming back until they have been everywhere on their list. Finishing a list earns a paint no yard sells.

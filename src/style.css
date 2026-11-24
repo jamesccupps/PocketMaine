@@ -468,6 +468,7 @@ h3{font-size:13px}.tag{font-size:11px}.item .tx b{font-size:14px}
 
 /* VIPs and holidays */
 .tag.gold{background:#ffd23f;border-color:#8a6a12;color:#3a2a06;display:inline-flex;align-items:center;gap:4px;white-space:nowrap}
-.tag.gold img{width:10px;height:10px;image-rendering:pixelated}
+.tag.gold2{background:#fffaf0;border-color:#a87a10;color:#6a4a06;white-space:nowrap}
+.jtx .tags{display:flex;flex-wrap:wrap;gap:3px;margin-top:3px;align-self:flex-start}.jtx .tags .tag{margin-top:0}
 .tag.hol{background:var(--red);color:#fff}
 .jrow.vip,.dg .jrow.vip{background:#fff1b8;border-color:#a87a10;box-shadow:inset 0 0 0 2px #ffd23f}
