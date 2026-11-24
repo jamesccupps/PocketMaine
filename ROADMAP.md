@@ -19,7 +19,7 @@ Everything on the first version of this roadmap is in the game.
 
 These need a person, not more code.
 
-- **A test on real phones.** Everything is tested in headless Chrome at phone sizes: layout, taps, the tutorial, a long session. Nobody has held it yet.
+- **A test on real phones.** Everything is tested in headless Chrome at phone sizes: layout, taps, the tutorial, a long session. It has been played on one phone so far, and the first thing that showed was that the craft in hand was hard to read; its card was redrawn for that. Other phones and longer sessions are still untested.
 - **Balance.** A simulated player that neither trades nor answers the rival reaches level 9 and eleven ports in three hours. The numbers behind goods, requests, fits, the rival and the New England ports are first guesses, and nobody has played them by hand. This is the thing most likely to need changing.
 - **Old saves.** A save from the Maine-only map is moved onto the bigger one when it loads. That is tested in the rules, but only one save has been through it.
 

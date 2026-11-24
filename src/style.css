@@ -550,3 +550,17 @@ h3{font-size:13px}.tag{font-size:11px}.item .tx b{font-size:14px}
  .holdbar.v2 .slots .slot{width:40px;height:46px}.holdbar.v2 .slots .slot img{width:28px;height:28px;margin-top:1px}
  .holdbar.v2 .cpic{min-height:48px}
 }
+/* A desktop window under 800 px tall (a 720p laptop): the craft card tightens so all of it shows without scrolling the left column. */
+@media (min-width:800px) and (max-height:800px){
+ .holdbar.v2{padding:7px 8px}
+ .holdbar.v2 .cpic{min-height:46px}
+ .holdbar.v2 .cinfo{flex-direction:row;flex-wrap:wrap;align-items:center;column-gap:10px;row-gap:4px}
+ .holdbar.v2 .cinfo>b{flex:0 0 100%}
+ .holdbar.v2 .cinfo>.slots{flex:0 0 auto}
+ .holdbar.v2 .cap{padding:2px 7px}.holdbar.v2 .cap img{width:20px;height:20px}.holdbar.v2 .cap b{font-size:17px}
+ .holdbar.v2 .slots .slot{width:46px;height:52px}.holdbar.v2 .slots .slot img{width:32px;height:32px;margin-top:2px}.holdbar.v2 .slots .slot span{font-size:9px;bottom:2px}
+ .holdbar.v2 .slots.mini .slot{height:36px}
+ .holdbar.v2 .cbot{margin-top:5px}
+ .holdbar.v2 .bn{font-size:16px;margin-top:4px}
+}
+@media (min-width:960px) and (max-height:760px){#scenebox{height:140px;flex-basis:140px}}

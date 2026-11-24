@@ -20,7 +20,8 @@ AUDIT = """() => { const out=[]; const vw=innerWidth, vh=innerHeight;
 LOADVIS = """() => { const b=document.querySelector('#sbody .jrow .btn.load'); if(!b) return 'no LOAD button exists'; const r=b.getBoundingClientRect(), f=document.getElementById('sfoot').getBoundingClientRect(), h=document.getElementById('shead').getBoundingClientRect();
   const rows=[...document.querySelectorAll('#sbody .jrow')].filter(x=>{const q=x.getBoundingClientRect(); return q.top>=h.bottom-1 && q.bottom<=f.top+1;}).length;
   return (r.top>=h.bottom && r.bottom<=f.top) ? 'ok '+rows+' rows fully visible' : 'LOAD NOT VISIBLE (button at y='+Math.round(r.top)+', footer starts '+Math.round(f.top)+')'; }"""
-ROWVIS = """() => { const f=document.getElementById('sfoot').getBoundingClientRect(), h=document.getElementById('shead').getBoundingClientRect(); const rows=[...document.querySelectorAll('#sbody .jrow')]; if(!rows.length) return 'no rows';
+ROWVIS = """() => { const f=document.getElementById('sfoot').getBoundingClientRect(), h=document.getElementById('shead').getBoundingClientRect(); const note=document.querySelector('#sbody .note'); if(note){ const q=note.getBoundingClientRect(); if(q.top>=h.bottom-1 && q.bottom<=f.top+1) return 'ok the board says why it is empty'; }
+  const rows=[...document.querySelectorAll('#sbody .jrow')]; if(!rows.length) return 'no rows';
   const vis=rows.filter(x=>{const q=x.getBoundingClientRect(); return q.top>=h.bottom-1 && q.bottom<=f.top+1;}).length; return vis ? 'ok '+vis+' rows visible' : 'NO JOB ROW VISIBLE (first row at y='+Math.round(rows[0].getBoundingClientRect().top)+', footer starts '+Math.round(f.top)+')'; }"""
 sizes=[(386,630,3),(360,640,3),(390,844,3),(412,915,2.6),(768,1024,2),(1024,768,1),(1280,720,1),(1440,900,1),(1920,1080,1)]
 if len(sys.argv)>1: sizes=[tuple(float(v) if '.' in v else int(v) for v in a.split('x')) for a in sys.argv[1:]]

@@ -1,4 +1,5 @@
-# Does the game keep going while it is closed? Sends a craft out, closes the page, and reopens it: after a real wait, after two hours, and after twenty.
+# Does the game keep going while nobody is looking? Sends a craft out, hides the page for twenty seconds without closing it,
+# then closes the page and reopens it: after a real wait, after two hours, and after twenty.
 import sys, os, json
 from playwright.sync_api import sync_playwright
 W,H,D=[int(v) for v in (sys.argv[1] if len(sys.argv)>1 else '386x630x3').split('x')]; touch=W<800; probs=[]; KEY='finestkind.save.v2'
@@ -17,7 +18,15 @@ with sync_playwright() as p:
     STATE="()=>{ const c=G.crafts.find(q=>q.id===%d); return {state:c.state, at:c.at, rem:c.state==='move'?(c.route.len-c.route.pos)/cstat(c).speed:0, pend:c.pend?c.pend.pay:0, t:G.t, money:G.money, toast:document.getElementById('toasts').innerText}; }"
     pg=open_page(); tap(pg,'#mbox .btn.go'); tap(pg,'.startc[data-arg=casco]'); pg.wait_for_timeout(4300); tap(pg,'#coachbub [data-act=tutSkip]')
     cid=pg.evaluate("()=>{ G.wxNext=1e12; G.wx=[]; const c=G.crafts.find(q=>q.at==='pwm'&&CRAFT_BY[q.type].wheels), j={id:G.nextId++,from:'pwm',to:'lew',kind:'p',pay:100,label:'Test fare',ic:'any'}; G.ports.pwm.jobs.unshift(j); loadJob(c,j.id); dispatch(c,['lew']); return c.id; }")
-    pg.wait_for_timeout(1500); s0=pg.evaluate(STATE%cid); pg.evaluate("()=>saveGame(STORE)"); pg.close()
+    # Hidden but still open: another app in front, another tab, a phone with its screen off. The browser stops drawing frames,
+    # but the autosave timer and the visibility event still fire. Frames are stopped here the same way, for twenty real seconds.
+    HIDE="""()=>{ window.__raf=window.requestAnimationFrame; window.requestAnimationFrame=f=>{ window.__pending=f; return 0; }; window.__hid=true;
+      Object.defineProperty(document,'hidden',{get:()=>window.__hid,configurable:true}); document.dispatchEvent(new Event('visibilitychange')); }"""
+    SHOW="""()=>{ window.__hid=false; document.dispatchEvent(new Event('visibilitychange')); window.requestAnimationFrame=window.__raf; if(window.__pending) window.__raf(window.__pending); }"""
+    pg.wait_for_timeout(1500); h0=pg.evaluate(STATE%cid); pg.evaluate(HIDE); __import__('time').sleep(20); pg.evaluate(SHOW); pg.wait_for_timeout(700); h1=pg.evaluate(STATE%cid)
+    print('hidden but open for 20 real seconds: game clock moved %.0f s, %.0f s of flying left'%(h1['t']-h0['t'],h1['rem']))
+    expect(h1['t']-h0['t']>=20 and abs((h0['rem']-h1['rem'])-(h1['t']-h0['t']))<3, 'time kept passing while the page was hidden but still open')
+    s0=pg.evaluate(STATE%cid); pg.evaluate("()=>saveGame(STORE)"); pg.close()
     print('sent out: %s, %.0f s of flying left; page closed for %d real seconds'%(s0['state'],s0['rem'],REAL))
     expect(s0['state']=='move' and s0['rem']>REAL+20, 'the craft is under way with more than the wait left to fly')
     __import__('time').sleep(REAL)

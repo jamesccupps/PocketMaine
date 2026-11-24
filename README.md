@@ -1,5 +1,7 @@
 # Pocket Maine - Air and Sea
 
+[![Pocket Maine - Air and Sea. A cozy pixel-art transport tycoon: bush planes, ferries and lobster boats across 54 ports, from Maine across New England.](docs/social.png)](https://jamesccupps.github.io/PocketMaine/)
+
 A cozy pixel-art transport game that starts in Maine and grows to cover New England. You run a small outfit moving people and freight by bush plane, floatplane, ferry and lobster boat, in real time, in the spirit of Pocket Planes.
 
 **Play it:** https://jamesccupps.github.io/PocketMaine/
@@ -8,11 +10,19 @@ In Chrome, choose Install or Add to Home screen and it becomes an app: its own i
 
 The whole game is one self-contained `index.html`. It runs in any modern browser, on a phone or a desktop, with nothing to install. It saves in the browser, and keeps running while it is closed.
 
-| Map | Port | Hangar |
-|---|---|---|
-| ![The map on a phone](docs/phone-map.png) | ![A port's job board](docs/phone-port.png) | ![A hangar and boatyard](docs/phone-yard.png) |
+## Screenshots
 
-![The port screen on a desktop](docs/desktop-port.png)
+On a phone:
+
+| The map | A port | A big craft | A yard |
+|---|---|---|---|
+| ![The map on a phone: ports along the Maine coast, with planes and boats on their way](docs/phone-map.png) | ![Portland on a phone: a bush plane with two passengers and a parcel aboard, above the job board](docs/phone-port.png) | ![Rockland on a phone: a ferry whose load is listed by destination](docs/phone-ferry.png) | ![A yard on a phone: craft parts for sale on the shelf](docs/phone-yard.png) |
+
+On a desktop:
+
+![The map on a desktop: New Hampshire to Bar Harbor, with the fleet along the bottom](docs/desktop-map.png)
+
+![The port screen on a desktop: the Portland waterfront and the craft in hand on the left, the job board on the right](docs/desktop-port.png)
 
 ## How it plays
 
@@ -59,6 +69,7 @@ What is done, what is not, and what could come next is in the [roadmap](ROADMAP.
 - **Real time, no energy.** Trips take real minutes and the game runs while closed, capped at twelve hours. There are no energy timers, no premium currency and nothing to buy.
 - **One job, one slot.** Every passenger or parcel takes one seat or one cargo slot, and jobs arrive in same-destination groups, so a bigger craft is still quick to fill. Standing runs take over the repetitive routes late in the game.
 - **You choose where to go.** Nothing picks a destination for you. The ports your load is bound for flash on the map.
+- **You can see what you are holding.** The craft in hand has a yellow card with its picture, its seats and cargo counted, and every slot drawn. A craft with ten or more slots lists its load by destination. The same craft is bracketed in the port scene and on the map.
 - **Boats follow the water.** Sea routes are found on a one-kilometre grid of the coast, so a boat goes around a peninsula, not over it.
 - **Features arrive one at a time.** A new game is only load, send, collect. Each system is hidden until its level.
 - **Original art only.** The map, craft, cargo icons and people are drawn in code. People are generated from a seed.
@@ -86,6 +97,7 @@ It needs only Python 3. The three fonts in `fonts/` are inlined into the page.
 | `src/06_ui.js` | Screens, the tutorial, input |
 | `src/07_main.js` | Saving, the frame loop, startup |
 | `manifest.webmanifest`, `sw.js`, `icon-*.png` | What makes the site installable as an app and able to open offline |
+| `docs/` | The screenshots on this page and `social.png`, the picture shown when a link to the game or this repository is shared |
 
 ## Testing
 
@@ -106,6 +118,7 @@ python3 test/vip.py 386x630x3                  # VIPs, holidays and events by ta
 python3 test/depth.py 386x630x3                # goods, a request, a fit, a three-stop run and the rival switch by taps
 python3 test/away.py 386x630x3                 # closes the page mid-trip and reopens it: a real wait, two hours, twenty hours
 python3 test/shot.py 1440 900 stress           # 3,000 random steps through every system
+python3 test/docs.py                           # retakes the screenshots in docs/ and the link preview picture
 ```
 
 Sizes are `width x height x pixel ratio`. Widths under 800 are run as a touch phone.

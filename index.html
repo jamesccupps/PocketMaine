@@ -12,14 +12,15 @@
 <meta property="og:title" content="Pocket Maine - Air and Sea">
 <meta property="og:description" content="A cozy pixel-art transport tycoon in the browser. Fly bush planes, run ferries and lobster boats, and open 54 ports from Maine across New England. Free.">
 <meta property="og:url" content="https://jamesccupps.github.io/PocketMaine/">
-<meta property="og:image" content="https://jamesccupps.github.io/PocketMaine/docs/desktop-port.png">
+<meta property="og:image" content="https://jamesccupps.github.io/PocketMaine/docs/social.png">
 <meta property="og:image:width" content="1280">
-<meta property="og:image:height" content="720">
-<meta property="og:image:alt" content="A port screen in Pocket Maine: the Portland waterfront in pixel art beside a board of jobs to load.">
+<meta property="og:image:height" content="640">
+<meta property="og:image:alt" content="Pocket Maine - Air and Sea: the title, a row of pixel-art planes and boats, and a phone showing the Portland job board over a map of the Maine coast.">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Pocket Maine - Air and Sea">
 <meta name="twitter:description" content="A cozy pixel-art transport tycoon in the browser. Fly bush planes, run ferries and lobster boats, and open 54 ports from Maine across New England. Free.">
-<meta name="twitter:image" content="https://jamesccupps.github.io/PocketMaine/docs/desktop-port.png">
+<meta name="twitter:image" content="https://jamesccupps.github.io/PocketMaine/docs/social.png">
+<meta name="twitter:image:alt" content="Pocket Maine - Air and Sea: the title, a row of pixel-art planes and boats, and a phone showing the Portland job board over a map of the Maine coast.">
 <meta name="theme-color" content="#14273d">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" href="icon-192.png">
@@ -44,7 +45,8 @@
  "operatingSystem": "Any (web browser)",
  "playMode": "SinglePlayer",
  "inLanguage": "en",
- "image": "https://jamesccupps.github.io/PocketMaine/docs/desktop-port.png",
+ "image": "https://jamesccupps.github.io/PocketMaine/docs/social.png",
+ "screenshot": "https://jamesccupps.github.io/PocketMaine/docs/desktop-port.png",
  "author": {
   "@type": "Person",
   "name": "James Cupps",
@@ -616,6 +618,20 @@ h3{font-size:13px}.tag{font-size:11px}.item .tx b{font-size:14px}
  .holdbar.v2 .slots .slot{width:40px;height:46px}.holdbar.v2 .slots .slot img{width:28px;height:28px;margin-top:1px}
  .holdbar.v2 .cpic{min-height:48px}
 }
+/* A desktop window under 800 px tall (a 720p laptop): the craft card tightens so all of it shows without scrolling the left column. */
+@media (min-width:800px) and (max-height:800px){
+ .holdbar.v2{padding:7px 8px}
+ .holdbar.v2 .cpic{min-height:46px}
+ .holdbar.v2 .cinfo{flex-direction:row;flex-wrap:wrap;align-items:center;column-gap:10px;row-gap:4px}
+ .holdbar.v2 .cinfo>b{flex:0 0 100%}
+ .holdbar.v2 .cinfo>.slots{flex:0 0 auto}
+ .holdbar.v2 .cap{padding:2px 7px}.holdbar.v2 .cap img{width:20px;height:20px}.holdbar.v2 .cap b{font-size:17px}
+ .holdbar.v2 .slots .slot{width:46px;height:52px}.holdbar.v2 .slots .slot img{width:32px;height:32px;margin-top:2px}.holdbar.v2 .slots .slot span{font-size:9px;bottom:2px}
+ .holdbar.v2 .slots.mini .slot{height:36px}
+ .holdbar.v2 .cbot{margin-top:5px}
+ .holdbar.v2 .bn{font-size:16px;margin-top:4px}
+}
+@media (min-width:960px) and (max-height:760px){#scenebox{height:140px;flex-basis:140px}}
 
 </style>
 </head>
@@ -3649,10 +3665,18 @@ const STORE = (function () { try { const k = '__fk_test'; localStorage.setItem(k
 // the gap is replayed in coarse steps so flights land and job boards turn over while you were away.
 // One bad frame must never freeze the game: report the error, back out to the map, and keep going.
 function frame(now) { try { frameBody(now); UI.badFrames = 0; } catch (e) { setTimeout(() => { throw e; }); if ((UI.badFrames = (UI.badFrames || 0) + 1) < 4) { try { deselect(); } catch (x) {} } requestAnimationFrame(frame); } }
+// The game clock is the wall clock: whatever real time has passed since the sim last moved is played now.
+// This runs every frame and before every save. A browser stops drawing frames when the tab is hidden or the window is
+// covered, but it still fires the autosave timer and the visibility event, and a save stamps the time. Catching up
+// first means that stamp never throws away the time spent hidden.
+function advance() {
+  if (!UI.started || UI.paused) return; const wall = Date.now(), el = (wall - G.wall) / 1000; G.wall = wall;
+  if (el > 3) { const landed = fastForward(el); UI.away = (UI.away || 0) + el; UI.awayLanded = (UI.awayLanded || 0) + landed; UI.fleetKey = ''; forcePanel(); }
+  else if (el > 0) tick(el);
+  if (UI.away && !document.hidden) { if (UI.away > 45) awayNote(UI.away, UI.awayLanded); UI.away = 0; UI.awayLanded = 0; }
+}
 function frameBody(now) {
-  if (UI.started && !UI.paused) { const wall = Date.now(), el = (wall - G.wall) / 1000; G.wall = wall;
-    if (el > 3) { const landed = fastForward(el); if (el > 45) awayNote(el, landed); UI.fleetKey = ''; forcePanel(); }
-    else if (el > 0) tick(el); }
+  advance();
   if (UI.started && !UI.greeted && G.tutDone) { UI.greeted = 1; const hd = holidayGreet(); if (hd) banner(hd.name, 'Holiday jobs pay 25% more this week.'); }
   refreshSel();
   const c = UI.selCraft; if (UI.screen === 'route' && (!c || c.state !== 'dock')) deselect();
@@ -3667,7 +3691,7 @@ function boot() {
   UI.shownMoney = G.money; SIM.events = []; $('coinic').src = ICON_URL.coin; $('mi1').src = ICON_URL.paper; $('mi2').src = ICON_URL.fish_lobster; $('mi3').src = ICON_URL.books; $('mi4').src = ICON_URL.ui_wrench;
   initInput(); showTitle(false); if (G.news[0]) showNews(G.news[0]);
   // "save" action and autosave share the same store
-  const doSave = () => { if (UI.started) saveGame(STORE); };
+  const doSave = () => { if (UI.started) { advance(); saveGame(STORE); } };
   setInterval(doSave, 15000); document.addEventListener('visibilitychange', doSave); window.addEventListener('pagehide', doSave);
   requestAnimationFrame(frame);
   // installed from the site, the game keeps a copy of itself so it opens with no connection
