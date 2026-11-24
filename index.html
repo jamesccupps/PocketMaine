@@ -546,6 +546,50 @@ h3{font-size:13px}.tag{font-size:11px}.item .tx b{font-size:14px}
 .jtx>span.tag{display:inline-block;font-size:11px;color:var(--ink);margin-top:3px;overflow:visible}
 .jtx>span.tag.red,.jtx>span.tag.hol,.jtx>span.tag.blue,.jtx>span.tag.green,.jtx>span.tag.org{color:#fff}
 
+/* ---------- the craft card: a big picture, a name, seats and cargo counted plainly, and slots large enough to read ---------- */
+.holdbar.v2{border-color:var(--yellow);box-shadow:none;padding:8px 10px}
+.holdbar.v2.plain{border-color:var(--ink)}
+.holdbar.v2 .hh{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.holdbar.v2 .cmid{display:flex;gap:8px;align-items:stretch;margin-bottom:8px}
+.holdbar.v2 .cpic{flex:0 0 46%;display:flex;align-items:center;justify-content:center;min-height:70px;padding:6px;background:#8fd0ee;border:3px solid var(--deep);overflow:hidden}
+.holdbar.v2 .cpic img{image-rendering:pixelated;display:block;height:auto;max-width:100%}
+.holdbar.v2 .hh>.cid{flex:1;min-width:0}
+.holdbar.v2 .hh .cid b{display:block;font-family:'Silkscreen',monospace;font-size:16px;line-height:1.1;color:var(--yellow);white-space:normal;overflow:visible;overflow-wrap:anywhere}
+.holdbar.v2 .hh .cid>span.ct{display:block;font-size:21px;color:var(--sky);margin-top:3px;white-space:normal}
+.holdbar.v2 .caps{flex:1;min-width:0;display:flex;flex-direction:column;gap:6px}
+.holdbar.v2 .cap{flex:1;min-width:0;display:flex;align-items:center;gap:8px;padding:6px 9px;border:3px solid var(--deep);background:#2f4c70;color:var(--cream)}
+.holdbar.v2 .cap.c{background:#6a5332}
+.holdbar.v2 .cap img{width:28px;height:28px;image-rendering:pixelated;flex:0 0 auto;filter:brightness(2.2)}
+.holdbar.v2 .cap b{font-family:'Silkscreen',monospace;font-size:22px;line-height:1;color:#fff;white-space:nowrap}
+.holdbar.v2 .cap b small{font-size:14px;color:#cfe3f4}
+.holdbar.v2 .cap i{font-style:normal;font-family:'Silkscreen',monospace;font-size:10px;color:#cfe3f4;margin-left:auto}
+.holdbar.v2 .cap.full{background:#3f8f3a;border-color:#1f5a22}
+.holdbar.v2 .slots,.holdbar.v2 .slots.mini{display:flex;flex-wrap:wrap;gap:6px}
+.holdbar.v2 .slots .slot{width:54px;height:62px;border:3px solid var(--deep);background:#2f4c70}
+.holdbar.v2 .slots .slot.c{background:#6a5332}
+.holdbar.v2 .slots .slot.full{background:#fffaf0}
+.holdbar.v2 .slots .slot img{width:40px;height:40px;margin-top:3px}
+.holdbar.v2 .slots .slot.empty img{opacity:.55;filter:brightness(1.8)}
+.holdbar.v2 .slots .slot span{display:block;position:absolute;left:0;right:0;bottom:3px;font-size:10px;text-align:center}
+.holdbar.v2 .slots.mini .slot{width:auto;min-width:0;height:42px;flex-direction:row;align-items:center;justify-content:center;gap:6px;padding:0 9px}
+.holdbar.v2 .slots.mini .slot img{width:28px;height:28px;margin:0}
+.holdbar.v2 .slots.mini .slot span{display:inline;position:static;font-size:12px}
+.holdbar.v2 .slots .slot.cnt{width:auto;min-width:0;flex-direction:row;align-items:center;justify-content:center;gap:6px;padding:0 9px}
+.holdbar.v2 .slots .slot.cnt img{margin:0}
+.holdbar.v2 .slots .slot.cnt span{display:inline;position:static;font-size:13px;color:#fff}
+.holdbar.v2 .bn{font-size:19px;margin-top:7px}
+.ftwx{display:flex;flex-direction:column;align-items:flex-start;gap:3px}
+
+/* size and load under each craft in the fleet strip */
+.fc .spr{flex-direction:column;gap:3px}
+.fc .spr img{max-height:26px}
+.fc .pips{display:flex;gap:2px;align-items:center;justify-content:center;height:8px}
+.fc .pp{display:block;width:7px;height:7px;border:1px solid var(--ink);background:#c5d6ea}
+.fc .pp.c{background:#e0cba6}
+.fc .pp.p.on{background:#2f6fc0}
+.fc .pp.c.on{background:#8a5a34}
+.fc .pt{font-family:'Silkscreen',monospace;font-style:normal;font-size:8px;line-height:8px;color:var(--ink);white-space:nowrap}
+
 </style>
 </head>
 <body>
@@ -2614,7 +2658,7 @@ function drawMap(now, ui) {
       else if (((t * 2) | 0) % 2) { x.fillStyle = '#d8ecf4'; x.fillRect(sx - (sp.w >> 1) - 2, sy + 1, 2, 1); x.fillRect(sx + (sp.w >> 1), sy + 1, 2, 1); }
     }
     const bob = (T.cls === 'boat' && Math.sin(t * 2.2 + c.id) > 0.3) ? 1 : 0, dx = sx - (sp.w >> 1), dy = sy - sp.h + 2 - alt + bob;
-    if (isSel) x.drawImage(face === 'r' ? sp.selR : sp.selL, dx - 1, dy - 1); else x.drawImage(sp[face], dx, dy);
+    if (isSel) { x.drawImage(face === 'r' ? sp.selR : sp.selL, dx - 1, dy - 1); selBrackets(x, dx - 3, dy - 3, sp.w + 5, sp.h + 5, t); } else x.drawImage(sp[face], dx, dy);
     c.hx = sx; c.hy = dy + (sp.h >> 1);
     if (c.state === 'fish') { drawText(x, 'FISHING', sx - 13, dy - 7, '#ffe36a', '#14273d'); const f = clamp(c.fishT / c.fishDur, 0, 1); x.fillStyle = '#14273d'; x.fillRect(sx - 9, dy - 1, 18, 3); x.fillStyle = '#7dff8a'; x.fillRect(sx - 8, dy, Math.round(16 * f), 1); }
     else if (c.state === 'move' && c.route && c.route.cust > 0 && c.route.pos >= c.route.len) { drawText(x, 'CUSTOMS', sx - 13, dy - 7, '#ffe36a', '#14273d'); }
@@ -2726,13 +2770,13 @@ function drawScene(x, port, craft, now) {
       const onWater = T.cls === 'boat' || (T.floats && waterX < W && !(lake && s === WINTER) && !(T.wheels && port.strip));
       if (onWater) { px = Math.min(W - sp.w - 1, waterX + 6 + bi * 14); py = GND + 9 + (bi % 2) * 4 - sp.h + (Math.sin(t * 2 + c.id) > 0 ? 0 : 1); bi++; }
       else { px = Math.max(2, Math.min(waterX - sp.w - 14, 62 - Math.min(40, sp.w) + pi * 24)); py = GND + 14 - sp.h; pi++; }
-      x.drawImage(sp.r, px, py);
-      if (craft && c.id === craft.id) { const ay = py - 6 - ((t * 3) | 0) % 2; x.fillStyle = '#14273d'; x.fillRect(px + (sp.w >> 1) - 3, ay - 1, 7, 3); x.fillRect(px + (sp.w >> 1) - 2, ay + 2, 5, 1); x.fillRect(px + (sp.w >> 1) - 1, ay + 3, 3, 1); x.fillStyle = '#ffe36a'; x.fillRect(px + (sp.w >> 1) - 2, ay, 5, 2); x.fillRect(px + (sp.w >> 1) - 1, ay + 2, 3, 1); x.fillRect(px + (sp.w >> 1), ay + 3, 1, 1); } });
+      if (craft && c.id === craft.id && sp.selR) x.drawImage(sp.selR, px - 1, py - 1); else x.drawImage(sp.r, px, py);
+      if (craft && c.id === craft.id) { selBrackets(x, px - 3, py - 3, sp.w + 5, sp.h + 5, t); const ay = py - 6 - ((t * 3) | 0) % 2; x.fillStyle = '#14273d'; x.fillRect(px + (sp.w >> 1) - 3, ay - 1, 7, 3); x.fillRect(px + (sp.w >> 1) - 2, ay + 2, 5, 1); x.fillRect(px + (sp.w >> 1) - 1, ay + 3, 3, 1); x.fillStyle = '#ffe36a'; x.fillRect(px + (sp.w >> 1) - 2, ay, 5, 2); x.fillRect(px + (sp.w >> 1) - 1, ay + 2, 3, 1); x.fillRect(px + (sp.w >> 1), ay + 3, 1, 1); } });
   }
   // weather over everything
   if (wx.storm) { x.fillStyle = '#b8d4ee'; for (let i = 0; i < 70; i++) { const ph = (t * 90 + hash2(i, 71) * 80) % (H + 10); x.fillRect(((hash2(i, 72) * (W + 30)) | 0) - ((ph * 0.4) | 0), ph | 0, 1, 3); } if (hash2((t * 2) | 0, 5) < 0.08) { x.globalAlpha = 0.5; x.fillStyle = '#ffffff'; x.fillRect(0, 0, W, H); x.globalAlpha = 1; } }
   if (wx.snow || (s === WINTER && wx.storm)) { x.fillStyle = '#ffffff'; for (let i = 0; i < 60; i++) { const ph = (t * 14 + hash2(i, 81) * 80) % (H + 4); x.fillRect(((hash2(i, 82) * W + Math.sin(t + i) * 3) | 0), ph | 0, 1, 1); } }
-  if (wx.fog) { for (let b = 0; b < 5; b++) { x.globalAlpha = 0.34 + b * 0.05; x.fillStyle = night > 0.5 ? '#6a7890' : '#eef3f6'; const off = Math.sin(t * 0.3 + b) * 8; for (let i = -1; i < 5; i++) x.fillRect((i * 50 + off + b * 13) | 0, 14 + b * 10, 38, 6); } x.globalAlpha = 1; }
+  if (wx.fog) { for (let b = 0; b < 5; b++) { x.globalAlpha = 0.2 + b * 0.04; x.fillStyle = night > 0.5 ? '#6a7890' : '#eef3f6'; const off = Math.sin(t * 0.3 + b) * 8; for (let i = -1; i < 5; i++) x.fillRect((i * 50 + off + b * 13) | 0, 14 + b * 10, 38, 6); } x.globalAlpha = 1; }
   { const hd = holidayNow(); if (hd) drawHolidayFx(x, W, H, t, hd.fx, night, 14); }
   if (night > 0 && !travel) { x.globalAlpha = 0.28 * night; x.fillStyle = '#081430'; x.fillRect(0, GND - 30, W, H); x.globalAlpha = 1; }
 }
@@ -2797,6 +2841,9 @@ function drawHolidayPin(x, deco, px, py, t) {
   else if (deco === 'lights') { x.fillStyle = '#3fa04a'; x.fillRect(px + 1, py + 1, 1, 1); x.fillRect(px, py + 2, 3, 2); x.fillStyle = ((t * 2) | 0) % 2 ? '#ffe36a' : '#ff4a3a'; x.fillRect(px + 1, py, 1, 1); }
   else { x.fillStyle = '#d3d8dd'; x.fillRect(px, py, 1, 4); x.fillStyle = deco === 'green' ? '#3fa04a' : deco === 'maple' ? '#e08a2c' : deco === 'pink' ? '#ff7aa8' : deco === 'gold' ? '#ffd23f' : '#d8402f'; x.fillRect(px + 1, py, 2, 2); if (deco === 'flags') { x.fillStyle = '#3f7fc8'; x.fillRect(px + 1, py, 1, 1); } }
 }
+// yellow corner brackets around the craft in hand
+function selBrackets(x, bx, by, bw2, bh2, t) { x.fillStyle = ((t * 2) | 0) % 2 ? '#ffe36a' : '#fff6c8'; const L = 4;
+  [[bx, by, L, 1], [bx, by, 1, L], [bx + bw2 - L + 1, by, L, 1], [bx + bw2, by, 1, L], [bx, by + bh2, L, 1], [bx, by + bh2 - L + 1, 1, L], [bx + bw2 - L + 1, by + bh2, L, 1], [bx + bw2, by + bh2 - L + 1, 1, L]].forEach(q => x.fillRect(q[0], q[1], q[2], q[3])); }
 
 /* =====================================================================
    Section 6: UI  — HUD, the port screen, the fleet/route dock, input, sound.
@@ -3038,12 +3085,13 @@ function sprImgC(c, max, scale) { const sp = sprOf(c); return '<img src="' + sp.
 function sprImg(T, max, scale) { const sp = SPR[T.spr]; return '<img src="' + sp.url + '" style="width:' + Math.min(max, sp.w * (scale || 3)) + 'px" alt="">'; }
 function slotsHTML(c, live) {
   const cs = cstat(c), pj = c.jobs.filter(j => j.kind === 'p'), cj = c.jobs.filter(j => j.kind === 'c'), bd = bonusDest(c); let h = '<div class="slots' + (cs.pax + cs.cargo >= 10 ? ' mini' : '') + '">';
-  const one = (j, kind) => { if (j && j.good) return '<div class="slot c full" data-tip="' + esc(GOOD_BY[j.good].name) + '"><img src="' + ICON_URL[GOOD_BY[j.good].ic] + '" alt=""><span>' + (j.n ? '\u00d7' + j.n : 'GOODS') + '</span></div>'; if (!j) return '<div class="slot ' + kind + ' empty" data-tip="Empty ' + (kind === 'p' ? 'seat' : 'cargo space') + '"><img src="' + ICON_URL[kind === 'p' ? 'ui_pax' : 'ui_box'] + '" alt=""></div>';
+  const grp = list => { const m = new Map(); list.forEach(j => { const k = j.to + '|' + (j.vip ? j.id : ''), g = m.get(k) || { j, n: 0 }; g.n += slotsOf(j); m.set(k, g); }); return Array.from(m.values()); };
+  const one = (j, kind, cnt) => { if (j && j.good) return '<div class="slot c full" data-tip="' + esc(GOOD_BY[j.good].name) + '"><img src="' + ICON_URL[GOOD_BY[j.good].ic] + '" alt=""><span>' + (j.n ? '\u00d7' + j.n : 'GOODS') + '</span></div>'; if (!j) return '<div class="slot ' + kind + ' empty" data-tip="Empty ' + (kind === 'p' ? 'seat' : 'cargo space') + '"><img src="' + ICON_URL[kind === 'p' ? 'ui_pax' : 'ui_box'] + '" alt=""></div>';
     const tip = '<b>' + esc(j.label) + '</b>\nTo ' + esc(portName(j.to)) + ' · pays ' + money(j.pay) + ((j.bonus || bd === j.to) ? ' +25%' : '') + (live ? '\nClick to put ashore' : '');
-    return '<' + (live ? 'button' : 'div') + ' class="slot ' + kind + ' full' + ((j.bonus || bd === j.to) ? ' bonus' : '') + '"' + (live ? ' data-act="unload" data-arg="' + j.id + '"' : '') + ' data-tip="' + esc(tip) + '"><img src="' + jobIconURL(j) + '" alt=""><span>' + j.to.toUpperCase() + (j.n ? ' \u00d7' + j.n : '') + '</span></' + (live ? 'button' : 'div') + '>'; };
+    return '<' + (live ? 'button' : 'div') + ' class="slot ' + kind + ' full' + ((j.bonus || bd === j.to) ? ' bonus' : '') + '"' + (live ? ' data-act="unload" data-arg="' + j.id + '"' : '') + ' data-tip="' + esc(tip) + '"><img src="' + jobIconURL(j) + '" alt=""><span>' + j.to.toUpperCase() + (cnt > 1 ? ' \u00d7' + cnt : !cnt && j.n ? ' \u00d7' + j.n : '') + '</span></' + (live ? 'button' : 'div') + '>'; };
   const mini = cs.pax + cs.cargo >= 10, ld = loadOf(c), gj = []; (c.goods || []).forEach(q => { for (let i = 0; i < (mini ? 1 : q.n); i++) gj.push({ good: q.g, n: mini ? q.n : 0 }); });
   const rest = (n, kind) => n > 0 ? '<div class="slot ' + kind + ' empty cnt" data-tip="' + n + ' empty ' + (kind === 'p' ? 'seat' : 'cargo space') + (n === 1 ? '' : 's') + '"><img src="' + ICON_URL[kind === 'p' ? 'ui_pax' : 'ui_box'] + '" alt=""><span>\u00d7' + n + '</span></div>' : '';
-  if (mini) { pj.forEach(j => { h += one(j, 'p'); }); h += rest(cs.pax - ld.pax, 'p'); cj.concat(gj).forEach(j => { h += one(j, 'c'); }); h += rest(cs.cargo - ld.cargo, 'c'); }
+  if (mini) { grp(pj).forEach(g => { h += one(g.j, 'p', g.n); }); h += rest(cs.pax - ld.pax, 'p'); grp(cj).forEach(g => { h += one(g.j, 'c', g.n); }); gj.forEach(j => { h += one(j, 'c'); }); h += rest(cs.cargo - ld.cargo, 'c'); }
   else { for (let i = 0; i < cs.pax; i++) h += one(pj[i], 'p'); for (let i = 0; i < cs.cargo; i++) h += one(cj.concat(gj)[i], 'c'); }
   return h + '</div>';
 }
@@ -3123,8 +3171,10 @@ function craftBarHTML(pid, c) { const here = craftsAt(pid); if (!here.length) re
 function incomeHTML(c) { const L = c.last; if (!L || L.at !== c.at || L.pay <= 0) return '';
   return '<div class="income"><img src="' + ICON_URL.coin + '" alt=""><div><b>+' + money(L.pay) + ' COLLECTED</b><span class="sub">' + [L.units ? L.units + ' delivered' : '', L.fish, 'fuel ' + money(L.fuel), '+' + L.xp + ' XP', L.bonus ? 'full-load bonus ' + money(L.bonus) : ''].filter(Boolean).join(' · ') + '</span></div></div>'; }
 function holdHTML(c) { const T = CRAFT_BY[c.type], cs = cstat(c), ld = loadOf(c), bd = bonusDest(c), full = ld.pax + ld.cargo, cap = cs.pax + cs.cargo, many = craftsAt(c.at).filter(q => q.state === 'dock' || q.state === 'landed').length > 1;
-  return '<div class="holdbar"><div class="hh">' + (many ? '<button class="btn sm dark cyc" data-act="cycle" data-arg="-1">\u25c2</button>' : '') + '<div><b>' + esc(c.name) + '</b><span><span class="hp">' + esc(T.name) + ' \u00b7 </span>' + (T.tour ? T.tour + ' sightseers' : '') + (cs.pax ? ld.pax + '/' + cs.pax + ' seats' : '') + (cs.pax && cs.cargo ? ' \u00b7 ' : '') + (cs.cargo ? ld.cargo + '/' + cs.cargo + ' cargo' : '') + '</span></div>' +
-    (c.jobs.length ? '<button class="btn sm plain" data-act="unloadAll" data-tip="Put everything aboard back on the dock"><i class="lgt">UNLOAD ALL</i><i class="smt">CLEAR</i></button>' : '') + (many ? '<button class="btn sm dark cyc" data-act="cycle" data-arg="1">\u25b8</button>' : '') + '</div>' + slotsHTML(c, true) +
+  const capBox = (kind, n, of, label) => '<div class="cap ' + kind + (of && n >= of ? ' full' : '') + '"><img src="' + ICON_URL[kind === 'p' ? 'ui_pax' : 'ui_box'] + '" alt=""><b>' + n + (of ? '<small>/' + of + '</small>' : '') + '</b><i>' + label + '</i></div>';
+  const caps = (T.tour ? capBox('p', T.tour, 0, 'SIGHTSEERS') : '') + (cs.pax ? capBox('p', ld.pax, cs.pax, cs.pax === 1 ? 'SEAT' : 'SEATS') : '') + (cs.cargo ? capBox('c', ld.cargo, cs.cargo, 'CARGO') : '');
+  return '<div class="holdbar v2"><div class="hh">' + (many ? '<button class="btn sm dark cyc" data-act="cycle" data-arg="-1">\u25c2</button>' : '') + '<div class="cid"><b>' + esc(c.name) + '</b><span class="ct">' + esc(T.name) + '</span></div>' +
+    (c.jobs.length ? '<button class="btn sm plain" data-act="unloadAll" data-tip="Put everything aboard back on the dock"><i class="lgt">UNLOAD ALL</i><i class="smt">CLEAR</i></button>' : '') + (many ? '<button class="btn sm dark cyc" data-act="cycle" data-arg="1">\u25b8</button>' : '') + '</div><div class="cmid"><div class="cpic">' + sprImgC(c, 136, 5) + '</div><div class="caps">' + caps + '</div></div>' + slotsHTML(c, true) +
     '<div class="bn' + (bd ? ' on' : full ? '' : ' hint') + '">' + (bd ? '\u2605 Full load for ' + esc(portName(bd)) + ': pays 25% extra' : full ? 'Fill all ' + cap + ' slots with jobs for one place for a 25% bonus (' + full + '/' + cap + ')' : !reachAny(c) ? (T.fish && PORT_BY[c.at].dock ? 'Nothing to carry from here. Take it out on the FISHING tab.' : 'No port you serve is in reach from here.') : 'Hit LOAD on the jobs you want, then ' + goWord(c) + '.') + '</div></div>'; }
 // What the craft in hand needs next, while the tutorial is still running. Shown in the phone footer and in Aunt Bev's box on desktop.
 function sheetHint(c, pid) { const st = G.ports[pid], p = PORT_BY[pid]; if (!st.open || !c || G.tutDone || c.state !== 'dock') return '';
@@ -3271,7 +3321,7 @@ function leftUnderway(c) { let h = '<div class="card" style="margin-top:0"><div 
     ((c.state === 'move' || c.state === 'fish') ? '<div class="bar blue tall" style="margin-top:10px"><i id="etabar"></i></div>' : '');
   if (c.plan && c.plan.stops && c.plan.stops.length > 1) h += '<div class="stops" style="margin-top:10px">' + c.plan.stops.map((s, i) => '<span class="stop' + (i === c.plan.i ? ' new' : '') + '" style="' + (i < c.plan.i ? 'opacity:.4' : '') + '">' + esc(portName(s)) + '</span>').join('<span>\u25b8</span>') + '</div>';
   return h + '</div>'; }
-function bodyUnderway(c) { const cs = cstat(c); let h = (c.run ? '<div class="card" style="margin-top:0"><b class="sk" style="font-size:13px">STANDING RUN \u00b7 ' + esc(runLabel(c.run).toUpperCase()) + '</b><div class="sub">' + c.run.trips + ' trips \u00b7 earned ' + money(c.run.earned) + '</div><button class="btn red" data-act="stopRun" style="margin-top:8px">STOP THE RUN</button></div>' : '') + '<h3>ABOARD <em>' + loadOf(c).pax + '/' + cs.pax + ' SEATS \u00b7 ' + loadOf(c).cargo + '/' + cs.cargo + ' CARGO</em></h3><div class="holdbar">' + slotsHTML(c, false) + '</div>';
+function bodyUnderway(c) { const cs = cstat(c); let h = (c.run ? '<div class="card" style="margin-top:0"><b class="sk" style="font-size:13px">STANDING RUN \u00b7 ' + esc(runLabel(c.run).toUpperCase()) + '</b><div class="sub">' + c.run.trips + ' trips \u00b7 earned ' + money(c.run.earned) + '</div><button class="btn red" data-act="stopRun" style="margin-top:8px">STOP THE RUN</button></div>' : '') + '<h3>ABOARD <em>' + loadOf(c).pax + '/' + cs.pax + ' SEATS \u00b7 ' + loadOf(c).cargo + '/' + cs.cargo + ' CARGO</em></h3><div class="holdbar v2 plain">' + slotsHTML(c, false) + '</div>';
   if (c.jobs.length) { h += '<div class="rows" style="margin-top:10px">'; groupJobs(c.jobs).forEach(g => { h += '<div class="jrow aboard"><img class="jic" src="' + jobIconURL(g.j) + '" alt=""><div class="jtx"><b>' + esc(g.j.label) + (g.n > 1 ? ' <span class="jcount">\u00d7' + g.n + '</span>' : '') + '</b><span>to <em>' + esc(portName(g.to)) + '</em></span></div><div class="jpay">$' + g.pay + (g.n > 1 ? '<small>each</small>' : '') + '</div></div>'; }); h += '</div>'; }
   if (c.fish) h += '<div class="item" style="margin-top:10px"><img class="ic" src="' + ICON_URL['fish_' + c.fish.sp] + '" alt=""><div class="tx"><b>' + c.fish.units + ' ' + esc(FISH[c.fish.sp].name) + ' in the hold</b><small>' + (feat('catch') ? 'Stays aboard until you sell it' : 'Sells back at the dock' + (c.plan && c.plan.fish ? ' at ' + esc(portName(c.plan.fish.land)) + ' for about ' + money(c.fish.units * fishPrice(c.plan.fish.land, c.fish.sp)) : '')) + '</small></div></div>';
   if (!c.jobs.length && !c.fish) h += '<div class="sub" style="margin-top:10px">Running empty.</div>';
@@ -3313,7 +3363,7 @@ function renderPanel(now) {
       left = leftDock(pid, c);
       h = UI.stab === 'port' ? tabPort(pid) : UI.stab === 'craft' ? tabCraft(c) : UI.stab === 'fish' ? tabFish(c) : tabJobs(pid, c);
       if (c) { const wx = wxBlock(c, p.x, p.y), worth = c.jobs.reduce((a, j) => a + j.pay, 0);
-        foot = '<div class="grow">' + (tut ? '<span class="ft-bev">' + esc(tut) + '</span>' : '') + '<span class="ft-def">' + (wx ? '<span class="tag org">' + esc(wx.toUpperCase()) + ' HERE</span> it will wait for a break' : c.jobs.length ? c.jobs.length + ' aboard \u00b7 <b style="color:var(--greend)">' + money(worth) + '</b>' : UI.stab === 'fish' ? '' : reachAny(c) ? '' : 'No port in reach from here.') + '</span></div>' + (UI.stab === 'fish' ? '' : reachAny(c) ? '<button class="btn big go" data-act="route" data-tip="Choose where to go on the map (Enter)">' + goWord(c) + ' \u25b8</button>' : canFish ? '<button class="btn big go" data-act="stab" data-arg="fish">GO FISHING \u25b8</button>' : '<button class="btn big go" disabled data-tip="No port you serve is within reach">' + goWord(c) + ' \u25b8</button>'); } } }
+        foot = '<div class="grow">' + (tut ? '<span class="ft-bev">' + esc(tut) + '</span>' : '') + '<span class="ft-def">' + (wx ? '<span class="ftwx"><span class="tag org">' + esc(wx.toUpperCase()) + ' HERE</span><span>It waits for a break.</span></span>' : c.jobs.length ? c.jobs.length + ' aboard \u00b7 <b style="color:var(--greend)">' + money(worth) + '</b>' : UI.stab === 'fish' ? '' : reachAny(c) ? '' : 'No port in reach from here.') + '</span></div>' + (UI.stab === 'fish' ? '' : reachAny(c) ? '<button class="btn big go" data-act="route" data-tip="Choose where to go on the map (Enter)">' + goWord(c) + ' \u25b8</button>' : canFish ? '<button class="btn big go" data-act="stab" data-arg="fish">GO FISHING \u25b8</button>' : '<button class="btn big go" disabled data-tip="No port you serve is within reach">' + goWord(c) + ' \u25b8</button>'); } } }
   $('sheet').classList.toggle('single', left === null); $('sheet').classList.toggle('tut', !!tut);
   $('shead').innerHTML = head; $('stabs').innerHTML = tabs; $('stabs').style.display = tabs ? 'flex' : 'none'; $('lbody').innerHTML = left || ''; body.innerHTML = h; fitFilters(); body.scrollTop = sc; cols.scrollTop = sc2; $('sfoot').innerHTML = foot; if (UI.wantLv) { UI.wantLv = false; const e = $('lvtop'); if (e) e.scrollIntoView(); }
 }
@@ -3330,13 +3380,13 @@ function routeBarHTML(c) { const T = CRAFT_BY[c.type]; let h = '<div class="rl">
 function renderFleet() {
   const dock = $('dock'), routing = UI.screen === 'route' && UI.selCraft; if (dock.classList.contains('routing') !== !!routing) { dock.classList.toggle('routing', !!routing); $('app').classList.toggle('routing', !!routing); }
   if (routing) { const c = UI.selCraft, key = 'R' + c.id + UI.stops.join(',') + c.jobs.length + (UI.pickRun ? 'p' : ''); if (key !== UI.fleetKey) { UI.fleetKey = key; $('routebar').innerHTML = routeBarHTML(c); } return; }
-  const el = $('fleet'), sc = slotCost(), key = G.crafts.map(c => c.id + c.state + (c.at || '') + (c.holdWhy || '') + (UI.selCraftId === c.id) + (c.jobs.length ? 'j' : '') + c.name + (c.liv || 0) + (c.run ? 'r' : '') + (c.fish ? 'f' : '') + (condOf(c) < 50 ? 'w' : '')).join('|') + '#' + G.slots + (G.money >= sc) + UI.sheet + readyToBuild() + G.offers.length + G.active.length; if (key === UI.fleetKey) return; UI.fleetKey = key;
+  const el = $('fleet'), sc = slotCost(), key = G.crafts.map(c => c.id + c.state + (c.at || '') + (c.holdWhy || '') + (UI.selCraftId === c.id) + (c.jobs.length ? 'j' : '') + loadOf(c).pax + '.' + loadOf(c).cargo + (c.fit || '') + c.name + (c.liv || 0) + (c.run ? 'r' : '') + (c.fish ? 'f' : '') + (condOf(c) < 50 ? 'w' : '')).join('|') + '#' + G.slots + (G.money >= sc) + UI.sheet + readyToBuild() + G.offers.length + G.active.length; if (key === UI.fleetKey) return; UI.fleetKey = key;
   const sl = el.scrollLeft; let h = '';
   G.crafts.forEach(c => { const T = CRAFT_BY[c.type], landed = c.state === 'landed', idle = c.state === 'dock' && !c.jobs.length, out = c.state === 'move' || c.state === 'fish'; let st;
     if (landed) st = '<i class="ftag g">ARRIVED</i>' + esc(portName(c.at)); else if (idle && c.fish) st = '<i class="ftag o">CATCH</i>' + esc(portName(c.at)); else if (idle && c.run) st = '<i class="ftag b">RUN</i>' + esc(portName(c.at)); else if (idle) st = '<i class="ftag r">IDLE</i>' + esc(portName(c.at)); else if (c.state === 'dock') st = '<i class="ftag b">' + c.jobs.length + ' ABOARD</i>' + esc(portName(c.at));
     else if (c.state === 'hold') st = '<i class="ftag o">HOLD</i>' + esc(c.holdWhy === 'turnaround' ? portName(c.at) : c.holdWhy);
     else st = '<i class="ftime" id="ft' + c.id + '"></i>\u25b8 ' + esc(c.state === 'fish' ? 'fishing' : c.route.kind === 'trip' ? portName(c.route.to) : c.route.kind === 'fishOut' ? 'the grounds' : portName(c.plan.fish.land));
-    h += '<button class="fc' + (UI.selCraftId === c.id ? ' sel' : '') + (landed ? ' landed' : '') + (c.state === 'fish' ? ' fishg' : '') + '" data-act="selCraft" data-arg="' + c.id + '"><span class="spr">' + sprImgC(c, 78, 3) + '</span><span class="col"><span class="nm">' + esc(c.name) + (c.run ? ' \u21c4' : '') + (condOf(c) < 50 ? ' <img class="wr" src="' + ICON_URL.ui_wrench + '" alt="worn">' : '') + '</span><span class="stt">' + st + '</span>' + (out ? '<span class="pb"><i id="fb' + c.id + '"></i></span>' : '') + '</span></button>'; });
+    h += '<button class="fc' + (UI.selCraftId === c.id ? ' sel' : '') + (landed ? ' landed' : '') + (c.state === 'fish' ? ' fishg' : '') + '" data-act="selCraft" data-arg="' + c.id + '"><span class="spr">' + sprImgC(c, 78, 3) + capPips(c) + '</span><span class="col"><span class="nm">' + esc(c.name) + (c.run ? ' \u21c4' : '') + (condOf(c) < 50 ? ' <img class="wr" src="' + ICON_URL.ui_wrench + '" alt="worn">' : '') + '</span><span class="stt">' + st + '</span>' + (out ? '<span class="pb"><i id="fb' + c.id + '"></i></span>' : '') + '</span></button>'; });
   for (let i = G.crafts.length; i < G.slots; i++) h += '<button class="fc fslot" data-act="shop" data-tip="An empty fleet slot. Buy or build a craft at a hangar or boatyard."><span class="col"><span class="nm">EMPTY SLOT</span><span class="stt">Buy or build</span></span></button>';
   h += '<button class="fc fslot buy" data-act="buySlot"' + (G.money >= sc ? '' : ' disabled') + ' data-tip="Room for one more craft in the fleet. Each slot costs more than the last."><span class="col"><span class="nm">+ FLEET SLOT</span><span class="stt">' + money(sc) + '</span></span></button>';
   el.innerHTML = h; el.scrollLeft = sl;
@@ -3545,6 +3595,11 @@ function initInput() {
 function fitsHTML(c, atYard) { const T = CRAFT_BY[c.type], cost = fitCost(c), empty = !c.jobs.length && !goodsCount(c) && !c.fish; let h = '<h3>FIT <em>ONE AT A TIME</em></h3><div class="lst">';
   fitsFor(c).forEach(k => { const F = FITS[k], on = c.fit === k; h += '<div class="item"><div class="tx"><b>' + esc(F.n) + (on ? ' \u00b7 FITTED' : '') + '</b><small>' + esc(F.d) + '</small></div>' + (on ? '<button class="btn red" data-act="fit" data-arg=""' + (atYard && empty ? '' : ' disabled') + '>TAKE OFF</button>' : '<button class="btn" data-act="fit" data-arg="' + k + '"' + (atYard && empty && G.money >= cost ? '' : ' disabled') + '>' + money(cost) + '</button>') + '</div>'; });
   return h + '</div><div class="sub" style="margin-top:6px">' + (atYard ? (empty ? 'Fitting one takes the other off.' : 'Empty the craft first.') : 'Fits are done at a ' + yardWord(T) + ', with the craft empty.') + '</div>'; }
+
+// a craft's size and load at a glance, under its picture in the fleet strip: one pip per seat (blue) and per cargo slot (brown), filled when taken
+function capPips(c) { const T = CRAFT_BY[c.type], cs = cstat(c), ld = loadOf(c); if (T.tour) return '<span class="pips"><i class="pt">TOUR ' + T.tour + '</i></span>';
+  if (cs.pax + cs.cargo > 10) return '<span class="pips"><i class="pt">' + (ld.pax + ld.cargo) + '/' + (cs.pax + cs.cargo) + '</i></span>';
+  let h = '<span class="pips">'; for (let i = 0; i < cs.pax; i++) h += '<i class="pp p' + (i < ld.pax ? ' on' : '') + '"></i>'; for (let i = 0; i < cs.cargo; i++) h += '<i class="pp c' + (i < ld.cargo ? ' on' : '') + '"></i>'; return h + '</span>'; }
 
 /* =====================================================================
    Section 7: MAIN  — boot and the frame loop

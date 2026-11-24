@@ -154,7 +154,7 @@ function drawMap(now, ui) {
       else if (((t * 2) | 0) % 2) { x.fillStyle = '#d8ecf4'; x.fillRect(sx - (sp.w >> 1) - 2, sy + 1, 2, 1); x.fillRect(sx + (sp.w >> 1), sy + 1, 2, 1); }
     }
     const bob = (T.cls === 'boat' && Math.sin(t * 2.2 + c.id) > 0.3) ? 1 : 0, dx = sx - (sp.w >> 1), dy = sy - sp.h + 2 - alt + bob;
-    if (isSel) x.drawImage(face === 'r' ? sp.selR : sp.selL, dx - 1, dy - 1); else x.drawImage(sp[face], dx, dy);
+    if (isSel) { x.drawImage(face === 'r' ? sp.selR : sp.selL, dx - 1, dy - 1); selBrackets(x, dx - 3, dy - 3, sp.w + 5, sp.h + 5, t); } else x.drawImage(sp[face], dx, dy);
     c.hx = sx; c.hy = dy + (sp.h >> 1);
     if (c.state === 'fish') { drawText(x, 'FISHING', sx - 13, dy - 7, '#ffe36a', '#14273d'); const f = clamp(c.fishT / c.fishDur, 0, 1); x.fillStyle = '#14273d'; x.fillRect(sx - 9, dy - 1, 18, 3); x.fillStyle = '#7dff8a'; x.fillRect(sx - 8, dy, Math.round(16 * f), 1); }
     else if (c.state === 'move' && c.route && c.route.cust > 0 && c.route.pos >= c.route.len) { drawText(x, 'CUSTOMS', sx - 13, dy - 7, '#ffe36a', '#14273d'); }
@@ -266,13 +266,13 @@ function drawScene(x, port, craft, now) {
       const onWater = T.cls === 'boat' || (T.floats && waterX < W && !(lake && s === WINTER) && !(T.wheels && port.strip));
       if (onWater) { px = Math.min(W - sp.w - 1, waterX + 6 + bi * 14); py = GND + 9 + (bi % 2) * 4 - sp.h + (Math.sin(t * 2 + c.id) > 0 ? 0 : 1); bi++; }
       else { px = Math.max(2, Math.min(waterX - sp.w - 14, 62 - Math.min(40, sp.w) + pi * 24)); py = GND + 14 - sp.h; pi++; }
-      x.drawImage(sp.r, px, py);
-      if (craft && c.id === craft.id) { const ay = py - 6 - ((t * 3) | 0) % 2; x.fillStyle = '#14273d'; x.fillRect(px + (sp.w >> 1) - 3, ay - 1, 7, 3); x.fillRect(px + (sp.w >> 1) - 2, ay + 2, 5, 1); x.fillRect(px + (sp.w >> 1) - 1, ay + 3, 3, 1); x.fillStyle = '#ffe36a'; x.fillRect(px + (sp.w >> 1) - 2, ay, 5, 2); x.fillRect(px + (sp.w >> 1) - 1, ay + 2, 3, 1); x.fillRect(px + (sp.w >> 1), ay + 3, 1, 1); } });
+      if (craft && c.id === craft.id && sp.selR) x.drawImage(sp.selR, px - 1, py - 1); else x.drawImage(sp.r, px, py);
+      if (craft && c.id === craft.id) { selBrackets(x, px - 3, py - 3, sp.w + 5, sp.h + 5, t); const ay = py - 6 - ((t * 3) | 0) % 2; x.fillStyle = '#14273d'; x.fillRect(px + (sp.w >> 1) - 3, ay - 1, 7, 3); x.fillRect(px + (sp.w >> 1) - 2, ay + 2, 5, 1); x.fillRect(px + (sp.w >> 1) - 1, ay + 3, 3, 1); x.fillStyle = '#ffe36a'; x.fillRect(px + (sp.w >> 1) - 2, ay, 5, 2); x.fillRect(px + (sp.w >> 1) - 1, ay + 2, 3, 1); x.fillRect(px + (sp.w >> 1), ay + 3, 1, 1); } });
   }
   // weather over everything
   if (wx.storm) { x.fillStyle = '#b8d4ee'; for (let i = 0; i < 70; i++) { const ph = (t * 90 + hash2(i, 71) * 80) % (H + 10); x.fillRect(((hash2(i, 72) * (W + 30)) | 0) - ((ph * 0.4) | 0), ph | 0, 1, 3); } if (hash2((t * 2) | 0, 5) < 0.08) { x.globalAlpha = 0.5; x.fillStyle = '#ffffff'; x.fillRect(0, 0, W, H); x.globalAlpha = 1; } }
   if (wx.snow || (s === WINTER && wx.storm)) { x.fillStyle = '#ffffff'; for (let i = 0; i < 60; i++) { const ph = (t * 14 + hash2(i, 81) * 80) % (H + 4); x.fillRect(((hash2(i, 82) * W + Math.sin(t + i) * 3) | 0), ph | 0, 1, 1); } }
-  if (wx.fog) { for (let b = 0; b < 5; b++) { x.globalAlpha = 0.34 + b * 0.05; x.fillStyle = night > 0.5 ? '#6a7890' : '#eef3f6'; const off = Math.sin(t * 0.3 + b) * 8; for (let i = -1; i < 5; i++) x.fillRect((i * 50 + off + b * 13) | 0, 14 + b * 10, 38, 6); } x.globalAlpha = 1; }
+  if (wx.fog) { for (let b = 0; b < 5; b++) { x.globalAlpha = 0.2 + b * 0.04; x.fillStyle = night > 0.5 ? '#6a7890' : '#eef3f6'; const off = Math.sin(t * 0.3 + b) * 8; for (let i = -1; i < 5; i++) x.fillRect((i * 50 + off + b * 13) | 0, 14 + b * 10, 38, 6); } x.globalAlpha = 1; }
   { const hd = holidayNow(); if (hd) drawHolidayFx(x, W, H, t, hd.fx, night, 14); }
   if (night > 0 && !travel) { x.globalAlpha = 0.28 * night; x.fillStyle = '#081430'; x.fillRect(0, GND - 30, W, H); x.globalAlpha = 1; }
 }
@@ -337,3 +337,6 @@ function drawHolidayPin(x, deco, px, py, t) {
   else if (deco === 'lights') { x.fillStyle = '#3fa04a'; x.fillRect(px + 1, py + 1, 1, 1); x.fillRect(px, py + 2, 3, 2); x.fillStyle = ((t * 2) | 0) % 2 ? '#ffe36a' : '#ff4a3a'; x.fillRect(px + 1, py, 1, 1); }
   else { x.fillStyle = '#d3d8dd'; x.fillRect(px, py, 1, 4); x.fillStyle = deco === 'green' ? '#3fa04a' : deco === 'maple' ? '#e08a2c' : deco === 'pink' ? '#ff7aa8' : deco === 'gold' ? '#ffd23f' : '#d8402f'; x.fillRect(px + 1, py, 2, 2); if (deco === 'flags') { x.fillStyle = '#3f7fc8'; x.fillRect(px + 1, py, 1, 1); } }
 }
+// yellow corner brackets around the craft in hand
+function selBrackets(x, bx, by, bw2, bh2, t) { x.fillStyle = ((t * 2) | 0) % 2 ? '#ffe36a' : '#fff6c8'; const L = 4;
+  [[bx, by, L, 1], [bx, by, 1, L], [bx + bw2 - L + 1, by, L, 1], [bx + bw2, by, 1, L], [bx, by + bh2, L, 1], [bx, by + bh2 - L + 1, 1, L], [bx + bw2 - L + 1, by + bh2, L, 1], [bx + bw2, by + bh2 - L + 1, 1, L]].forEach(q => x.fillRect(q[0], q[1], q[2], q[3])); }

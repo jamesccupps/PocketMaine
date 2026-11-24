@@ -479,3 +479,47 @@ h3{font-size:13px}.tag{font-size:11px}.item .tx b{font-size:14px}
 /* tags on a job row are small chips, not bars across the row */
 .jtx>span.tag{display:inline-block;font-size:11px;color:var(--ink);margin-top:3px;overflow:visible}
 .jtx>span.tag.red,.jtx>span.tag.hol,.jtx>span.tag.blue,.jtx>span.tag.green,.jtx>span.tag.org{color:#fff}
+
+/* ---------- the craft card: a big picture, a name, seats and cargo counted plainly, and slots large enough to read ---------- */
+.holdbar.v2{border-color:var(--yellow);box-shadow:none;padding:8px 10px}
+.holdbar.v2.plain{border-color:var(--ink)}
+.holdbar.v2 .hh{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.holdbar.v2 .cmid{display:flex;gap:8px;align-items:stretch;margin-bottom:8px}
+.holdbar.v2 .cpic{flex:0 0 46%;display:flex;align-items:center;justify-content:center;min-height:70px;padding:6px;background:#8fd0ee;border:3px solid var(--deep);overflow:hidden}
+.holdbar.v2 .cpic img{image-rendering:pixelated;display:block;height:auto;max-width:100%}
+.holdbar.v2 .hh>.cid{flex:1;min-width:0}
+.holdbar.v2 .hh .cid b{display:block;font-family:'Silkscreen',monospace;font-size:16px;line-height:1.1;color:var(--yellow);white-space:normal;overflow:visible;overflow-wrap:anywhere}
+.holdbar.v2 .hh .cid>span.ct{display:block;font-size:21px;color:var(--sky);margin-top:3px;white-space:normal}
+.holdbar.v2 .caps{flex:1;min-width:0;display:flex;flex-direction:column;gap:6px}
+.holdbar.v2 .cap{flex:1;min-width:0;display:flex;align-items:center;gap:8px;padding:6px 9px;border:3px solid var(--deep);background:#2f4c70;color:var(--cream)}
+.holdbar.v2 .cap.c{background:#6a5332}
+.holdbar.v2 .cap img{width:28px;height:28px;image-rendering:pixelated;flex:0 0 auto;filter:brightness(2.2)}
+.holdbar.v2 .cap b{font-family:'Silkscreen',monospace;font-size:22px;line-height:1;color:#fff;white-space:nowrap}
+.holdbar.v2 .cap b small{font-size:14px;color:#cfe3f4}
+.holdbar.v2 .cap i{font-style:normal;font-family:'Silkscreen',monospace;font-size:10px;color:#cfe3f4;margin-left:auto}
+.holdbar.v2 .cap.full{background:#3f8f3a;border-color:#1f5a22}
+.holdbar.v2 .slots,.holdbar.v2 .slots.mini{display:flex;flex-wrap:wrap;gap:6px}
+.holdbar.v2 .slots .slot{width:54px;height:62px;border:3px solid var(--deep);background:#2f4c70}
+.holdbar.v2 .slots .slot.c{background:#6a5332}
+.holdbar.v2 .slots .slot.full{background:#fffaf0}
+.holdbar.v2 .slots .slot img{width:40px;height:40px;margin-top:3px}
+.holdbar.v2 .slots .slot.empty img{opacity:.55;filter:brightness(1.8)}
+.holdbar.v2 .slots .slot span{display:block;position:absolute;left:0;right:0;bottom:3px;font-size:10px;text-align:center}
+.holdbar.v2 .slots.mini .slot{width:auto;min-width:0;height:42px;flex-direction:row;align-items:center;justify-content:center;gap:6px;padding:0 9px}
+.holdbar.v2 .slots.mini .slot img{width:28px;height:28px;margin:0}
+.holdbar.v2 .slots.mini .slot span{display:inline;position:static;font-size:12px}
+.holdbar.v2 .slots .slot.cnt{width:auto;min-width:0;flex-direction:row;align-items:center;justify-content:center;gap:6px;padding:0 9px}
+.holdbar.v2 .slots .slot.cnt img{margin:0}
+.holdbar.v2 .slots .slot.cnt span{display:inline;position:static;font-size:13px;color:#fff}
+.holdbar.v2 .bn{font-size:19px;margin-top:7px}
+.ftwx{display:flex;flex-direction:column;align-items:flex-start;gap:3px}
+
+/* size and load under each craft in the fleet strip */
+.fc .spr{flex-direction:column;gap:3px}
+.fc .spr img{max-height:26px}
+.fc .pips{display:flex;gap:2px;align-items:center;justify-content:center;height:8px}
+.fc .pp{display:block;width:7px;height:7px;border:1px solid var(--ink);background:#c5d6ea}
+.fc .pp.c{background:#e0cba6}
+.fc .pp.p.on{background:#2f6fc0}
+.fc .pp.c.on{background:#8a5a34}
+.fc .pt{font-family:'Silkscreen',monospace;font-style:normal;font-size:8px;line-height:8px;color:var(--ink);white-space:nowrap}
