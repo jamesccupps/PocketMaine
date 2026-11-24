@@ -2947,6 +2947,8 @@ function jobRowsHTML(pid, c) {
   dests.sort((a, b) => ((b.ok ? 1 : 0) - (a.ok ? 1 : 0)) || (b.vip - a.vip) || (b.sum - a.sum));
   const any = c ? reachAny(c) : true, deliverable = !c || dests.some(d => d.ok);
   const tourC = c && CRAFT_BY[c.type].tour;
+  // a craft on a standing run is only tied up for a moment between trips: say so, with the way to stop it
+  if (c && c.run) h += '<div class="card" style="margin:0 0 8px"><b class="sk" style="font-size:13px">STANDING RUN \u00b7 ' + esc(portName(c.run.a).toUpperCase()) + ' \u21c4 ' + esc(portName(c.run.b).toUpperCase()) + '</b><div class="sub">It loads and leaves by itself in a moment.</div><button class="btn red" data-act="stopRun" style="margin-top:8px">STOP THE RUN</button></div>';
   if (tourC) h += '<div class="note"><b>' + esc(c.name) + ' is an excursion boat.</b> Nothing to load. Hit CAST OFF, pick two to four deep-water harbors, and it is paid at every stop.</div>';
   else if (c && !any) h += '<div class="note bad"><b>' + esc(c.name) + ' can\'t ' + landVerb(c) + ' at any port you serve from here.</b> ' + (CRAFT_BY[c.type].fish && PORT_BY[pid].dock ? 'Take it fishing instead.' : 'Open a port within its reach.') + '</div>';
   else if (c && dests.length && !deliverable) h += '<div class="note"><b>Nothing here goes where ' + esc(c.name) + ' can ' + landVerb(c) + '.</b> ' + (CRAFT_BY[c.type].fish && PORT_BY[pid].dock ? 'Try the FISHING tab.' : 'Wait for the next batch of jobs.') + '</div>';
