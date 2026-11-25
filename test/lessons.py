@@ -79,6 +79,14 @@ with sync_playwright() as p:
     if ev(STATE)['on'] or not ev("() => G.lesOff"): bad('LESSONS: OFF in the Almanac does not silence them')
     ev("() => { openMenu('almanac'); }"); pg.wait_for_timeout(400); loc=pg.locator('#sbody [data-act=tutRestart]'); loc.scroll_into_view_if_needed(); (loc.tap if touch else loc.click)(); pg.wait_for_timeout(600)
     if ev("() => G.lesOff || Object.keys(G.les).length || G.tutDone"): bad('REPLAY THE TUTORIAL does not bring the lessons back')
+    # a lesson that points at a craft card must not pin the fleet strip: the rest of the strip stays reachable
+    ev("() => { G.tutDone=true; G.lesOff=false; G.les={}; G.level=2; G.slots=8; ['cub','cub','cub','cub'].forEach(t=>addCraft(t,'pwm')); deselect(); UI.lesWait=0; UI.lesCur=''; G.vipNext=1e12; PORTS.forEach(p=>{ G.ports[p.id].jobs=G.ports[p.id].jobs.filter(j=>!j.vip); }); }"); pg.wait_for_timeout(800)
+    st=ev(STATE)
+    if not (st['on'] and st['ring']): bad('expected a lesson pointing at a craft card on the map, got %s'%st.get('id'))
+    ev("() => { const f=document.getElementById('fleet'); f.scrollLeft=f.scrollWidth; }"); pg.wait_for_timeout(700)
+    fl=ev("() => { const f=document.getElementById('fleet'); return [f.scrollLeft, f.scrollWidth-f.clientWidth]; }")
+    if fl[1]>20 and fl[0]<fl[1]-4: bad('a lesson pointing at a craft pins the fleet strip: scrolled to the end, it snapped back to %d of %d'%(fl[0],fl[1]))
+    ev("() => { deselect(); }")
     # a save from before the lessons existed loads, and the lessons for what it has already unlocked are waiting
     ev("() => { G.tutDone=true; G.level=5; delete G.les; delete G.lesOff; saveGame(STORE); }"); pg.reload(); pg.wait_for_timeout(700); tap('#mbox [data-act=continue]'); pg.wait_for_timeout(900)
     st=ev(STATE)

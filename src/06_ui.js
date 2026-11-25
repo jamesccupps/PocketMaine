@@ -290,8 +290,11 @@ function tutRestart() { G.tut = {}; G.tutDone = false; G.les = {}; G.lesOff = fa
 function renderCoach() {
   const box = $('coach'), st = coachStep(); if (!st) { if (UI.coachOn) { UI.coachOn = false; UI.coachKey = ''; UI.coachId = ''; box.classList.remove('on'); } return; }
   const vw = window.innerWidth, vh = window.innerHeight, ring = $('coachring'), bub = $('coachbub'); let R = null;
-  if (st.target) { const f = st.target.closest('#fleet'); if (f) { const a = st.target.offsetLeft, b = a + st.target.offsetWidth; if (a < f.scrollLeft || b > f.scrollLeft + f.clientWidth - 24) f.scrollLeft = Math.max(0, a - 8); }
-    const r = st.target.getBoundingClientRect(); if (r.width > 0 && r.bottom > 50 && r.top < vh - 10) R = { l: r.left, t: r.top, r: r.right, b: r.bottom }; }
+  // a craft card she points at is brought into view once, when the step first shows. Doing it every frame pinned the fleet strip
+  // there, so nothing else in the strip (the other craft, the EMPTY SLOT button) could be reached until the step was done.
+  if (st.target) { const f = st.target.closest('#fleet'); if (f && UI.coachPin !== st.id) { UI.coachPin = st.id; const a = st.target.offsetLeft, b = a + st.target.offsetWidth; if (a < f.scrollLeft || b > f.scrollLeft + f.clientWidth - 24) f.scrollLeft = Math.max(0, a - 8); }
+    const r = st.target.getBoundingClientRect(), fr = f ? f.getBoundingClientRect() : null;
+    if (r.width > 0 && r.bottom > 50 && r.top < vh - 10 && (!fr || (r.left >= fr.left - 2 && r.right <= fr.right + 2))) R = { l: r.left, t: r.top, r: r.right, b: r.bottom }; }
   else if (st.port) { const r = $('map').getBoundingClientRect(), p = PORT_BY[st.port], x = r.left + p.sx * VIEW.S, y = r.top + p.sy * VIEW.S; if (x > r.left + 4 && x < r.right - 4 && y > r.top + 4 && y < r.bottom - 4) R = { l: x - 22, t: y - 22, r: x + 22, b: y + 22 }; }
   const key = st.id + '|' + st.text + '|' + (R ? [R.l, R.t, R.r, R.b].map(Math.round).join(',') : '-') + '|' + vw + 'x' + vh; if (key === UI.coachKey) return; UI.coachKey = key; UI.coachId = st.id; UI.coachOn = true; box.classList.add('on');
   // the bubble: rebuilt only when its words change, so a button is never swapped out from under a finger
