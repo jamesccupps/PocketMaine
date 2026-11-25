@@ -115,7 +115,7 @@ G=X.G; T('new fields survive',G.ports.lew.works.inn===1&&X.trapCount()===1&&X.lo
   X.setHolidayForce('off'); let none=true; for(let i=0;i<30;i++) X.genParty(P.pwm).forEach(j=>{ if(j.hol) none=false; }); T('no holiday, no holiday jobs',none&&X.holidayNow()===null);
   X.setHolidayForce(null); G.hol='christmas'; T('preview a holiday from the almanac',X.holidayNow().id==='christmas'); G.hol='off'; T('holidays can be switched off',X.holidayNow()===null);
   X.cycleHoliday(); T('the setting cycles',G.hol==='newyear'); delete G.hol; X.setHolidayForce('off');
-  const icons=new Set([...fs.readFileSync('src/04_art.js','utf8').matchAll(/^ (\w+):\s*\[/gm)].map(m=>m[1])), looks=new Set(['hunter','skier','tourist','fisher','kid','suit','nurse','guide','sled','elder','cap','any']);
+  const icons=new Set([...fs.readFileSync('src/04_art.js','utf8').matchAll(/^\s+(\w+):\s*\[/gm)].map(m=>m[1])), looks=new Set(['hunter','skier','tourist','fisher','kid','suit','nurse','guide','sled','elder','cap','any']);
   const lists=[[X.VIPS.p,'p'],[X.VIPS.c,'c']]; X.HOLIDAYS.forEach(h=>{ lists.push([h.jobs.p,'p'],[h.jobs.c,'c'],[h.vip.p,'p'],[h.vip.c,'c']); });
   const badArt=[]; lists.forEach(([l,k])=>l.forEach(x=>{ const ic=x.split('|')[1]; if(!(k==='p'?looks:icons).has(ic)) badArt.push(x); })); T('every VIP and holiday job has art: '+badArt.join('; '),badArt.length===0);
   const code2=X.exportSave(); T('save code carries the new things',!X.importSave(code2)&&(X.G.stats.vips||0)>=2&&X.logCount('vip')>=1);

@@ -16,6 +16,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - name: Source is formatted (Prettier, settings in .prettierrc)
+        run: npx --yes prettier@3.10.1 --check "src/*.js" "src/*.css"
       - name: index.html is what src/ builds
         run: python3 build.py && git diff --exit-code index.html
       - name: Rules

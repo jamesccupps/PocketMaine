@@ -111,6 +111,8 @@ It needs only Python 3. The three fonts in `fonts/` are inlined into the page.
 - **Nothing under 12 px, and one thing over the game at a time.** Small labels are set in the taller body face at 16 px; buttons, tabs and headings keep the pixel face at 12 px or more. A banner has the screen to itself, lesson bubbles step back for it, and notes take turns under the top bar (one on a phone, two at a desk) and move clear of a lesson.
 - **The dice are seeded.** Every roll in the rules comes from one generator whose state is kept in the save, so a game can be replayed from its seed: `SEED=7 node test/rules.js`, `SEED=7 node test/pace.js 4 casco 8`.
 
+The source in `src/` is formatted with Prettier (`npx prettier@3.10.1 --write "src/*.js" "src/*.css"`, settings in `.prettierrc`); the tests check it.
+
 The rules have no dependency on the page, so they are tested directly in Node:
 
 ```
