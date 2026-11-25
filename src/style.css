@@ -92,7 +92,7 @@ h3:first-child{margin-top:2px}
 .pips{display:inline-flex;gap:3px;vertical-align:middle}
 .pip{width:11px;height:11px;border:2px solid var(--ink);display:inline-block}.pip.s2{background:#9aa3ad}.pip.s1{background:#c89a5a}.pip.sea{background:#4f9be0}.pip.lake{background:#8fe0f0}
 #shead .pip{border-color:var(--deep)}
-.tag{display:inline-block;font-family:'Silkscreen',monospace;font-size:10px;padding:3px 7px;border:2px solid var(--ink);background:var(--paper2);white-space:nowrap}
+.tag{display:inline-block;font-family:'Silkscreen',monospace;font-size:10px;padding:3px 7px;border:2px solid var(--ink);background:var(--paper2);white-space:nowrap;color:var(--ink)}
 .tag.red{background:var(--red);color:#fff}.tag.green{background:var(--green);color:#fff}.tag.blue{background:var(--blue);color:#fff}.tag.yel{background:var(--yellow)}.tag.org{background:var(--orange);color:#fff}
 .btn{font-family:'Silkscreen',monospace;font-size:13px;padding:10px 14px;background:var(--yellow);border:3px solid var(--ink);box-shadow:inset -3px -3px 0 var(--yellowd),inset 3px 3px 0 #fff3b0;white-space:nowrap;color:var(--ink);line-height:1}
 .btn:hover{filter:brightness(1.07)}.btn:active{transform:translate(2px,2px);box-shadow:inset 3px 3px 0 var(--yellowd)}
@@ -573,3 +573,21 @@ h3{font-size:13px}.tag{font-size:11px}.item .tx b{font-size:14px}
 #catchup span{display:block;font-size:21px;line-height:1.05;margin-bottom:8px}
 #catchup .bar{height:12px;border:3px solid var(--ink);background:#e9dcbd}#catchup .bar i{display:block;height:100%;width:0;background:var(--green)}
 @media (max-width:340px){ #landbtn{padding-left:3px;padding-right:3px;letter-spacing:-.5px} #sbody .item .tx{min-width:0;overflow-wrap:anywhere} }
+
+/* jobs: a passenger and a piece of cargo read apart at a glance. A tab down the left edge, blue with a seat on it for people and
+   brown with a crate on it for cargo (the colours of the seats and cargo slots on the craft card), and a count of each in the heading. */
+.jrow.p,.jrow.c{position:relative;padding-left:32px}
+.jrow.p::before,.jrow.c::before{content:'';position:absolute;left:0;top:0;bottom:0;width:24px;background:#2f6fb5;border-right:3px solid var(--ink)}
+.jrow.c::before{background:#7a5a2c}
+.jrow.p{background:#f3f8ff}.jrow.c{background:#f8efd9}
+.jrow.aboard.p{background:#d6e7fa}.jrow.aboard.c{background:#ecdcb8}
+.jrow.k.p,.jrow.k.c{background:#ffe9a8}
+.jrow .jk{position:absolute;left:3px;top:50%;margin-top:-9px;width:18px;height:18px;image-rendering:pixelated;filter:brightness(1.7)}
+.dh .dk{display:flex;gap:6px;align-items:center;flex:0 0 auto}
+.dh .dk i{font-style:normal;display:flex;align-items:center;gap:3px;font-family:'Silkscreen',monospace;font-size:11px;color:#fff;background:#2f6fb5;border:2px solid var(--ink);padding:1px 5px 1px 3px;line-height:1}
+.dh .dk i.c{background:#7a5a2c}.dh .dk img{width:14px;height:14px;image-rendering:pixelated}
+@media (max-width:700px){ .jrow.p,.jrow.c{padding-left:28px} .jrow.p::before,.jrow.c::before{width:21px} .jrow .jk{left:2px;width:16px;height:16px;margin-top:-8px} }
+
+/* the fish market names its columns on a phone too, in three letters under each picture */
+.mk th i{display:none;font-style:normal;font-family:'Silkscreen',monospace;font-size:10px;color:var(--ink)}
+@media (max-width:700px){ .mk th i{display:block;margin-top:2px} }

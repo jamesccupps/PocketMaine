@@ -160,7 +160,7 @@ h3:first-child{margin-top:2px}
 .pips{display:inline-flex;gap:3px;vertical-align:middle}
 .pip{width:11px;height:11px;border:2px solid var(--ink);display:inline-block}.pip.s2{background:#9aa3ad}.pip.s1{background:#c89a5a}.pip.sea{background:#4f9be0}.pip.lake{background:#8fe0f0}
 #shead .pip{border-color:var(--deep)}
-.tag{display:inline-block;font-family:'Silkscreen',monospace;font-size:10px;padding:3px 7px;border:2px solid var(--ink);background:var(--paper2);white-space:nowrap}
+.tag{display:inline-block;font-family:'Silkscreen',monospace;font-size:10px;padding:3px 7px;border:2px solid var(--ink);background:var(--paper2);white-space:nowrap;color:var(--ink)}
 .tag.red{background:var(--red);color:#fff}.tag.green{background:var(--green);color:#fff}.tag.blue{background:var(--blue);color:#fff}.tag.yel{background:var(--yellow)}.tag.org{background:var(--orange);color:#fff}
 .btn{font-family:'Silkscreen',monospace;font-size:13px;padding:10px 14px;background:var(--yellow);border:3px solid var(--ink);box-shadow:inset -3px -3px 0 var(--yellowd),inset 3px 3px 0 #fff3b0;white-space:nowrap;color:var(--ink);line-height:1}
 .btn:hover{filter:brightness(1.07)}.btn:active{transform:translate(2px,2px);box-shadow:inset 3px 3px 0 var(--yellowd)}
@@ -641,6 +641,24 @@ h3{font-size:13px}.tag{font-size:11px}.item .tx b{font-size:14px}
 #catchup span{display:block;font-size:21px;line-height:1.05;margin-bottom:8px}
 #catchup .bar{height:12px;border:3px solid var(--ink);background:#e9dcbd}#catchup .bar i{display:block;height:100%;width:0;background:var(--green)}
 @media (max-width:340px){ #landbtn{padding-left:3px;padding-right:3px;letter-spacing:-.5px} #sbody .item .tx{min-width:0;overflow-wrap:anywhere} }
+
+/* jobs: a passenger and a piece of cargo read apart at a glance. A tab down the left edge, blue with a seat on it for people and
+   brown with a crate on it for cargo (the colours of the seats and cargo slots on the craft card), and a count of each in the heading. */
+.jrow.p,.jrow.c{position:relative;padding-left:32px}
+.jrow.p::before,.jrow.c::before{content:'';position:absolute;left:0;top:0;bottom:0;width:24px;background:#2f6fb5;border-right:3px solid var(--ink)}
+.jrow.c::before{background:#7a5a2c}
+.jrow.p{background:#f3f8ff}.jrow.c{background:#f8efd9}
+.jrow.aboard.p{background:#d6e7fa}.jrow.aboard.c{background:#ecdcb8}
+.jrow.k.p,.jrow.k.c{background:#ffe9a8}
+.jrow .jk{position:absolute;left:3px;top:50%;margin-top:-9px;width:18px;height:18px;image-rendering:pixelated;filter:brightness(1.7)}
+.dh .dk{display:flex;gap:6px;align-items:center;flex:0 0 auto}
+.dh .dk i{font-style:normal;display:flex;align-items:center;gap:3px;font-family:'Silkscreen',monospace;font-size:11px;color:#fff;background:#2f6fb5;border:2px solid var(--ink);padding:1px 5px 1px 3px;line-height:1}
+.dh .dk i.c{background:#7a5a2c}.dh .dk img{width:14px;height:14px;image-rendering:pixelated}
+@media (max-width:700px){ .jrow.p,.jrow.c{padding-left:28px} .jrow.p::before,.jrow.c::before{width:21px} .jrow .jk{left:2px;width:16px;height:16px;margin-top:-8px} }
+
+/* the fish market names its columns on a phone too, in three letters under each picture */
+.mk th i{display:none;font-style:normal;font-family:'Silkscreen',monospace;font-size:10px;color:var(--ink)}
+@media (max-width:700px){ .mk th i{display:block;margin-top:2px} }
 
 </style>
 </head>
@@ -1856,8 +1874,8 @@ const FEATURES = [
   { id: 'vip',    lvl: 2, name: 'VIPs & special freight', where: 'gold jobs on the board, a gold star on the map', desc: 'Now and then somebody important, or something precious, needs a ride. A VIP pays about triple and brings a reward: a big tip, XP, a parts crate or a good word at both ports. They wait eight minutes. Some are particular, and want no stops, a daylight landing or a craft in good repair.' },
   { id: 'events', lvl: 3, name: 'Events',          where: 'the news and the map',   desc: 'Festivals, harvests, cruise ships and freighters in port, fuel price wars and urgent medical runs: something is on for two days at a time.' },
   { id: 'reg1',   lvl: 4, name: 'New Hampshire & Vermont', where: 'the map, west of Maine', desc: 'Ports across the state line can be opened now: Portsmouth, Manchester, the White Mountains, Burlington on Lake Champlain and the rest.' },
-  { id: 'trade',  lvl: 3, name: 'Goods & requests', where: 'the bottom of a port\'s job board', desc: 'Buy goods where they are made and sell them where they are wanted: they fill whatever cargo room the jobs leave. Prices move as you buy and sell. Ports ask for goods now and then, and remember who brought them.' },
-  { id: 'wear',   lvl: 4, name: 'Wear & overhaul', where: 'CRAFT tab, at a yard',   desc: 'Craft wear with use. A worn one runs slow until a hangar or boatyard overhauls it, for coins or a spare part.' },
+  { id: 'trade',  lvl: 3, name: 'Goods & requests', where: 'the bottom of a port\'s job board', desc: 'Buy goods where they are made and sell them where they are wanted: they fill whatever cargo room the jobs leave. The farther you carry a good the more it fetches. Ports ask for goods now and then, and remember who brought them.' },
+  { id: 'wear',   lvl: 4, name: 'Wear & overhaul', where: 'CRAFT tab, at a yard',   desc: 'Craft wear with use. A worn one runs 15% slower, then 40%, until a hangar or boatyard overhauls it, for a spare part or 4% of its price.' },
   { id: 'catch',  lvl: 5, name: 'Catch & traps',   where: 'FISHING tab',            desc: 'Boats keep the catch aboard, so you can sell it where the price is best. Lobster boats can set trap strings and haul them.' },
   { id: 'fits',   lvl: 5, name: 'Fits', where: 'CRAFT tab, GEAR, at a yard', desc: 'Set a craft up for one thing: long range, speed, thrift or freight. Each gives something up, and a craft takes one at a time.' },
   { id: 'reg2',   lvl: 6, name: 'Southern New England', where: 'the map, south of Portsmouth', desc: 'Boston, the Cape and the islands, Providence, Newport and the Connecticut shore can be opened now. A boat can follow the coast the whole way.' },
@@ -1865,7 +1883,7 @@ const FEATURES = [
   { id: 'works',  lvl: 7, name: 'Port works',      where: 'a port\'s TOWN section', desc: 'Build a fuel dock, a lobster pound or an inn at any port you serve.' },
   { id: 'rival',  lvl: 7, name: 'A rival', where: 'RIVAL tags on the job board', desc: 'Another outfit has noticed you. Now and then it claims the best load at one of your ports: load it within eighty seconds or it goes with them. They leave ports alone where your standing is high. The Almanac can switch them off.' },
   { id: 'reg3',   lvl: 8, name: 'Canada', where: 'the edges of the map', desc: 'Saint John, Yarmouth, Quebec City and Montreal can be opened now. Long hauls and big fares. Customs holds a craft for a minute each time it crosses the border.' },
-  { id: 'runs',   lvl: 8, name: 'Standing runs',   where: 'CRAFT tab',              desc: 'Put a craft on a repeating run between two ports. It loads, goes and collects by itself, even while you are away.' }
+  { id: 'runs',   lvl: 8, name: 'Standing runs',   where: 'CRAFT tab',              desc: 'Put a craft on a repeating run between two ports. It waits for half a load, goes and collects by itself, even while you are away.' }
 ];
 const FEATURE_BY = {}; FEATURES.forEach(f => { FEATURE_BY[f.id] = f; });
 const feat = id => G.level >= FEATURE_BY[id].lvl;
@@ -2995,7 +3013,7 @@ const sfx = {
   big: () => [523, 659, 784, 1047].forEach((f, i) => tone(f, 0.13, 'square', 0.035, i * 0.1)), horn: () => tone(98, 0.7, 'sawtooth', 0.03, 0, 92), splash: () => tone(900, 0.12, 'triangle', 0.04, 0, 300)
 };
 function toast(msg, kind) { const box = $('toasts'); while (box.children.length >= 3) box.firstChild.remove(); const d = document.createElement('div'); d.className = 'toast ' + (kind || ''); d.textContent = msg; $('toasts').appendChild(d); setTimeout(() => d.remove(), 2600); if (kind === 'bad') sfx.err(); }
-function banner(big, small) { const b = $('banner'); b.innerHTML = '<b>' + esc(big) + '</b><span>' + esc(small) + '</span>'; b.classList.remove('show'); void b.offsetWidth; b.classList.add('show'); }
+function banner(big, small) { if (UI.screen !== 'map') { toast(big + '. ' + small, 'good'); return; } const b = $('banner'); b.innerHTML = '<b>' + esc(big) + '</b><span>' + esc(small) + '</span>'; b.classList.remove('show'); void b.offsetWidth; b.classList.add('show'); }
 function refreshSel() { UI.selCraft = UI.selCraftId ? (G.crafts.find(c => c.id === UI.selCraftId) || null) : null; if (!UI.selCraft) UI.selCraftId = null; }
 function craftStatus(c) { const T = CRAFT_BY[c.type];
   if (c.state === 'dock') return (c.jobs.length ? 'Boarding at ' : 'Idle at ') + portName(c.at); if (c.state === 'landed') return 'Arrived at ' + portName(c.at); if (c.state === 'fish') return 'Fishing ' + GROUND_BY[c.plan.fish.g].name;
@@ -3017,7 +3035,7 @@ function htmlContracts() {
 }
 function htmlMarket() {
   const s = season(), sps = Object.keys(FISH), ports = PORTS.filter(p => p.water === 'sea' && G.ports[p.id].open);
-  let h = '<div class="pad"><div class="sub">What the buyers are paying per unit today. Land a lot in one place and the price there sags for a while.</div><table class="mk" style="margin-top:8px"><tr><th>PORT</th>' + sps.map(sp => '<th data-tip="' + esc(FISH[sp].name) + '"><img src="' + ICON_URL['fish_' + sp] + '" alt=""><span>' + FISH[sp].name.toUpperCase() + '</span></th>').join('') + '</tr>';
+  let h = '<div class="pad"><div class="sub">What the buyers are paying per unit today. Land a lot in one place and the price there sags for a while.</div><table class="mk" style="margin-top:8px"><tr><th>PORT</th>' + sps.map(sp => '<th data-tip="' + esc(FISH[sp].name) + '"><img src="' + ICON_URL['fish_' + sp] + '" alt=""><span>' + FISH[sp].name.toUpperCase() + '</span><i>' + FISH[sp].name.slice(0, 3).toUpperCase() + '</i></th>').join('') + '</tr>';
   const best = {}; sps.forEach(sp => { best[sp] = 0; ports.forEach(p => best[sp] = Math.max(best[sp], fishPrice(p.id, sp))); });
   ports.forEach(p => { h += '<tr><td>' + esc(p.name) + '</td>' + sps.map(sp => { const pr = fishPrice(p.id, sp), inS = FISH[sp].abund[s] > 0; return '<td class="' + (!inS ? 'na' : pr === best[sp] ? 'best' : '') + '">$' + pr + '</td>'; }).join('') + '</tr>'; });
   h += '</table><h3>IN SEASON</h3><div class="lst">';
@@ -3161,18 +3179,18 @@ function coachStep() {
     if (UI.screen === 'sheet' && UI.sheet === 'craft' && c && c.state === 'dock') {
       if (c.jobs.length) return { id: 'fly', text: 'Aboard. Each job takes one seat or one cargo slot: the yellow card is the craft in hand, with its seats and cargo counted. Now hit ' + goWord(c) + ' to pick where it goes.', target: q('#sfoot .btn.go') };
       if (UI.stab !== 'jobs') return { id: 'tabjobs', text: 'Back to the JOBS tab.', target: q('.stab[data-arg=jobs]') };
-      const b = q('#sbody .dg:not(.no):not(.ab) .btn.load:not([disabled])'); if (b) return { id: 'load', text: 'This is the job board, grouped by where each job is going. Hit LOAD to put one aboard.', target: b };
+      const b = q('#sbody .dg:not(.no):not(.ab) .btn.load:not([disabled])'); if (b) return { id: 'load', text: 'This is the job board, grouped by where each job is going. A blue tab is a passenger and takes a seat; a brown tab is cargo. Hit LOAD to put one aboard.', target: b };
       return { id: 'nojobs', text: 'Nothing here for ' + c.name + ' just now. Go back and pick another.', target: back() }; }
     if (!onMap) return back() ? { id: 'back', text: 'Close this and I will show you the first run.', target: back() } : null;
     const f = tutFirstCraft(); return f ? { id: 'pick', text: 'These are your craft. Tap ' + f.name + ' to open it.', target: card(f) } : { id: 'allout', text: 'Everything is out. When one comes back, tap it.' }; }
   if (!T.fish) { const boat = tutBoat(); if (!boat) { T.fish = 1; return coachStep(); }
-    if (UI.screen === 'sheet' && c === boat) return UI.stab !== 'fish' ? { id: 'fishtab', text: 'Boats can carry jobs like a plane, or go fishing. Tap FISHING.', target: q('.stab[data-arg=fish]') } : { id: 'fishgo', text: 'Pick a ground and hit GO. The boat sells its catch when it gets back.', target: q('#sbody [data-act=fishGo]') };
+    if (UI.screen === 'sheet' && c === boat) return UI.stab !== 'fish' ? { id: 'fishtab', text: 'Boats carry jobs like a plane. They are slow, so each load pays them half again. Or they go fishing. Tap FISHING.', target: q('.stab[data-arg=fish]') } : { id: 'fishgo', text: 'Pick a ground and hit GO. The boat sells its catch when it gets back.', target: q('#sbody [data-act=fishGo]') };
     if (!onMap) return null;
     return { id: 'boat', text: 'Off it goes. The bar on its card counts down the trip. Now tap your lobster boat, ' + boat.name + '.', target: card(boat) }; }
   if (!T.collect) { const landed = G.crafts.find(x => x.state === 'landed'); if (!onMap) return null;
     if (landed) return { id: 'collect', text: landed.name + ' has arrived. Tap it to collect the fare.', target: card(landed) };
     const idle = G.crafts.find(x => x.state === 'dock'), out = G.crafts.filter(x => x.state === 'move' || x.state === 'fish'), soon = out.length ? Math.min.apply(null, out.map(craftRemaining)) : 0;
-    return { id: 'wait', text: (out.length ? 'Next one is back in ' + secs(soon) + '. ' : '') + (idle ? 'While you wait, send ' + idle.name + ' out the same way.' : 'Everything is out working. Nothing to do but wait.'), target: idle ? card(idle) : null, soft: true }; }
+    return { id: 'wait', text: (out.length ? 'Next one is back in ' + secs(soon) + '. ' : '') + (idle ? 'While you wait, send ' + idle.name + ' out the same way.' : 'Everything is out working. Nothing to do but wait: HURRY would bring one in now, but it costs that trip\'s fare.'), target: idle ? card(idle) : null, soft: true }; }
   if (!T.loop) return onMap || UI.screen === 'sheet' ? { id: 'loop', text: 'That is the whole loop: load, send, collect. Fares pay coins and XP, and each new level unlocks bigger craft.', next: 'NEXT', low: !onMap } : null;
   if (!T.yard) { if (UI.screen === 'sheet' && UI.sheet === 'yard') return { id: 'yard2', text: 'Some towns have a hangar or a boatyard. They sell parts: three parts build a craft for less than a new one. Spare craft can wait in storage.', next: 'NEXT', low: true };
     if (!onMap) return back() ? { id: 'back2', text: 'Back to the map for one more thing.', target: back() } : null;
@@ -3212,18 +3230,18 @@ function lessonFor(id) {
       return onMap ? { n: 1, text: 'There are events now: festivals, ships in port, boat races and price wars, two days at a time. The Almanac lists them. Tap ALMANAC.', target: q('#menu .mbtn[data-arg=almanac]'), soft: true } : null; }
     case 'trade': { const has = G.crafts.some(x => goodsCount(x)); if (has) L.tradeB = 1;
       if (L.tradeB) { if (!has) { lessonDone(id); return null; }
-        return inCraft && UI.stab === 'jobs' && goodsCount(c) ? { n: 3, text: 'They are aboard, under GOODS ABOARD. Carry them where that row says they sell for more and hit SELL there. Buying pushes a price up, selling pushes it down, and a port that asks for a thing pays 60% over.', target: q('#sbody [data-act=sellGood]'), soft: true, next: 'GOT IT' } : null; }
+        return inCraft && UI.stab === 'jobs' && goodsCount(c) ? { n: 3, text: 'They are aboard, under GOODS ABOARD. The farther you carry them from here the more they fetch, and a port that wants them pays a third more: the row names the best one. A port that asks for a thing pays 60% over.', target: q('#sbody [data-act=sellGood]'), soft: true, next: 'GOT IT' } : null; }
       if (inCraft && UI.stab === 'jobs') { const b = q('#sbody [data-act=buyGood]:not([disabled])'); return b ? { n: 2, text: 'Goods are at the bottom of the board. ' + PORT_BY[c.at].name + ' makes these, so they are cheap here. BUY fills the cargo room your jobs leave, and the line beside it says where they sell best.', target: b, soft: true } : null; }
       if (!onMap) return null; const d = G.crafts.find(x => x.state === 'dock' && !CRAFT_BY[x.type].tour && roomFor(x, 'c') > 0 && goodsFor(x.at).some(g => G.money >= goodBuyPrice(x.at, g.id)));
       return d && card(d) ? { n: 1, text: 'New: goods. Buy a thing where it is made and sell it where it is wanted. ' + d.name + ' has cargo room at ' + PORT_BY[d.at].name + ': tap it.', target: card(d), soft: true } : null; }
     case 'reg1': return region(4, 'New Hampshire and Vermont can be opened now.');
     case 'reg2': return region(6, 'Southern New England can be opened now: Boston, the Cape and the islands, Rhode Island and Connecticut.');
     case 'reg3': return region(8, 'Canada can be opened now. Customs holds a craft for a minute each time it crosses the border.');
-    case 'wear': return craftTab('gear', 'Craft wear out with use now, and a worn one runs slow.', 'GEAR shows this craft\'s condition. A hangar or boatyard overhauls it, for coins or for a spare part.');
+    case 'wear': return craftTab('gear', 'Craft wear out with use now, and a worn one runs slow.', 'GEAR shows this craft\'s condition. Worn, it runs 15% slower, then 40%. A hangar or boatyard overhauls it for a spare part, or for coins: 4% of its price at the most.');
     case 'fits': return craftTab('gear', 'New: fits.', 'Under GEAR, a fit sets a craft up for one thing: range, speed, thrift or freight. Each gives something up, a craft takes one at a time, and it is fitted at a hangar or boatyard.');
     case 'crew': return craftTab('crew', 'New: crew.', 'CREW: hire one hand for this craft. Each brings one skill, and gets better with the trips they make.');
     case 'runs': { if (G.crafts.some(x => x.run)) { lessonDone(id); return null; }
-      return craftTab('run', 'New: standing runs. A craft can work a route by itself.', 'RUN: pick the port at the other end, and this craft loads, goes and collects by itself, even while you are away. A run can take up to four stops.'); }
+      return craftTab('run', 'New: standing runs. A craft can work a route by itself.', 'RUN: pick the port at the other end and this craft works the route by itself, even while you are away. It waits for half a load, and its card shows what it has cleared after fuel and repairs. Up to four stops.'); }
     case 'catch': { const boat = x => !!CRAFT_BY[x.type].fish;
       if (inCraft && boat(c)) return UI.stab !== 'fish' ? { n: 2, text: 'New for the boats. Tap FISHING.', target: q('.stab[data-arg=fish]'), soft: true } : { n: 3, text: 'A boat keeps its catch aboard now, so you can land it where the price is best: FISH on the map lists the prices. Lobster boats can set a string of traps and haul it later.', next: 'GOT IT' };
       if (!onMap) return null; const d = G.crafts.find(x => x.state === 'dock' && boat(x) && PORT_BY[x.at].dock); return d && card(d) ? { n: 1, text: 'New for the boats: the catch stays aboard until you sell it, and lobster traps. Tap ' + d.name + '.', target: card(d), soft: true } : null; }
@@ -3319,13 +3337,16 @@ function destLine(d, info, extra) { return '<span>to <em class="' + (info ? (inf
 function jobRowsHTML(pid, c) {
   const fm = c ? fareMult(c) : 1;      // a boat is paid half again for every load, and the board shows what this craft would get
   const st = G.ports[pid], infos = {}, info = to => c ? (infos[to] || (infos[to] = legInfo(c, pid, to))) : null; let h = '';
-  const row = (cls, icon, label, n, tag, pay, each, btn) => '<div class="jrow ' + cls + '"><img class="jic" src="' + icon + '" alt=""><div class="jtx"><b>' + esc(label) + (n > 1 ? ' <span class="jcount">×' + n + '</span>' : '') + '</b>' + (tag || '') + '</div><div class="jr"><div class="jpay">$' + pay + (each ? '<small>each</small>' : '') + '</div>' + (btn || '') + '</div></div>';
+  // People and cargo are told apart three ways, none of them colour alone: a tab down the left edge (blue for a passenger, brown for
+  // cargo: the colours of the seats and the cargo slots on the craft card) with a seat or a crate drawn on it, and people listed first.
+  const kindOf = cls => /(^| )c( |$)/.test(cls) ? 'c' : /(^| )p( |$)/.test(cls) ? 'p' : '';
+  const row = (cls, icon, label, n, tag, pay, each, btn) => { const kd = kindOf(cls); return '<div class="jrow ' + cls + '">' + (kd ? '<img class="jk" src="' + ICON_URL[kd === 'p' ? 'ui_pax' : 'ui_box'] + '" alt="' + (kd === 'p' ? 'Passenger' : 'Cargo') + '">' : '') + '<img class="jic" src="' + icon + '" alt=""><div class="jtx"><b>' + esc(label) + (n > 1 ? ' <span class="jcount">×' + n + '</span>' : '') + '</b>' + (tag || '') + '</div><div class="jr"><div class="jpay">$' + pay + (each ? '<small>each</small>' : '') + '</div>' + (btn || '') + '</div></div>'; };
   // what is aboard, with UNLOAD
   let ab = ''; if (c && c.jobs.length) { const worth = Math.round(c.jobs.reduce((a, q) => a + q.pay, 0) * fm); ab = '<div class="dg ab"><div class="dh"><b>ABOARD</b><span class="dd">' + c.jobs.length + ' · worth ' + money(worth) + '</span></div>';
-    groupJobs(c.jobs).forEach(g => { ab += row('aboard', jobIconURL(g.j), g.j.label, g.n, '<span>to ' + esc(PORT_BY[g.to].name) + '</span>', Math.round(g.pay * fm), g.n > 1, '<button class="btn red" data-act="unload" data-arg="' + g.ids[0] + '">UNLOAD</button>'); }); ab += '</div>'; }
+    groupJobs(c.jobs).forEach(g => { ab += row('aboard ' + (g.kind === 'c' ? 'c' : 'p'), jobIconURL(g.j), g.j.label, g.n, '<span>to ' + esc(PORT_BY[g.to].name) + '</span>', Math.round(g.pay * fm), g.n > 1, '<button class="btn red" data-act="unload" data-arg="' + g.ids[0] + '">UNLOAD</button>'); }); ab += '</div>'; }
   if (c && goodsCount(c)) { ab += '<div class="dg ab"><div class="dh"><b>GOODS ABOARD</b><span class="dd">' + goodsCount(c) + ' \u00b7 sell them here or carry them on</span></div>';
     const seenG = {}; c.goods.forEach(q => { if (seenG[q.g]) return; seenG[q.g] = 1; const gd = GOOD_BY[q.g], rq = reqFor(pid, q.g), qt = goodQuote(c, q.g, pid), here = Math.round(qt.each * (rq ? 1.6 : 1)), paid = qt.paid, bm = bestMarket(c, q.g, q.from);
-      ab += row('aboard', ICON_URL[gd.ic], gd.name, qt.n, '<span>paid ' + money(paid) + (rq ? ' \u00b7 asked for here' : bm && bm.price > here ? ' \u00b7 ' + money(bm.price) + ' at ' + esc(bm.name) : '') + '</span>', here, true, '<button class="btn buy" data-act="sellGood" data-arg="' + q.g + '">SELL</button>'); }); ab += '</div>'; }
+      ab += row('aboard c', ICON_URL[gd.ic], gd.name, qt.n, '<span>paid ' + money(paid) + (rq ? ' \u00b7 asked for here' : bm && bm.price > here ? ' \u00b7 ' + money(bm.price) + ' at ' + esc(bm.name) : '') + '</span>', here, true, '<button class="btn buy" data-act="sellGood" data-arg="' + q.g + '">SELL</button>'); }); ab += '</div>'; }
   let reqH = '', tradeH = ''; (G.reqs || []).forEach(r => { if (r.pid === pid && G.t < r.until) reqH += '<div class="note"><b>' + esc(PORT_BY[pid].name) + ' is asking for ' + (r.n - r.got) + ' ' + esc(GOOD_BY[r.g].name.toLowerCase()) + '.</b> It pays 60% over the going price, for ' + secs(r.until - G.t) + ' more.</div>'; });
   if (c && c.state === 'dock' && feat('trade') && !CRAFT_BY[c.type].tour) { const gs = goodsFor(pid); if (gs.length) { tradeH = '<div class="dg trade"><div class="dh"><b>GOODS FOR SALE</b><span class="dd">fills spare cargo</span></div>';
       gs.forEach(gd => { const pr = goodBuyPrice(pid, gd.id), n = Math.max(0, Math.min(roomFor(c, 'c'), 5, Math.floor(G.money / pr))), bm = bestMarket(c, gd.id);
@@ -3333,7 +3354,7 @@ function jobRowsHTML(pid, c) {
   const isFull = c && roomFor(c, 'p') <= 0 && roomFor(c, 'c') <= 0;
   // gather by destination
   const by = {}, dest = to => by[to] || (by[to] = { to, groups: [], ks: [], sum: 0, n: 0 });
-  groupJobs(st.lay.concat(st.jobs)).forEach(g => { const d = dest(g.to); d.groups.push(g); d.sum += g.pay * g.n; d.n += g.n; });
+  groupJobs(st.lay.concat(st.jobs)).forEach(g => { const d = dest(g.to); d.groups.push(g); d.sum += g.pay * g.n; d.n += g.n; d[g.kind === 'c' ? 'nc' : 'np'] = (d[g.kind === 'c' ? 'nc' : 'np'] || 0) + g.n * (g.j.n || 1); });
   G.active.filter(k => k.from === pid && contractAvail(k) > 0).forEach(k => { const d = dest(k.to); d.ks.push(k); d.sum += k.rate * contractAvail(k); d.n += contractAvail(k); });
   const dests = Object.keys(by).map(k => by[k]); dests.forEach(d => { d.info = info(d.to); d.ok = !d.info || d.info.ok; d.vip = d.groups.some(g => g.j.vip) ? 1 : 0; });
   // what can be delivered first, a VIP's destination ahead of the rest, then by what the trip is worth
@@ -3348,10 +3369,10 @@ function jobRowsHTML(pid, c) {
   if (isFull) h += ab;
   const far = dests.filter(d => !d.ok), farN = far.reduce((a, d) => a + d.n, 0);
   dests.forEach(d => { if (!d.ok && !UI.showFar) return; const P = PORT_BY[d.to], fit = c ? d.groups.reduce((a, g) => a + (roomFor(c, g.kind) > 0 ? g.n : 0), 0) : 0;
-    h += '<div class="dg' + (d.ok ? '' : ' no') + '" data-to="' + d.to + '"><div class="dh"><b>' + esc(P.name) + '</b><span class="dd">' + (d.info ? (d.ok ? Math.round(d.info.dist) + ' km' : esc(d.info.why)) : d.n + (d.n === 1 ? ' job' : ' jobs')) + '</span>' +
+    h += '<div class="dg' + (d.ok ? '' : ' no') + '" data-to="' + d.to + '"><div class="dh"><b>' + esc(P.name) + '</b><span class="dd">' + (d.info ? (d.ok ? Math.round(d.info.dist) + ' km' : esc(d.info.why)) : d.n + (d.n === 1 ? ' job' : ' jobs')) + '</span>' + '<span class="dk">' + (d.np ? '<i class="p"><img src="' + ICON_URL.ui_pax + '" alt="passengers">' + d.np + '</i>' : '') + (d.nc ? '<i class="c"><img src="' + ICON_URL.ui_box + '" alt="cargo">' + d.nc + '</i>' : '') + '</span>' +
       (c && d.ok && fit > 1 && d.groups.length > 1 ? '<button class="btn sm go" data-act="loadAll" data-arg="' + d.to + '">LOAD ALL</button>' : '') + '</div>';
-    d.ks.forEach(k => { const n = contractAvail(k), room = c ? roomFor(c, k.k) : 0; h += row('k', k.k === 'p' ? portraitURL(k.id, k.ic) : ICON_URL[k.ic], k.title, n, '<span class="tag yel">CONTRACT</span>', Math.round(k.rate * fm), true, c ? '<button class="btn load" data-act="loadK" data-arg="' + k.id + '"' + (room > 0 && d.ok ? '' : ' disabled') + '>LOAD' + (Math.min(room, n) > 1 ? ' ' + Math.min(room, n) : '') + '</button>' : ''); });
-    d.groups.sort((a, b) => ((b.j.vip ? 1 : 0) - (a.j.vip ? 1 : 0)) || ((b.lay || 0) - (a.lay || 0)) || (b.pay - a.pay));
+    d.ks.forEach(k => { const n = contractAvail(k), room = c ? roomFor(c, k.k) : 0; h += row('k ' + (k.k === 'p' ? 'p' : 'c'), k.k === 'p' ? portraitURL(k.id, k.ic) : ICON_URL[k.ic], k.title, n, '<span class="tag yel">CONTRACT</span>', Math.round(k.rate * fm), true, c ? '<button class="btn load" data-act="loadK" data-arg="' + k.id + '"' + (room > 0 && d.ok ? '' : ' disabled') + '>LOAD' + (Math.min(room, n) > 1 ? ' ' + Math.min(room, n) : '') + '</button>' : ''); });
+    d.groups.sort((a, b) => ((b.j.vip ? 1 : 0) - (a.j.vip ? 1 : 0)) || ((b.lay || 0) - (a.lay || 0)) || ((a.kind === 'c') - (b.kind === 'c')) || (b.pay - a.pay));
     d.groups.forEach(g => { const room = c ? roomFor(c, g.kind) : 0, need = g.j.n || 1, many = Math.min(g.n, Math.floor(room / need));
       const btn = !c ? '' : (!d.ok && !any) ? '<button class="btn load" disabled>LOAD</button>' : many > 1 ? '<button class="btn load' + (d.ok ? '' : ' far') + '" data-act="loadIds" data-arg="' + g.ids.slice(0, many).join(',') + '">LOAD ' + many + '</button>' : '<button class="btn load' + (!d.ok && room > 0 ? ' far' : '') + '" data-act="load" data-arg="' + g.ids[0] + '"' + (room >= need ? '' : ' disabled data-tip="' + (need > 1 && room > 0 ? 'Takes ' + need + (g.kind === 'p' ? ' seats' : ' cargo slots') : 'No ' + (g.kind === 'p' ? 'seats' : 'cargo room') + ' left') + '"') + '>LOAD</button>';
       h += row((g.kind === 'c' ? 'c' : 'p') + (g.j.vip ? ' vip' : '') + (d.ok ? '' : ' no'), jobIconURL(g.j), g.j.label, g.n, g.j.rv ? '<span class="tag red">RIVAL WANTS IT</span>' : g.j.conn ? '<span class="tag blue">CONNECTION</span>' : g.j.n ? '<span class="tag org">' + (g.kind === 'p' ? 'GROUP' : 'LOT') + ' OF ' + g.j.n + '</span>' : g.j.vip ? '<span class="tags"><span class="tag gold">VIP \u00b7 ' + VIP_REWARD[g.j.vip] + '</span>' + (g.j.pref ? '<span class="tag gold2">' + VIP_PREF[g.j.pref] + '</span>' : '') + '</span>' : g.j.urgent ? '<span class="tag red">URGENT ' + secs(Math.max(0, g.j.urgent - G.t)) + '</span>' : g.lay ? '<span class="tag blue">LAYOVER</span>' : g.j.ev ? '<span class="tag yel">EVENT</span>' : g.j.hol ? '<span class="tag hol">HOLIDAY</span>' : '', Math.round(g.pay * fm), g.n > 1, btn); });
@@ -3519,7 +3540,7 @@ function tabCraft(c) { const T = CRAFT_BY[c.type], segs = [['gear', 'GEAR']]; if
     h += '</div><div class="sub" style="margin-top:6px">One hand per craft.' + (c.crew ? ' Hiring replaces ' + esc(c.crew.name) + '.' : '') + '</div>'; }
   else if (seg === 'run') {
     if (c.run) h += '<h3>STANDING RUN</h3><div class="card" style="margin-top:0"><b class="sk" style="font-size:13px">' + esc(runLabel(c.run).toUpperCase()) + '</b><div class="sub">' + c.run.trips + ' trips · earned ' + money(c.run.earned) + ', ' + money(c.run.earned - (c.run.cost || 0)) + ' after fuel and repairs. It waits for half a load, goes and collects by itself; the crew keeps ' + Math.round(RUN_CUT * 100) + '%.</div><div class="row wrap" style="margin-top:8px"><button class="btn red" data-act="stopRun">STOP THE RUN</button><button class="btn go" data-act="pickRun"' + (c.state === 'dock' && runStops(c.run).length < RUN_STOPS ? '' : ' disabled') + '>ADD A STOP \u25b8</button></div><div class="sub" style="margin-top:8px">A run can have up to four stops. Two runs that share a port hand loads to each other there.</div></div>';
-    else h += '<h3>STANDING RUN <em>' + runCount() + ' OF ' + runMax() + ' IN USE</em></h3><div class="sub">Pick the other end, and ' + esc(c.name) + ' will shuttle between here and there by itself, even while you are away. The crew keeps ' + Math.round(RUN_CUT * 100) + '%.</div><button class="btn go" data-act="pickRun" style="margin-top:8px"' + (c.state === 'dock' && runCount() < runMax() ? '' : ' disabled') + '>PICK THE OTHER END ▸</button>'; }
+    else h += '<h3>STANDING RUN <em>' + runCount() + ' OF ' + runMax() + ' IN USE</em></h3><div class="sub">Pick the other end, and ' + esc(c.name) + ' will shuttle between here and there by itself, even while you are away. It waits for half a load before it leaves. The crew keeps ' + Math.round(RUN_CUT * 100) + '%.</div><button class="btn go" data-act="pickRun" style="margin-top:8px"' + (c.state === 'dock' && runCount() < runMax() ? '' : ' disabled') + '>PICK THE OTHER END ▸</button>'; }
   else {
     h += '<h3>STORAGE <em>' + G.stored.length + '/' + STORE_CAP + '</em></h3><div class="row between"><span class="sub">' + (atYard ? 'Put it away and get the fleet slot back. Must be empty.' : 'Storage is at a ' + yardWord(T) + (ny ? '. The nearest is ' + esc(ny.name) + '.' : '.')) + '</span><button class="btn" data-act="store" data-arg="' + c.id + '"' + (atYard && !c.jobs.length && G.stored.length < STORE_CAP && G.crafts.length > 1 ? '' : ' disabled') + '>STORE</button></div>';
     h += '<h3>SELL</h3><div class="row between"><span class="sub">Must be at a port and empty. Frees a fleet slot.</span><button class="btn red" data-act="sell">SELL FOR ' + money(sellValue(c)) + '</button></div>'; }
@@ -3541,7 +3562,7 @@ function leftUnderway(c) { let h = '<div class="card" style="margin-top:0"><div 
   if (c.plan && c.plan.stops && c.plan.stops.length > 1) h += '<div class="stops" style="margin-top:10px">' + c.plan.stops.map((s, i) => '<span class="stop' + (i === c.plan.i ? ' new' : '') + '" style="' + (i < c.plan.i ? 'opacity:.4' : '') + '">' + esc(portName(s)) + '</span>').join('<span>\u25b8</span>') + '</div>';
   return h + '</div>'; }
 function bodyUnderway(c) { const cs = cstat(c); let h = (c.run ? '<div class="card" style="margin-top:0"><b class="sk" style="font-size:13px">STANDING RUN \u00b7 ' + esc(runLabel(c.run).toUpperCase()) + '</b><div class="sub">' + c.run.trips + ' trips \u00b7 earned ' + money(c.run.earned) + '</div><button class="btn red" data-act="stopRun" style="margin-top:8px">STOP THE RUN</button></div>' : '') + '<h3>ABOARD <em>' + loadOf(c).pax + '/' + cs.pax + ' SEATS \u00b7 ' + loadOf(c).cargo + '/' + cs.cargo + ' CARGO</em></h3><div class="holdbar v2 plain">' + slotsHTML(c, false) + '</div>';
-  if (c.jobs.length) { h += '<div class="rows" style="margin-top:10px">'; groupJobs(c.jobs).forEach(g => { h += '<div class="jrow aboard"><img class="jic" src="' + jobIconURL(g.j) + '" alt=""><div class="jtx"><b>' + esc(g.j.label) + (g.n > 1 ? ' <span class="jcount">\u00d7' + g.n + '</span>' : '') + '</b><span>to <em>' + esc(portName(g.to)) + '</em></span></div><div class="jpay">$' + Math.round(g.pay * fareMult(c)) + (g.n > 1 ? '<small>each</small>' : '') + '</div></div>'; }); h += '</div>'; }
+  if (c.jobs.length) { h += '<div class="rows" style="margin-top:10px">'; groupJobs(c.jobs).sort((a, b) => (a.kind === 'c') - (b.kind === 'c')).forEach(g => { const kd = g.kind === 'c' ? 'c' : 'p'; h += '<div class="jrow aboard ' + kd + '"><img class="jk" src="' + ICON_URL[kd === 'p' ? 'ui_pax' : 'ui_box'] + '" alt="' + (kd === 'p' ? 'Passenger' : 'Cargo') + '"><img class="jic" src="' + jobIconURL(g.j) + '" alt=""><div class="jtx"><b>' + esc(g.j.label) + (g.n > 1 ? ' <span class="jcount">\u00d7' + g.n + '</span>' : '') + '</b><span>to <em>' + esc(portName(g.to)) + '</em></span></div><div class="jpay">$' + Math.round(g.pay * fareMult(c)) + (g.n > 1 ? '<small>each</small>' : '') + '</div></div>'; }); h += '</div>'; }
   if (c.fish) h += '<div class="item" style="margin-top:10px"><img class="ic" src="' + ICON_URL['fish_' + c.fish.sp] + '" alt=""><div class="tx"><b>' + c.fish.units + ' ' + esc(FISH[c.fish.sp].name) + ' in the hold</b><small>' + (feat('catch') ? 'Stays aboard until you sell it' : 'Sells back at the dock' + (c.plan && c.plan.fish ? ' at ' + esc(portName(c.plan.fish.land)) + ' for about ' + money(c.fish.units * fishPrice(c.plan.fish.land, c.fish.sp)) : '')) + '</small></div></div>';
   if (!c.jobs.length && !c.fish) h += '<div class="sub" style="margin-top:10px">Running empty.</div>';
   return h; }
@@ -3721,7 +3742,8 @@ function act(a, arg, el) {
     case 'loadCode': { const b = $('codebox'); err = importSave(b ? b.value : ''); if (!err) { UI.selCraftId = null; deselect(); startView(); computeReach(); toast('Save code loaded.', 'good'); } } break;
     case 'cancelPlan': if (c) { cancelPlan(c); UI.selPort = c.at; } break;
     case 'follow': if (c) { const id = c.id; UI.screen = 'map'; UI.sheet = null; VIEW.follow = id; centerOn(c.x, c.y); } break;
-    case 'hurry': if (c) err = hurry(c); break;
+    case 'hurry': if (c) { const cost = hurryCost(c), armed = UI.hurryArm && UI.hurryArm.id === c.id && performance.now() - UI.hurryArm.t < 4000;
+        if (armed || cost <= 25) { UI.hurryArm = null; err = hurry(c); } else { UI.hurryArm = { id: c.id, t: performance.now() }; toast('Hurrying ' + c.name + ' costs ' + money(cost) + (hurryFare(c) > 0 ? ', the fare it is carrying' : '') + '. Tap HURRY again to do it.', ''); } } break;
     case 'nextIdle': nextIdle(); break;
     case 'unlock': err = unlockPort(arg); if (!err) { banner(portName(arg), 'Now serving. ' + PORT_BY[arg].blurb); UI.stab = 'jobs'; } break;
     case 'upPort': err = upgradePort(arg); break;

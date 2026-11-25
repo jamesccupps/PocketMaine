@@ -34,4 +34,18 @@ with sync_playwright() as p:
     expect(ev("()=>!!document.querySelector('[data-act=pickRun]')") and 'ADD A STOP' in ev("()=>document.getElementById('sbody').innerText"), 'a run offers ADD A STOP'); look('run_two'); tap('[data-act=pickRun]')
     ev("()=>{ let e=setRun(UI.selCraft,'bbh'); if(e) e=setRun(UI.selCraft,'rkd'); window.E=e; cancelRoute(); UI.stab='craft'; UI.cseg='run'; forcePanel(); }"); pg.wait_for_timeout(500); expect(ev("()=>runStops(UI.selCraft.run).length")==3, 'and takes a third stop: '+str(ev("()=>runLabel(UI.selCraft.run)"))); look('run_three')
     ev("()=>{ openMenu('almanac'); const b=document.getElementById('sbody'); b.scrollTop=b.scrollHeight; }"); pg.wait_for_timeout(500); look('almanac_game'); tap('[data-act=rival]'); expect(ev("()=>G.rivalOff")==True, 'the rival can be switched off in the Almanac')
+    # HURRY costs the fare, so the first tap only asks; the second does it. And the board tells people from cargo.
+    ev("""()=>{ deselect(); G.money=5000; G.ports.pwm.next=1e12; G.rivalNext=1e12; G.crafts.forEach(x=>{ x.run=null; }); const c=addCraft('wagon','pwm','Hurry Test'); G.ports.pwm.jobs.unshift({id:G.nextId++,from:'pwm',to:'lew',kind:'p',pay:200,label:'A hurry test',ic:'any'}); G.ports.pwm.jobs.unshift({id:G.nextId++,from:'pwm',to:'lew',kind:'c',pay:100,label:'A crate',ic:'box'});
+        window.HT=c.id; selectCraft(c.id,true); }"""); pg.wait_for_timeout(500)
+    rows=ev("""()=>{ const r=[...document.querySelectorAll('#sbody .dg[data-to=lew] .jrow')].filter(e=>e.querySelector('[data-act=load],[data-act=loadIds]')); return r.map(e=>({p:e.classList.contains('p'),c:e.classList.contains('c'),badge:(e.querySelector('.jk')||{}).alt||''})); }""")
+    kinds=[('p' if r['p'] else 'c') for r in rows]
+    expect(len(rows)>=2 and all((r['p'] and r['badge']=='Passenger') or (r['c'] and r['badge']=='Cargo') for r in rows), 'every job row is marked as a passenger or as cargo')
+    expect(kinds==sorted(kinds,key=lambda k:k!='p'), 'people are listed before cargo under each destination'); look('people_and_cargo')
+    hd=ev("()=>{ const d=document.querySelector('#sbody .dg[data-to=lew] .dk'); return d?d.innerText.replace(/\\s+/g,' ').trim():''; }"); expect(hd!='', 'the destination heading counts people and cargo: '+hd)
+    ev("()=>{ const c=G.crafts.find(x=>x.id===HT); G.ports.pwm.jobs.filter(j=>j.label==='A hurry test'||j.label==='A crate').forEach(j=>loadJob(c,j.id)); dispatch(c,['lew']); selectCraft(c.id,true); }"); pg.wait_for_timeout(700)
+    m0=ev("()=>G.money"); cost=ev("()=>hurryCost(G.crafts.find(x=>x.id===HT))"); expect(cost==300, 'HURRY is priced at the fare aboard ($%d)'%cost)
+    tap('#sfoot [data-act=hurry]'); expect(ev("()=>G.money")==m0 and ev("()=>G.crafts.find(x=>x.id===HT).state")=='move' and 'again' in ev("()=>document.getElementById('toasts').innerText"), 'the first tap on HURRY only says what it costs'); look('hurry_asks')
+    x0=ev("()=>G.xp+G.level*1e9"); tap('#sfoot [data-act=hurry]'); pg.wait_for_timeout(900); st=ev("()=>G.crafts.find(x=>x.id===HT).state")
+    expect(st!='move' and ev("()=>G.money") in (m0-cost, m0), 'the second tap pays it and the craft is in (the fare it then collects is what the hurry cost)')
+    if st=='dock': expect(ev("()=>G.xp+G.level*1e9")==x0, 'and a hurried trip earns no XP')
     print('PROBLEMS:',len(probs)); b.close()

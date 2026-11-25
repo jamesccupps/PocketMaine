@@ -171,8 +171,12 @@ with sync_playwright() as p:
                 # load everything for the best reachable destination using the chips and LOAD ALL
                 dest=ev("()=>{ const c=UI.selCraft, st=G.ports[c.at], by={}; st.lay.concat(st.jobs).forEach(j=>{ if(legInfo(c,c.at,j.to).ok && roomFor(c,j.kind)>0) by[j.to]=(by[j.to]||0)+j.pay; }); const k=Object.keys(by).sort((a,b)=>by[b]-by[a]); return k[0]||null; }")
                 if dest:
-                    if ev("(d)=>!!document.querySelector('#sbody [data-act=loadAll][data-arg='+d+']')",dest): tap('#sbody [data-act=loadAll][data-arg=%s]'%dest)
-                    elif ev("(d)=>!!document.querySelector('#sbody .dg[data-to='+d+'] .btn.load:not([disabled])')",dest): tap('#sbody .dg[data-to=%s] .btn.load:not([disabled])'%dest)
+                    # the board can turn over between looking and tapping; if the button has gone, this round simply loads nothing
+                    try:
+                        if ev("(d)=>!!document.querySelector('#sbody [data-act=loadAll][data-arg='+d+']')",dest): tap('#sbody [data-act=loadAll][data-arg=%s]'%dest)
+                        elif ev("(d)=>!!document.querySelector('#sbody .dg[data-to='+d+'] .btn.load:not([disabled])')",dest): tap('#sbody .dg[data-to=%s] .btn.load:not([disabled])'%dest)
+                    except Exception as e:
+                        if 'Timeout' not in str(e): raise
                     expect(ev("()=>UI.selCraft&&UI.selCraft.jobs.length")>0, 'round %d: loading for %s put something aboard'%(rnd,dest))
                     check('round %d loaded'%rnd, show=False)
                     tap('#sfoot .btn.go'); check('round %d route'%rnd, show=False)

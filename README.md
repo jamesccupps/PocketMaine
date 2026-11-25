@@ -67,11 +67,12 @@ What is done, what is not, and what could come next is in the [roadmap](ROADMAP.
 ## Design choices
 
 - **Real time, no energy.** Trips take real minutes, and the game keeps going while it is closed or hidden, capped at twelve hours. There are no energy timers, no premium currency and nothing to buy.
-- **Waiting is the game.** HURRY brings a craft in at once, and costs the fare it is carrying, so it is for getting a craft back, not for getting paid sooner. A hurried trip earns no XP.
+- **Waiting is the game.** HURRY brings a craft in at once, and costs the fare it is carrying, so it is for getting a craft back, not for getting paid sooner. A hurried trip earns no XP, and the first tap only says what it will cost.
 - **Boats are paid half again.** Pay goes by distance and a boat covers it at a quarter of a plane's speed, so every load a boat delivers pays 50% more. The board shows the boat's price when a boat is open.
 - **Nothing punishes being away.** Port requests do not run down and the rival stays home while the game is closed. A long absence is played out behind a short CATCHING UP note.
 - **One job, one slot.** Every passenger or parcel takes one seat or one cargo slot, and jobs arrive in same-destination groups, so a bigger craft is still quick to fill. Standing runs take over the repetitive routes late in the game.
 - **You choose where to go.** Nothing picks a destination for you. The ports your load is bound for flash on the map.
+- **People and cargo look different.** On every job row a blue tab with a seat on it is a passenger and a brown tab with a crate on it is cargo, the same two colours as the seats and cargo slots on the craft card. People are listed first, and each destination's heading counts both.
 - **You can see what you are holding.** The craft in hand has a yellow card with its picture, its seats and cargo counted, and every slot drawn. A craft with ten or more slots lists its load by destination. The same craft is bracketed in the port scene and on the map.
 - **Upkeep is worth paying.** A full overhaul costs 4% of a craft's price. A worn craft runs 15% slower, then 40%. A standing run waits for half a load before it leaves, and only has its craft overhauled out of what the run has cleared.
 - **Boats follow the water.** Sea routes are found on a one-kilometre grid of the coast, so a boat goes around a peninsula, not over it.
@@ -120,7 +121,7 @@ python3 test/lessons.py 386x630x3              # follows each of Aunt Bev's less
 python3 test/levels.py 386x630x3 casco         # levels up and uses each unlock by taps
 python3 test/playtest.py 386x630x3 casco       # a long tap-driven session, checking the wording per craft
 python3 test/vip.py 386x630x3                  # VIPs, holidays and events by taps, through a save and reload
-python3 test/depth.py 386x630x3                # goods, a request, a fit, a three-stop run and the rival switch by taps
+python3 test/depth.py 386x630x3                # goods, a request, a fit, a three-stop run, the rival switch, people and cargo marks, HURRY by taps
 node test/pace.js 8 casco 8                    # a simulated player for eight hours: levels, money, ports and fleet over time
 python3 test/away.py 386x630x3                 # hides the page mid-trip, then closes and reopens it: a real wait, two hours, twenty hours
 python3 test/shot.py 1440 900 stress           # 3,000 random steps through every system
