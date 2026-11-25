@@ -197,3 +197,4 @@ with sync_playwright() as p:
     b.close()
 print('\nPROBLEMS: %d'%len(problems))
 for q in problems: print('  '+q[:260])
+sys.exit(1 if problems else 0)

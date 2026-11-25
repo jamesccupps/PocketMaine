@@ -78,6 +78,10 @@ def social(b):
     ev("() => act('tutNext')"); ev("() => act('tutSkip')"); pg.wait_for_timeout(2600); ev(STAGE); pg.wait_for_timeout(1500)
     ev(SOCIAL, 'data:image/png;base64,' + base64.b64encode(open(OUT + 'phone-port.png', 'rb').read()).decode()); pg.wait_for_timeout(1200)
     pg.screenshot(path=OUT + 'social.png'); print('wrote', OUT + 'social.png'); ctx.close()
+    try:      # pixel art has few colours: as a palette PNG the picture is a fifth of the size
+        from PIL import Image
+        Image.open(OUT + 'social.png').convert('RGB').quantize(colors=96, method=Image.Quantize.MEDIANCUT, dither=Image.Dither.NONE).save(OUT + 'social.png', optimize=True)
+    except Exception as e: print('social.png left at full size:', e)
 
 with sync_playwright() as p:
     b = p.chromium.launch(executable_path=os.environ.get('CHROME', '/usr/bin/google-chrome'), args=['--no-sandbox'])

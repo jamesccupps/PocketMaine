@@ -99,3 +99,4 @@ with sync_playwright() as p:
         ctx.close()
     b.close()
 print('TOTAL', total)
+sys.exit(1 if total else 0)

@@ -37,9 +37,16 @@ function newGame(startId) {
   refreshOffers();
   return G;
 }
+// A save this version cannot read is never thrown away. Starting a new game used to write straight over it; now the raw text is
+// copied to a backup key first (the two newest are kept) and the title screen says so. MIGRATE takes a save from an older format
+// version up one step at a time; there are none yet, because the format has only ever been version 2.
+const SAVE_BAK = SAVE_KEY.replace(/\.v\d+$/, '') + '.bak.', MIGRATE = {};
+function keepUnreadable(store) { try { const raw = store.getItem(SAVE_KEY); if (!raw) return null; const key = SAVE_BAK + Date.now(); store.setItem(key, raw);
+    if (store.length !== undefined && store.key) { const old = []; for (let i = 0; i < store.length; i++) { const k = store.key(i); if (k && k.indexOf(SAVE_BAK) === 0) old.push(k); } old.sort().slice(0, -2).forEach(k => store.removeItem(k)); }
+    return key; } catch (e) { return null; } }
 function saveGame(store) { try { G.wall = Date.now(); store.setItem(SAVE_KEY, JSON.stringify(G)); return true; } catch (e) { return false; } }
 function loadGame(store) {
-  try { const s = store.getItem(SAVE_KEY); if (!s) return false; const g = JSON.parse(s); if (!g || g.v !== 2 || !g.ports || !g.crafts) return false;
+  try { const s = store.getItem(SAVE_KEY); if (!s) return false; let g = JSON.parse(s); for (let n = 0; g && MIGRATE[g.v] && n < 20; n++) g = MIGRATE[g.v](g); if (!g || g.v !== 2 || !g.ports || !g.crafts) return false;
     PORTS.forEach(p => { if (!g.ports[p.id]) g.ports[p.id] = { open: p.cost === 0, xp: 0, lvl: 1, jobs: [], lay: [], next: 2 }; });
     g.crafts = g.crafts.filter(c => CRAFT_BY[c.type]); g.wx = g.wx || []; g.parts = g.parts || {}; g.stored = (g.stored || []).filter(c => CRAFT_BY[c.type]); g.hall = g.hall || []; g.traps = g.traps || {}; g.log = g.log || {}; if (g.ev === undefined) g.ev = null;
     // a save from the Maine-only map: everything with a position moves over by the width the map grew to the west
@@ -450,7 +457,8 @@ function completeContract(k) { G.money += k.bonus; G.stats.earned += k.bonus; G.
   news('Contract complete: ' + k.title + '. Bonus ' + money(k.bonus) + '. Finest kind.', 'good'); emit('contractDone', { bonus: k.bonus }); awardPart('Contract bonus'); bonusXp(k.bonus / 8, 'contract'); }
 function dropContract(k, failed) { G.active.splice(G.active.indexOf(k), 1); addXp(k.from, -5);
   news((failed ? 'Contract lapsed: ' : 'Contract dropped: ') + k.title + '. ' + PORT_BY[k.from].name + ' is not impressed.', 'bad'); emit('contract', {}); }
-function updateContracts() { for (let i = G.active.length - 1; i >= 0; i--) if (G.t > G.active[i].deadline) dropContract(G.active[i], true); }
+// A signed contract's clock stands still while you are away, like a port request's: nobody was there to work it.
+function updateContracts(dt) { if (SIM.away) { G.active.forEach(k => { k.deadline += dt || 0; }); return; } for (let i = G.active.length - 1; i >= 0; i--) if (G.t > G.active[i].deadline) dropContract(G.active[i], true); }
 
 /* ---------- the tick ---------- */
 function tick(dt) {
@@ -461,7 +469,7 @@ function tick(dt) {
     else if ((d % SEASON_DAYS) === SEASON_DAYS - 1) { const nx = (s + 1) % 4; news('Almanac: ' + SEASON_NAMES[nx].toLowerCase() + ' starts tomorrow. ' + (nx === WINTER ? 'Lakes will freeze; floats are no good on ice.' : nx === SPRING ? 'Mud season closes grass and gravel strips.' : nx === SUMMER ? 'The summer people are coming.' : 'Foliage, hunters and potatoes.'), 'season'); } }
   updateWeather(dt); updateBoards(); updateShelves(); expireUrgent(); updateVips(); updateRuns(dt); updateDepth(dt);
   for (let i = 0; i < G.crafts.length; i++) updateCraft(G.crafts[i], dt);
-  updateContracts();
+  updateContracts(dt);
   const decay = Math.exp(-dt / 900); for (const k in G.glut) { G.glut[k] *= decay; if (G.glut[k] < 0.005) delete G.glut[k]; }
   G.newsNext -= dt; if (G.newsNext <= 0) { G.newsNext = rnd(150, 300); news(pick(NEWS_IDLE), 'idle'); }
 }

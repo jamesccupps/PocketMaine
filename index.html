@@ -52,7 +52,7 @@
   "name": "James Cupps",
   "url": "https://jamesccupps.github.io/"
  },
- "isBasedOn": "https://github.com/jamesccupps/PocketMaine",
+ "sameAs": "https://github.com/jamesccupps/PocketMaine",
  "license": "https://opensource.org/licenses/MIT",
  "offers": {
   "@type": "Offer",
@@ -670,7 +670,7 @@ h3{font-size:13px}.tag{font-size:11px}.item .tx b{font-size:14px}
     <div class="hudbox" id="lvlbox" data-act="levels" style="cursor:pointer" data-tip="XP comes from fares, catches, contracts, new ports and firsts. Each level unlocks something: tap to see what is next."><b id="lvl">LV 1</b><div id="xpwrap"><div id="xptxt"></div><div id="xpbar"><i id="xpfill"></i></div></div></div>
     <div class="hudbox" id="datebox" data-tip="Real time: a day is five minutes, a season is seven days. The clock keeps running while the game is closed."><img id="seasonic" alt=""><div><div id="date"></div><div id="daybar"><i id="dayfill"></i></div></div></div>
     <div class="spacer"></div>
-    <button class="hbtn big" id="landbtn" data-act="nextIdle" data-tip="Jump to the next craft that needs you (Tab)">0 ARRIVED</button>
+    <button class="hbtn big" id="landbtn" data-act="nextIdle" data-tip="Jump to the next craft that needs you (Tab)">0 IDLE</button>
     <button class="hbtn" id="sndbtn" data-act="sound" data-tip="Sound on/off" aria-label="Sound on or off">&#9835;</button>
     <button class="hbtn" data-act="help" data-tip="About the game" aria-label="About the game">?</button>
   </header>
@@ -1431,9 +1431,16 @@ function newGame(startId) {
   refreshOffers();
   return G;
 }
+// A save this version cannot read is never thrown away. Starting a new game used to write straight over it; now the raw text is
+// copied to a backup key first (the two newest are kept) and the title screen says so. MIGRATE takes a save from an older format
+// version up one step at a time; there are none yet, because the format has only ever been version 2.
+const SAVE_BAK = SAVE_KEY.replace(/\.v\d+$/, '') + '.bak.', MIGRATE = {};
+function keepUnreadable(store) { try { const raw = store.getItem(SAVE_KEY); if (!raw) return null; const key = SAVE_BAK + Date.now(); store.setItem(key, raw);
+    if (store.length !== undefined && store.key) { const old = []; for (let i = 0; i < store.length; i++) { const k = store.key(i); if (k && k.indexOf(SAVE_BAK) === 0) old.push(k); } old.sort().slice(0, -2).forEach(k => store.removeItem(k)); }
+    return key; } catch (e) { return null; } }
 function saveGame(store) { try { G.wall = Date.now(); store.setItem(SAVE_KEY, JSON.stringify(G)); return true; } catch (e) { return false; } }
 function loadGame(store) {
-  try { const s = store.getItem(SAVE_KEY); if (!s) return false; const g = JSON.parse(s); if (!g || g.v !== 2 || !g.ports || !g.crafts) return false;
+  try { const s = store.getItem(SAVE_KEY); if (!s) return false; let g = JSON.parse(s); for (let n = 0; g && MIGRATE[g.v] && n < 20; n++) g = MIGRATE[g.v](g); if (!g || g.v !== 2 || !g.ports || !g.crafts) return false;
     PORTS.forEach(p => { if (!g.ports[p.id]) g.ports[p.id] = { open: p.cost === 0, xp: 0, lvl: 1, jobs: [], lay: [], next: 2 }; });
     g.crafts = g.crafts.filter(c => CRAFT_BY[c.type]); g.wx = g.wx || []; g.parts = g.parts || {}; g.stored = (g.stored || []).filter(c => CRAFT_BY[c.type]); g.hall = g.hall || []; g.traps = g.traps || {}; g.log = g.log || {}; if (g.ev === undefined) g.ev = null;
     // a save from the Maine-only map: everything with a position moves over by the width the map grew to the west
@@ -1844,7 +1851,8 @@ function completeContract(k) { G.money += k.bonus; G.stats.earned += k.bonus; G.
   news('Contract complete: ' + k.title + '. Bonus ' + money(k.bonus) + '. Finest kind.', 'good'); emit('contractDone', { bonus: k.bonus }); awardPart('Contract bonus'); bonusXp(k.bonus / 8, 'contract'); }
 function dropContract(k, failed) { G.active.splice(G.active.indexOf(k), 1); addXp(k.from, -5);
   news((failed ? 'Contract lapsed: ' : 'Contract dropped: ') + k.title + '. ' + PORT_BY[k.from].name + ' is not impressed.', 'bad'); emit('contract', {}); }
-function updateContracts() { for (let i = G.active.length - 1; i >= 0; i--) if (G.t > G.active[i].deadline) dropContract(G.active[i], true); }
+// A signed contract's clock stands still while you are away, like a port request's: nobody was there to work it.
+function updateContracts(dt) { if (SIM.away) { G.active.forEach(k => { k.deadline += dt || 0; }); return; } for (let i = G.active.length - 1; i >= 0; i--) if (G.t > G.active[i].deadline) dropContract(G.active[i], true); }
 
 /* ---------- the tick ---------- */
 function tick(dt) {
@@ -1855,7 +1863,7 @@ function tick(dt) {
     else if ((d % SEASON_DAYS) === SEASON_DAYS - 1) { const nx = (s + 1) % 4; news('Almanac: ' + SEASON_NAMES[nx].toLowerCase() + ' starts tomorrow. ' + (nx === WINTER ? 'Lakes will freeze; floats are no good on ice.' : nx === SPRING ? 'Mud season closes grass and gravel strips.' : nx === SUMMER ? 'The summer people are coming.' : 'Foliage, hunters and potatoes.'), 'season'); } }
   updateWeather(dt); updateBoards(); updateShelves(); expireUrgent(); updateVips(); updateRuns(dt); updateDepth(dt);
   for (let i = 0; i < G.crafts.length; i++) updateCraft(G.crafts[i], dt);
-  updateContracts();
+  updateContracts(dt);
   const decay = Math.exp(-dt / 900); for (const k in G.glut) { G.glut[k] *= decay; if (G.glut[k] < 0.005) delete G.glut[k]; }
   G.newsNext -= dt; if (G.newsNext <= 0) { G.newsNext = rnd(150, 300); news(pick(NEWS_IDLE), 'idle'); }
 }
@@ -3013,6 +3021,7 @@ const sfx = {
   big: () => [523, 659, 784, 1047].forEach((f, i) => tone(f, 0.13, 'square', 0.035, i * 0.1)), horn: () => tone(98, 0.7, 'sawtooth', 0.03, 0, 92), splash: () => tone(900, 0.12, 'triangle', 0.04, 0, 300)
 };
 function toast(msg, kind) { const box = $('toasts'); while (box.children.length >= 3) box.firstChild.remove(); const d = document.createElement('div'); d.className = 'toast ' + (kind || ''); d.textContent = msg; $('toasts').appendChild(d); setTimeout(() => d.remove(), 2600); if (kind === 'bad') sfx.err(); }
+function hideBanner() { const b = $('banner'); if (b) b.classList.remove('show'); }
 function banner(big, small) { if (UI.screen !== 'map') { toast(big + '. ' + small, 'good'); return; } const b = $('banner'); b.innerHTML = '<b>' + esc(big) + '</b><span>' + esc(small) + '</span>'; b.classList.remove('show'); void b.offsetWidth; b.classList.add('show'); }
 function refreshSel() { UI.selCraft = UI.selCraftId ? (G.crafts.find(c => c.id === UI.selCraftId) || null) : null; if (!UI.selCraft) UI.selCraftId = null; }
 function craftStatus(c) { const T = CRAFT_BY[c.type];
@@ -3081,6 +3090,7 @@ function showTitle(about) {
   $('mbox').innerHTML = '<h1>POCKET MAINE<small>AIR AND SEA \u00b7 A MAINE TRANSPORT COMPANY</small></h1><div class="titlefleet">' + fleet + '</div>' +
     '<p>You run a small, scrappy outfit moving people and freight by bush plane, floatplane, ferry and lobster boat. It starts on the Maine coast and grows across New England. Islands that need their groceries. Sports headed upta camp. Potatoes, wreaths, and more lobster than you can lift.</p>' +
     '<ul><li>Open a craft, hit <b>LOAD</b> on the jobs you want, then <b>FLY</b> (or <b>CAST OFF</b> for a boat) and pick where on the map.</li><li>Trips take a few minutes of real time. When a craft shows <b>ARRIVED</b>, open it to <b>collect</b> the fare and earn XP.</li><li>Fill a craft with jobs for <b>one destination</b> for a 25% bonus. Job boards refresh every four minutes.</li><li><b>Level up</b> to unlock bigger craft. Buy <b>fleet slots</b> and <b>new ports</b> as you earn.</li><li>Towns with a <b>hangar</b> or <b>boatyard</b> sell parts: three parts build a craft for less than a new one. Spare craft wait in <b>storage</b>.</li><li>Boats can skip the jobs and <b>go fishing</b>. Fog, gales, frozen lakes and mud season change what can go where.</li><li>Levels 2 to 8 each open something new: <b>VIPs</b>, <b>events</b>, <b>goods</b> to trade, the rest of <b>New England</b>, crew, a rival, standing runs. Aunt Bev shows you each one when it arrives.</li></ul>' +
+    (!about && UI.badSave ? '<div class="note" style="margin-top:10px"><b>Your saved game could not be read.</b> It has not been thrown away: a copy is kept in this browser, and starting a new game will not touch it. <button class="btn sm plain" data-act="badSave" style="margin-top:6px">SAVE THE COPY TO A FILE</button></div>' : '') +
     '<div class="acts">' + (about ? '<button class="btn go" data-act="closeModal">BACK TO WORK</button><button class="btn plain" data-act="tutRestart">REPLAY TUTORIAL</button>' : (hasSave ? '<button class="btn go" data-act="continue">CONTINUE</button><button class="btn plain" data-act="askNew">NEW GAME</button>' : '<button class="btn go" data-act="chooseStart">START \u25b8</button>')) + '</div>' +
     '<p class="sub" style="margin-top:14px">It keeps running while it is closed or behind another window, so check back in. Nothing to buy. Saves in this browser.</p>';
   $('modal').classList.add('show');
@@ -3129,7 +3139,7 @@ function computeReach() {
 function selectCraft(id, center) {
   UI.selCraftId = id; refreshSel(); const c = UI.selCraft; if (!c) return; tutMark('pick');
   if (c.state === 'landed') collect(c);            // opening a LANDED craft collects its fare
-  UI.toTop = true; UI.stops = []; UI.filter = null; UI.fexp = false; UI.showFar = false; UI.flash = null; UI.selPort = c.at || null; UI.sheet = 'craft'; UI.screen = 'sheet'; VIEW.follow = null;
+  UI.toTop = true; hideBanner(); UI.stops = []; UI.filter = null; UI.fexp = false; UI.showFar = false; UI.flash = null; UI.selPort = c.at || null; UI.sheet = 'craft'; UI.screen = 'sheet'; VIEW.follow = null;
   if (UI.stab !== 'jobs') UI.stab = 'jobs';
   if (center) { if (c.state === 'move' || c.state === 'fish') centerOn(c.x, c.y); else centerOn(PORT_BY[c.at].x, PORT_BY[c.at].y); }
   computeReach(); forcePanel(); sfx.click();
@@ -3137,10 +3147,10 @@ function selectCraft(id, center) {
 function selectPort(pid, noAuto) {
   const st = G.ports[pid], here = craftsAt(pid).filter(c => c.state === 'dock' || c.state === 'landed');
   if (!noAuto && st.open && here.length) { const best = here.find(c => c.state === 'landed') || here.find(c => !c.jobs.length) || here[0]; selectCraft(best.id, false); return; }
-  UI.toTop = true; UI.selCraftId = null; UI.selCraft = null; UI.selPort = pid; UI.stops = []; UI.filter = null; UI.sheet = 'port'; UI.screen = 'sheet'; UI.stab = st.open ? (noAuto ? 'port' : 'jobs') : 'port'; VIEW.follow = null;
+  UI.toTop = true; hideBanner(); UI.selCraftId = null; UI.selCraft = null; UI.selPort = pid; UI.stops = []; UI.filter = null; UI.sheet = 'port'; UI.screen = 'sheet'; UI.stab = st.open ? (noAuto ? 'port' : 'jobs') : 'port'; VIEW.follow = null;
   computeReach(); forcePanel(); sfx.click();
 }
-function openMenu(kind) { UI.toTop = true; UI.selCraftId = null; UI.selCraft = null; UI.selPort = null; UI.stops = []; UI.sheet = kind; UI.screen = 'sheet'; computeReach(); forcePanel(); sfx.click(); }
+function openMenu(kind) { UI.toTop = true; hideBanner(); UI.selCraftId = null; UI.selCraft = null; UI.selPort = null; UI.stops = []; UI.sheet = kind; UI.screen = 'sheet'; computeReach(); forcePanel(); sfx.click(); }
 function deselect() { UI.screen = 'map'; UI.sheet = null; UI.selCraftId = null; UI.selCraft = null; UI.selPort = null; UI.stops = []; UI.flash = null; UI.filter = null; computeReach(); forcePanel(); }
 // FLY pressed on the port screen: go to the map and pick where
 function startRouting(pick) {
@@ -3760,6 +3770,7 @@ function act(a, arg, el) {
     case 'acceptK': err = acceptContract(+arg); if (!err) sfx.pay(); break;
     case 'dropK': { const k = G.active.find(x => x.id === +arg); if (k) dropContract(k, false); } break;
     case 'sound': G.sound = !G.sound; sfx.click(); break;
+    case 'badSave': try { const raw = STORE.getItem(UI.badSave) || '', a3 = document.createElement('a'); a3.href = URL.createObjectURL(new Blob([raw], { type: 'application/json' })); a3.download = 'pocket-maine-unreadable-save.json'; document.body.appendChild(a3); a3.click(); a3.remove(); setTimeout(() => URL.revokeObjectURL(a3.href), 4000); toast('Copy written. Look in your downloads.', 'good'); } catch (x) { toast('This browser would not write a file.', 'bad'); } break;
     case 'saveFile': try { const a2 = document.createElement('a'); a2.href = URL.createObjectURL(new Blob([exportSave()], { type: 'text/plain' })); a2.download = 'pocket-maine-save.txt'; document.body.appendChild(a2); a2.click(); a2.remove(); setTimeout(() => URL.revokeObjectURL(a2.href), 4000); toast('Save file written. Look in your downloads.', 'good'); } catch (x) { toast('This browser would not write a file. Use MAKE A CODE.', 'bad'); } break;
     case 'loadFile': { const inp = document.createElement('input'); inp.type = 'file'; inp.accept = '.txt,text/plain'; inp.onchange = () => { const f = inp.files && inp.files[0]; if (!f) return; const rd = new FileReader();
         rd.onload = () => { const bad = importSave(String(rd.result || '')); if (bad) toast(bad, 'bad'); else { UI.selCraftId = null; deselect(); startView(); computeReach(); toast('Save file loaded.', 'good'); } }; rd.readAsText(f); }; inp.click(); break; }
@@ -3877,7 +3888,7 @@ function advance() {
 }
 function frameBody(now) {
   advance();
-  if (UI.started && !UI.greeted && G.tutDone) { UI.greeted = 1; const hd = holidayGreet(); if (hd) banner(hd.name, 'Holiday jobs pay 25% more this week.'); }
+  if (UI.started && !UI.greeted && G.tutDone && UI.screen === 'map' && !$('modal').classList.contains('show')) { UI.greeted = 1; const hd = holidayGreet(); if (hd) banner(hd.name, 'Holiday jobs pay 25% more this week.'); }
   refreshSel();
   const c = UI.selCraft; if (UI.screen === 'route' && (!c || c.state !== 'dock')) deselect();
   if ((UI.screen === 'route') !== !!UI.reach) computeReach();
@@ -3887,7 +3898,7 @@ function frameBody(now) {
 function boot() {
   buildArt(); initWorld();
   VIEW.canvas = $('map'); layout();
-  UI.hasSave = loadGame(STORE); if (!UI.hasSave) newGame('casco'); startView();
+  UI.hasSave = loadGame(STORE); if (!UI.hasSave) { UI.badSave = keepUnreadable(STORE); newGame('casco'); } startView();
   UI.shownMoney = G.money; SIM.events = []; $('coinic').src = ICON_URL.coin; $('mi1').src = ICON_URL.paper; $('mi2').src = ICON_URL.fish_lobster; $('mi3').src = ICON_URL.books; $('mi4').src = ICON_URL.ui_wrench;
   initInput(); showTitle(false); if (G.news[0]) showNews(G.news[0]);
   // "save" action and autosave share the same store
@@ -3897,7 +3908,7 @@ function boot() {
   setInterval(doSave, 15000); document.addEventListener('visibilitychange', doSave); window.addEventListener('pagehide', doSave);
   requestAnimationFrame(frame);
   // installed from the site, the game keeps a copy of itself so it opens with no connection
-  try { if ('serviceWorker' in navigator && location.protocol === 'https:' && /github\.io$/.test(location.hostname)) navigator.serviceWorker.register('sw.js').catch(() => {}); } catch (e) {}
+  try { if ('serviceWorker' in navigator && ((location.protocol === 'https:' && /github\.io$/.test(location.hostname)) || location.hostname === 'localhost')) navigator.serviceWorker.register('sw.js').catch(() => {}); } catch (e) {}
 }
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();
 

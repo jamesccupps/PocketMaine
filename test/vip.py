@@ -34,3 +34,4 @@ with sync_playwright() as p:
     ev("()=>{ saveGame(STORE); }"); pg.reload(); pg.wait_for_timeout(900); tap('#mbox [data-act=continue]'); pg.wait_for_timeout(600)
     expect(ev("()=>G.stats.vips")==1 and ev("()=>!!G.ev") and not errs, 'save and reload keeps it all, no errors')
     print('errs',errs); print('PROBLEMS:',len(probs)); b.close()
+sys.exit(1 if probs else 0)

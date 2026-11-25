@@ -97,3 +97,4 @@ with sync_playwright() as p:
     print('== levels %dx%d %s done'%(W,H,start)); b.close()
 print('\nPROBLEMS: %d'%len(problems))
 for q in problems: print('  '+q[:300])
+sys.exit(1 if problems else 0)

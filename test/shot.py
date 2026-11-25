@@ -14,3 +14,4 @@ with sync_playwright() as p:
     exec(open('test/steps_'+script+'.py').read())
     print('console issues:', len(errs)); [print('  ',e[:300]) for e in errs[:12]]
     b.close()
+if errs: sys.exit(1)

@@ -26,6 +26,7 @@ const sfx = {
   big: () => [523, 659, 784, 1047].forEach((f, i) => tone(f, 0.13, 'square', 0.035, i * 0.1)), horn: () => tone(98, 0.7, 'sawtooth', 0.03, 0, 92), splash: () => tone(900, 0.12, 'triangle', 0.04, 0, 300)
 };
 function toast(msg, kind) { const box = $('toasts'); while (box.children.length >= 3) box.firstChild.remove(); const d = document.createElement('div'); d.className = 'toast ' + (kind || ''); d.textContent = msg; $('toasts').appendChild(d); setTimeout(() => d.remove(), 2600); if (kind === 'bad') sfx.err(); }
+function hideBanner() { const b = $('banner'); if (b) b.classList.remove('show'); }
 function banner(big, small) { if (UI.screen !== 'map') { toast(big + '. ' + small, 'good'); return; } const b = $('banner'); b.innerHTML = '<b>' + esc(big) + '</b><span>' + esc(small) + '</span>'; b.classList.remove('show'); void b.offsetWidth; b.classList.add('show'); }
 function refreshSel() { UI.selCraft = UI.selCraftId ? (G.crafts.find(c => c.id === UI.selCraftId) || null) : null; if (!UI.selCraft) UI.selCraftId = null; }
 function craftStatus(c) { const T = CRAFT_BY[c.type];
@@ -94,6 +95,7 @@ function showTitle(about) {
   $('mbox').innerHTML = '<h1>POCKET MAINE<small>AIR AND SEA \u00b7 A MAINE TRANSPORT COMPANY</small></h1><div class="titlefleet">' + fleet + '</div>' +
     '<p>You run a small, scrappy outfit moving people and freight by bush plane, floatplane, ferry and lobster boat. It starts on the Maine coast and grows across New England. Islands that need their groceries. Sports headed upta camp. Potatoes, wreaths, and more lobster than you can lift.</p>' +
     '<ul><li>Open a craft, hit <b>LOAD</b> on the jobs you want, then <b>FLY</b> (or <b>CAST OFF</b> for a boat) and pick where on the map.</li><li>Trips take a few minutes of real time. When a craft shows <b>ARRIVED</b>, open it to <b>collect</b> the fare and earn XP.</li><li>Fill a craft with jobs for <b>one destination</b> for a 25% bonus. Job boards refresh every four minutes.</li><li><b>Level up</b> to unlock bigger craft. Buy <b>fleet slots</b> and <b>new ports</b> as you earn.</li><li>Towns with a <b>hangar</b> or <b>boatyard</b> sell parts: three parts build a craft for less than a new one. Spare craft wait in <b>storage</b>.</li><li>Boats can skip the jobs and <b>go fishing</b>. Fog, gales, frozen lakes and mud season change what can go where.</li><li>Levels 2 to 8 each open something new: <b>VIPs</b>, <b>events</b>, <b>goods</b> to trade, the rest of <b>New England</b>, crew, a rival, standing runs. Aunt Bev shows you each one when it arrives.</li></ul>' +
+    (!about && UI.badSave ? '<div class="note" style="margin-top:10px"><b>Your saved game could not be read.</b> It has not been thrown away: a copy is kept in this browser, and starting a new game will not touch it. <button class="btn sm plain" data-act="badSave" style="margin-top:6px">SAVE THE COPY TO A FILE</button></div>' : '') +
     '<div class="acts">' + (about ? '<button class="btn go" data-act="closeModal">BACK TO WORK</button><button class="btn plain" data-act="tutRestart">REPLAY TUTORIAL</button>' : (hasSave ? '<button class="btn go" data-act="continue">CONTINUE</button><button class="btn plain" data-act="askNew">NEW GAME</button>' : '<button class="btn go" data-act="chooseStart">START \u25b8</button>')) + '</div>' +
     '<p class="sub" style="margin-top:14px">It keeps running while it is closed or behind another window, so check back in. Nothing to buy. Saves in this browser.</p>';
   $('modal').classList.add('show');
@@ -142,7 +144,7 @@ function computeReach() {
 function selectCraft(id, center) {
   UI.selCraftId = id; refreshSel(); const c = UI.selCraft; if (!c) return; tutMark('pick');
   if (c.state === 'landed') collect(c);            // opening a LANDED craft collects its fare
-  UI.toTop = true; UI.stops = []; UI.filter = null; UI.fexp = false; UI.showFar = false; UI.flash = null; UI.selPort = c.at || null; UI.sheet = 'craft'; UI.screen = 'sheet'; VIEW.follow = null;
+  UI.toTop = true; hideBanner(); UI.stops = []; UI.filter = null; UI.fexp = false; UI.showFar = false; UI.flash = null; UI.selPort = c.at || null; UI.sheet = 'craft'; UI.screen = 'sheet'; VIEW.follow = null;
   if (UI.stab !== 'jobs') UI.stab = 'jobs';
   if (center) { if (c.state === 'move' || c.state === 'fish') centerOn(c.x, c.y); else centerOn(PORT_BY[c.at].x, PORT_BY[c.at].y); }
   computeReach(); forcePanel(); sfx.click();
@@ -150,10 +152,10 @@ function selectCraft(id, center) {
 function selectPort(pid, noAuto) {
   const st = G.ports[pid], here = craftsAt(pid).filter(c => c.state === 'dock' || c.state === 'landed');
   if (!noAuto && st.open && here.length) { const best = here.find(c => c.state === 'landed') || here.find(c => !c.jobs.length) || here[0]; selectCraft(best.id, false); return; }
-  UI.toTop = true; UI.selCraftId = null; UI.selCraft = null; UI.selPort = pid; UI.stops = []; UI.filter = null; UI.sheet = 'port'; UI.screen = 'sheet'; UI.stab = st.open ? (noAuto ? 'port' : 'jobs') : 'port'; VIEW.follow = null;
+  UI.toTop = true; hideBanner(); UI.selCraftId = null; UI.selCraft = null; UI.selPort = pid; UI.stops = []; UI.filter = null; UI.sheet = 'port'; UI.screen = 'sheet'; UI.stab = st.open ? (noAuto ? 'port' : 'jobs') : 'port'; VIEW.follow = null;
   computeReach(); forcePanel(); sfx.click();
 }
-function openMenu(kind) { UI.toTop = true; UI.selCraftId = null; UI.selCraft = null; UI.selPort = null; UI.stops = []; UI.sheet = kind; UI.screen = 'sheet'; computeReach(); forcePanel(); sfx.click(); }
+function openMenu(kind) { UI.toTop = true; hideBanner(); UI.selCraftId = null; UI.selCraft = null; UI.selPort = null; UI.stops = []; UI.sheet = kind; UI.screen = 'sheet'; computeReach(); forcePanel(); sfx.click(); }
 function deselect() { UI.screen = 'map'; UI.sheet = null; UI.selCraftId = null; UI.selCraft = null; UI.selPort = null; UI.stops = []; UI.flash = null; UI.filter = null; computeReach(); forcePanel(); }
 // FLY pressed on the port screen: go to the map and pick where
 function startRouting(pick) {
@@ -773,6 +775,7 @@ function act(a, arg, el) {
     case 'acceptK': err = acceptContract(+arg); if (!err) sfx.pay(); break;
     case 'dropK': { const k = G.active.find(x => x.id === +arg); if (k) dropContract(k, false); } break;
     case 'sound': G.sound = !G.sound; sfx.click(); break;
+    case 'badSave': try { const raw = STORE.getItem(UI.badSave) || '', a3 = document.createElement('a'); a3.href = URL.createObjectURL(new Blob([raw], { type: 'application/json' })); a3.download = 'pocket-maine-unreadable-save.json'; document.body.appendChild(a3); a3.click(); a3.remove(); setTimeout(() => URL.revokeObjectURL(a3.href), 4000); toast('Copy written. Look in your downloads.', 'good'); } catch (x) { toast('This browser would not write a file.', 'bad'); } break;
     case 'saveFile': try { const a2 = document.createElement('a'); a2.href = URL.createObjectURL(new Blob([exportSave()], { type: 'text/plain' })); a2.download = 'pocket-maine-save.txt'; document.body.appendChild(a2); a2.click(); a2.remove(); setTimeout(() => URL.revokeObjectURL(a2.href), 4000); toast('Save file written. Look in your downloads.', 'good'); } catch (x) { toast('This browser would not write a file. Use MAKE A CODE.', 'bad'); } break;
     case 'loadFile': { const inp = document.createElement('input'); inp.type = 'file'; inp.accept = '.txt,text/plain'; inp.onchange = () => { const f = inp.files && inp.files[0]; if (!f) return; const rd = new FileReader();
         rd.onload = () => { const bad = importSave(String(rd.result || '')); if (bad) toast(bad, 'bad'); else { UI.selCraftId = null; deselect(); startView(); computeReach(); toast('Save file loaded.', 'good'); } }; rd.readAsText(f); }; inp.click(); break; }

@@ -49,3 +49,4 @@ with sync_playwright() as p:
     expect(st!='move' and ev("()=>G.money") in (m0-cost, m0), 'the second tap pays it and the craft is in (the fare it then collects is what the hurry cost)')
     if st=='dock': expect(ev("()=>G.xp+G.level*1e9")==x0, 'and a hurried trip earns no XP')
     print('PROBLEMS:',len(probs)); b.close()
+sys.exit(1 if probs else 0)

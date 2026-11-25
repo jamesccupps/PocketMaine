@@ -8,7 +8,7 @@ A cozy pixel-art transport game that starts in Maine and grows to cover New Engl
 
 In Chrome, choose Install or Add to Home screen and it becomes an app: its own icon, full screen, and it opens with no connection once it has been loaded once.
 
-The whole game is one self-contained `index.html`. It runs in any modern browser, on a phone or a desktop, with nothing to install. It saves in the browser, and keeps running while it is closed or behind another window.
+The whole game is one self-contained `index.html`. It runs in any modern browser, on a phone or a desktop, with nothing to install. It saves in the browser, and keeps running while it is closed or behind another window. A save this version cannot read is kept, not overwritten, and the title screen says so.
 
 ## Screenshots
 
@@ -69,7 +69,7 @@ What is done, what is not, and what could come next is in the [roadmap](ROADMAP.
 - **Real time, no energy.** Trips take real minutes, and the game keeps going while it is closed or hidden, capped at twelve hours. There are no energy timers, no premium currency and nothing to buy.
 - **Waiting is the game.** HURRY brings a craft in at once, and costs the fare it is carrying, so it is for getting a craft back, not for getting paid sooner. A hurried trip earns no XP, and the first tap only says what it will cost.
 - **Boats are paid half again.** Pay goes by distance and a boat covers it at a quarter of a plane's speed, so every load a boat delivers pays 50% more. The board shows the boat's price when a boat is open.
-- **Nothing punishes being away.** Port requests do not run down and the rival stays home while the game is closed. A long absence is played out behind a short CATCHING UP note.
+- **Nothing punishes being away.** Port requests and signed contracts do not run down, and the rival stays home, while the game is closed. VIPs and urgent jobs on the boards still come and go; missing one costs nothing but the chance. A long absence is played out behind a short CATCHING UP note.
 - **One job, one slot.** Every passenger or parcel takes one seat or one cargo slot, and jobs arrive in same-destination groups, so a bigger craft is still quick to fill. Standing runs take over the repetitive routes late in the game.
 - **You choose where to go.** Nothing picks a destination for you. The ports your load is bound for flash on the map.
 - **People and cargo look different.** On every job row a blue tab with a seat on it is a passenger and a brown tab with a crate on it is cargo, the same two colours as the seats and cargo slots on the craft card. People are listed first, and each destination's heading counts both.
@@ -124,6 +124,7 @@ python3 test/vip.py 386x630x3                  # VIPs, holidays and events by ta
 python3 test/depth.py 386x630x3                # goods, a request, a fit, a three-stop run, the rival switch, people and cargo marks, HURRY by taps
 node test/pace.js 8 casco 8                    # a simulated player for eight hours: levels, money, ports and fleet over time
 python3 test/away.py 386x630x3                 # hides the page mid-trip, then closes and reopens it: a real wait, two hours, twenty hours
+python3 test/offline.py                        # serves the game on localhost, cuts the network, and reloads it from the service worker's copy
 python3 test/shot.py 1440 900 stress           # 3,000 random steps through every system
 python3 test/docs.py                           # retakes the screenshots in docs/ and the link preview picture
 ```

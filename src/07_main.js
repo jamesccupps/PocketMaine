@@ -30,7 +30,7 @@ function advance() {
 }
 function frameBody(now) {
   advance();
-  if (UI.started && !UI.greeted && G.tutDone) { UI.greeted = 1; const hd = holidayGreet(); if (hd) banner(hd.name, 'Holiday jobs pay 25% more this week.'); }
+  if (UI.started && !UI.greeted && G.tutDone && UI.screen === 'map' && !$('modal').classList.contains('show')) { UI.greeted = 1; const hd = holidayGreet(); if (hd) banner(hd.name, 'Holiday jobs pay 25% more this week.'); }
   refreshSel();
   const c = UI.selCraft; if (UI.screen === 'route' && (!c || c.state !== 'dock')) deselect();
   if ((UI.screen === 'route') !== !!UI.reach) computeReach();
@@ -40,7 +40,7 @@ function frameBody(now) {
 function boot() {
   buildArt(); initWorld();
   VIEW.canvas = $('map'); layout();
-  UI.hasSave = loadGame(STORE); if (!UI.hasSave) newGame('casco'); startView();
+  UI.hasSave = loadGame(STORE); if (!UI.hasSave) { UI.badSave = keepUnreadable(STORE); newGame('casco'); } startView();
   UI.shownMoney = G.money; SIM.events = []; $('coinic').src = ICON_URL.coin; $('mi1').src = ICON_URL.paper; $('mi2').src = ICON_URL.fish_lobster; $('mi3').src = ICON_URL.books; $('mi4').src = ICON_URL.ui_wrench;
   initInput(); showTitle(false); if (G.news[0]) showNews(G.news[0]);
   // "save" action and autosave share the same store
@@ -50,6 +50,6 @@ function boot() {
   setInterval(doSave, 15000); document.addEventListener('visibilitychange', doSave); window.addEventListener('pagehide', doSave);
   requestAnimationFrame(frame);
   // installed from the site, the game keeps a copy of itself so it opens with no connection
-  try { if ('serviceWorker' in navigator && location.protocol === 'https:' && /github\.io$/.test(location.hostname)) navigator.serviceWorker.register('sw.js').catch(() => {}); } catch (e) {}
+  try { if ('serviceWorker' in navigator && ((location.protocol === 'https:' && /github\.io$/.test(location.hostname)) || location.hostname === 'localhost')) navigator.serviceWorker.register('sw.js').catch(() => {}); } catch (e) {}
 }
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();

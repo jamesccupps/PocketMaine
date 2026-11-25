@@ -3,7 +3,7 @@
 import sys, os, json
 from playwright.sync_api import sync_playwright
 W,H,D=[int(v) for v in (sys.argv[1] if len(sys.argv)>1 else '386x630x3').split('x')]; touch=W<800; probs=[]; KEY='finestkind.save.v2'
-REAL=int(sys.argv[2]) if len(sys.argv)>2 else 40
+REAL=int(sys.argv[2]) if len(sys.argv)>2 else 20
 with sync_playwright() as p:
     b=p.chromium.launch(executable_path=os.environ.get('CHROME','/usr/bin/google-chrome'), args=['--no-sandbox'])
     ctx=b.new_context(viewport={'width':W,'height':H}, device_scale_factor=D, has_touch=touch, is_mobile=touch); errs=[]
@@ -52,3 +52,4 @@ with sync_playwright() as p:
     print('catching up 12 hours: the note showed %s, longest gap between frames %.0f ms over %d frames'%(away.last['seen'],away.last['worst'],away.last['frames']))
     expect(away.last['seen'] and away.last['left']==0 and away.last['worst']<250, 'twelve hours is caught up without freezing the page')
     expect(not errs, 'no errors: '+str(errs[:2])); print('PROBLEMS:',len(probs)); b.close()
+sys.exit(1 if probs else 0)
