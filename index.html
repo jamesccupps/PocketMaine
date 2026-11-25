@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Pocket Maine - Air and Sea</title>
 <meta name="description" content="A cozy pixel-art transport tycoon in the browser. Fly bush planes, run ferries and lobster boats, and open 54 ports from Maine across New England. Free.">
 <meta name="author" content="James Cupps">
@@ -68,7 +68,7 @@
 
 :root{--navy:#14273d;--navy2:#1f3550;--navy3:#2b4666;--deep:#0b1726;--cream:#fff3d6;--paper:#f6e9c8;--paper2:#eadbb2;--paper3:#d9c796;--ink:#1b2533;--red:#c8402f;--redd:#8f2a22;--green:#3f8f3a;--greend:#2a5f30;--yellow:#ffd23f;--yellowd:#c99a1c;--blue:#3f7fc8;--blued:#1f3f78;--sky:#8fd8ee;--gray:#8a8f98;--orange:#f07a18}
 *{box-sizing:border-box}
-html,body{margin:0;height:100%;background:var(--navy);color:var(--ink);font-family:'VT323',ui-monospace,'Cascadia Mono',Consolas,Menlo,monospace;font-size:22px;line-height:1;overflow:hidden;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
+html,body{touch-action:manipulation;margin:0;height:100%;background:var(--navy);color:var(--ink);font-family:'VT323',ui-monospace,'Cascadia Mono',Consolas,Menlo,monospace;font-size:22px;line-height:1;overflow:hidden;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
 img,canvas{image-rendering:pixelated}
 button{font-family:inherit;font-size:inherit;color:inherit;cursor:pointer}
 b,strong{font-weight:400}
@@ -310,7 +310,7 @@ details summary{cursor:pointer;list-style:none}details summary::-webkit-details-
  #date small,#daybar{display:none}#date{font-size:10px}.hbtn{height:38px;min-width:34px;font-size:11px;padding:0 6px}.hbtn.big{padding:0 8px;font-size:10px}
  #sheetwrap{padding:0}#sheet{border-width:0;box-shadow:none}
  #banner b{font-size:30px}#splash b{font-size:44px}#mbox h1{font-size:32px}#mbox{padding:14px 16px;font-size:20px}#ticker b{display:none}
- .mbtn{width:58px}.mbtn span{font-size:8px}.mbtn img{width:24px;height:24px}.fc{min-width:150px;height:54px}#dock{min-height:74px;padding:6px}
+ .mbtn{width:70px}.mbtn span{font-size:10px}.mbtn img{width:24px;height:24px}.fc{min-width:150px;height:54px}#dock{min-height:74px;padding:6px}
  .jtx b{font-size:21px}.jrow .btn{min-width:64px;padding:9px 8px}.jpay{font-size:15px;min-width:50px}.btn.big{font-size:17px;padding:11px 16px}
  .startc .sf{flex-basis:90px}.titlefleet img:nth-child(n+5){display:none}#routebar{flex-wrap:wrap;gap:6px}.stab{font-size:11px;padding:8px 9px 7px}
 }
@@ -373,11 +373,11 @@ details summary{cursor:pointer;list-style:none}details summary::-webkit-details-
  #sheetwrap{position:fixed;left:0;right:0;top:48px;bottom:0;padding:0;z-index:20}
  #sheet,#sheet.single{width:100%;border:0;box-shadow:none}
  #shead{min-height:44px;padding:5px 6px;gap:8px}#shead h2{font-size:15px}#shead .sub2{font-size:18px}.hp{display:none}
- #shead .btn{padding:9px 11px}#shead .reft{font-size:8px}#shead .reft b{font-size:14px}
+ #shead .btn{padding:9px 11px}#shead .reft{font-size:10px}#shead .reft b{font-size:14px}
  #scenebox{height:92px;aspect-ratio:auto;max-height:none;flex:none;border-bottom-width:3px}
  #lbody{padding:6px 6px 0}.craftbar{display:none}.cyc{display:block;padding:8px 10px}
  .holdbar{padding:6px 8px;box-shadow:none}.holdbar .hh{margin-bottom:6px;gap:8px}.holdbar .hh b{font-size:13px}.holdbar .hh span{font-size:18px}
- .slots{gap:5px}.slot{width:44px;height:50px}.slot img{width:32px;height:32px;margin-top:2px}.slot span{font-size:8px;bottom:2px}
+ .slots{gap:5px}.slot{width:44px;height:50px}.slot img{width:32px;height:32px;margin-top:2px}.slot span{font-size:10px;bottom:2px}
  .holdbar .bn{font-size:18px;margin-top:5px}.holdbar .bn.hint{display:none}
  #lbody .bev{display:none}.ft-bev{display:block}#sheet.tut .ft-def{display:none}
  .income{margin:0 0 6px;padding:6px 8px;gap:8px}.income img{width:24px;height:24px}.income b{font-size:13px}
@@ -410,7 +410,7 @@ details summary{cursor:pointer;list-style:none}details summary::-webkit-details-
 }
 @media (max-width:700px){
  #scenebox{height:92px}
- .jr{flex-direction:column;align-items:stretch;gap:3px}.jpay{text-align:center;font-size:13px}.jpay small{display:inline;margin-left:4px;font-size:9px}
+ .jr{flex-direction:column;align-items:stretch;gap:3px}.jpay{text-align:center;font-size:13px}.jpay small{display:inline;margin-left:4px;font-size:10px}
  .jrow .btn{min-width:66px;padding:8px 6px}
  .jtx b{font-size:19px}.jtx>span{font-size:17px}
  .fchip{padding:5px 6px}
@@ -420,7 +420,7 @@ details summary{cursor:pointer;list-style:none}details summary::-webkit-details-
 
 .holdbar .hh span.hp{display:inline;margin:0}
 /* big craft: smaller slots so the hold never crowds out the job list */
-.slots.mini{gap:4px}.slots.mini .slot{width:40px;height:46px;border-width:2px}.slots.mini .slot img{width:30px;height:30px;margin-top:2px}.slots.mini .slot span{font-size:8px;bottom:1px}
+.slots.mini{gap:4px}.slots.mini .slot{width:40px;height:46px;border-width:2px}.slots.mini .slot img{width:30px;height:30px;margin-top:2px}.slots.mini .slot span{font-size:10px;bottom:1px}
 @media (max-width:700px){
  .holdbar .hh span.hp{display:none}
  .slots.mini{gap:3px}.slots.mini .slot{width:28px;height:28px}.slots.mini .slot img{width:24px;height:24px;margin-top:0}.slots.mini .slot span{display:none}
@@ -452,11 +452,11 @@ details summary{cursor:pointer;list-style:none}details summary::-webkit-details-
 .pps{display:inline-flex;gap:3px;vertical-align:middle;margin-right:4px}
 .pp{position:relative;width:24px;height:24px;border:2px solid var(--ink);background:var(--yellow);display:inline-flex;align-items:center;justify-content:center}
 .pp img{width:16px;height:16px;image-rendering:pixelated}.pp.miss{background:var(--paper2);border-style:dashed}.pp.miss img{opacity:.22}
-.pp b{position:absolute;right:0;top:0;background:var(--blue);color:#fff;font-family:'Silkscreen',monospace;font-size:8px;padding:0 2px;line-height:9px}
+.pp b{position:absolute;right:0;top:0;background:var(--blue);color:#fff;font-family:'Silkscreen',monospace;font-size:10px;padding:0 2px;line-height:9px}
 .bcol{display:flex;flex-direction:column;gap:4px;align-items:stretch;text-align:center}
 .item .ic{image-rendering:pixelated}
 .mbtn .n{z-index:2}
-@media (max-width:700px){ .pp{width:21px;height:21px}.pp img{width:14px;height:14px} .mbtn img{display:none} .mbtn span{font-size:9px} #menu{gap:4px} }
+@media (max-width:700px){ .pp{width:21px;height:21px}.pp img{width:14px;height:14px} .mbtn img{display:none} .mbtn span{font-size:10px} #menu{gap:4px} }
 
 /* ===== v9: a cleaner look. Fewer words, bigger type, one idea per row. ===== */
 h3{font-size:13px}.tag{font-size:11px}.item .tx b{font-size:14px}
@@ -491,7 +491,7 @@ h3{font-size:13px}.tag{font-size:11px}.item .tx b{font-size:14px}
  h3{font-size:12px;margin:12px 0 7px}.sub{font-size:20px}
  .dh b{font-size:13px}.dh .dd{font-size:20px}.dh .btn.sm{padding:7px 8px;font-size:10px}
  .dg{margin-bottom:10px}.dg .jrow{min-height:46px;padding:4px 6px;gap:8px}
- .jr{flex-direction:row;align-items:center;gap:8px}.jpay{font-size:15px;text-align:right}.jpay small{display:block;margin:0;font-size:9px}
+ .jr{flex-direction:row;align-items:center;gap:8px}.jpay{font-size:15px;text-align:right}.jpay small{display:block;margin:0;font-size:10px}
  .jtx b{font-size:20px;line-height:1.02}.jtx>span{font-size:18px}
  .jrow .btn{min-width:64px;padding:11px 6px;font-size:12px}
  .item{padding:8px}.item .tx b{font-size:13px}.item .tx small{font-size:20px}
@@ -515,12 +515,12 @@ h3{font-size:13px}.tag{font-size:11px}.item .tx b{font-size:14px}
 #coachbub p{margin:0}
 .cbrow{display:flex;align-items:center;gap:10px;margin-top:8px}
 #coachbub button{pointer-events:auto}
-.cskip{margin-left:auto;background:none;border:0;font-family:'Silkscreen',monospace;font-size:9px;color:#7a6f55;text-decoration:underline;padding:8px 2px;cursor:pointer}
+.cskip{margin-left:auto;background:none;border:0;font-family:'Silkscreen',monospace;font-size:10px;color:#7a6f55;text-decoration:underline;padding:8px 2px;cursor:pointer}
 #coachbub .tip{position:absolute;width:0;height:0;border:12px solid transparent}
 #coachbub .tip.dn{bottom:-26px;border-top-color:var(--ink)}#coachbub .tip.up{top:-26px;border-bottom-color:var(--ink)}#coachbub .tip.off{display:none}
 @media (max-width:700px){ #coachbub{font-size:21px;padding:8px 10px;gap:8px;width:min(330px,calc(100vw - 12px))}#coachbub img{width:40px;height:40px;flex-basis:40px} }
 .cbh{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:2px}#coachbub .cbh b{margin:0}
-.cskip{margin:0;padding:6px 2px 6px 10px;font-size:9px}
+.cskip{margin:0;padding:6px 2px 6px 10px;font-size:10px}
 
 /* ===== v12: things that unlock with levels ===== */
 .card.unl{margin:8px 0;padding:8px 10px}.card.unl b{font-size:12px;color:var(--greend)}.card.unl .sub{margin-top:4px}.card.unl .fnd{color:var(--blued,#2a5d9a)}
@@ -563,7 +563,7 @@ h3{font-size:13px}.tag{font-size:11px}.item .tx b{font-size:14px}
 .holdbar.v2 .cap img{width:18px;height:18px;image-rendering:pixelated;flex:0 0 auto;filter:brightness(2.2)}
 .holdbar.v2 .cap b{font-family:'Silkscreen',monospace;font-size:16px;line-height:1;color:#fff;white-space:nowrap}
 .holdbar.v2 .cap b small{font-size:11px;color:#cfe3f4}
-.holdbar.v2 .cap i{display:none;font-style:normal;font-family:'Silkscreen',monospace;font-size:8px;color:#cfe3f4}
+.holdbar.v2 .cap i{display:none;font-style:normal;font-family:'Silkscreen',monospace;font-size:10px;color:#cfe3f4}
 .holdbar.v2 .cap.full{background:#3f8f3a;border-color:#1f5a22}
 .holdbar.v2 .cbot{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:6px}
 .holdbar.v2 .cbot .clr{flex:0 0 auto}
@@ -573,7 +573,7 @@ h3{font-size:13px}.tag{font-size:11px}.item .tx b{font-size:14px}
 .holdbar.v2 .slots .slot.full{background:#fffaf0}
 .holdbar.v2 .slots .slot img{width:32px;height:32px;margin-top:2px}
 .holdbar.v2 .slots .slot.empty img{opacity:.55;filter:brightness(1.8)}
-.holdbar.v2 .slots .slot span{display:block;position:absolute;left:0;right:0;bottom:2px;font-size:9px;text-align:center}
+.holdbar.v2 .slots .slot span{display:block;position:absolute;left:0;right:0;bottom:2px;font-size:10px;text-align:center}
 .holdbar.v2 .slots.mini .slot{width:auto;min-width:0;height:36px;flex-direction:row;align-items:center;justify-content:center;gap:5px;padding:0 7px}
 .holdbar.v2 .slots.mini .slot img{width:24px;height:24px;margin:0}
 .holdbar.v2 .slots.mini .slot span{display:inline;position:static;font-size:11px}
@@ -608,10 +608,10 @@ h3{font-size:13px}.tag{font-size:11px}.item .tx b{font-size:14px}
 .fc .pp.c{background:#e0cba6}
 .fc .pp.p.on{background:#2f6fc0}
 .fc .pp.c.on{background:#8a5a34}
-.fc .pt{font-family:'Silkscreen',monospace;font-style:normal;font-size:8px;line-height:8px;color:var(--ink);white-space:nowrap}
+.fc .pt{font-family:'Silkscreen',monospace;font-style:normal;font-size:10px;line-height:8px;color:var(--ink);white-space:nowrap}
 /* Very small phones (320 wide, or under 600 tall): the menu words fit, and a small craft's card drops its counters,
    because two or three slots already show the whole load. */
-@media (max-width:340px){ .mbtn span{font-size:9px;letter-spacing:-.3px} }
+@media (max-width:340px){ .mbtn span{font-size:10px;letter-spacing:-1px} #menu{gap:2px} }
 @media (max-height:600px),(max-width:340px){
  .holdbar.v2{padding:5px 6px}
  .holdbar.v2.sm .caps{display:none}
@@ -626,12 +626,21 @@ h3{font-size:13px}.tag{font-size:11px}.item .tx b{font-size:14px}
  .holdbar.v2 .cinfo>b{flex:0 0 100%}
  .holdbar.v2 .cinfo>.slots{flex:0 0 auto}
  .holdbar.v2 .cap{padding:2px 7px}.holdbar.v2 .cap img{width:20px;height:20px}.holdbar.v2 .cap b{font-size:17px}
- .holdbar.v2 .slots .slot{width:46px;height:52px}.holdbar.v2 .slots .slot img{width:32px;height:32px;margin-top:2px}.holdbar.v2 .slots .slot span{font-size:9px;bottom:2px}
+ .holdbar.v2 .slots .slot{width:46px;height:52px}.holdbar.v2 .slots .slot img{width:32px;height:32px;margin-top:2px}.holdbar.v2 .slots .slot span{font-size:10px;bottom:2px}
  .holdbar.v2 .slots.mini .slot{height:36px}
  .holdbar.v2 .cbot{margin-top:5px}
  .holdbar.v2 .bn{font-size:16px;margin-top:4px}
 }
 @media (min-width:960px) and (max-height:760px){#scenebox{height:140px;flex-basis:140px}}
+
+/* catching up after a long time away: a note over everything, so nothing is tapped while the game is being played forward */
+#catchup{position:fixed;inset:0;z-index:60;display:none;align-items:center;justify-content:center;background:rgba(15,24,42,.55)}
+#catchup.on{display:flex}
+#catchup .cubox{width:min(320px,calc(100vw - 32px));background:#fffaf0;border:4px solid var(--ink);box-shadow:5px 5px 0 rgba(0,0,0,.4);padding:12px 14px;color:var(--ink)}
+#catchup b{display:block;font-family:'Silkscreen',monospace;font-size:13px;color:var(--redd);margin-bottom:4px}
+#catchup span{display:block;font-size:21px;line-height:1.05;margin-bottom:8px}
+#catchup .bar{height:12px;border:3px solid var(--ink);background:#e9dcbd}#catchup .bar i{display:block;height:100%;width:0;background:var(--green)}
+@media (max-width:340px){ #landbtn{padding-left:3px;padding-right:3px;letter-spacing:-.5px} #sbody .item .tx{min-width:0;overflow-wrap:anywhere} }
 
 </style>
 </head>
@@ -644,16 +653,17 @@ h3{font-size:13px}.tag{font-size:11px}.item .tx b{font-size:14px}
     <div class="hudbox" id="datebox" data-tip="Real time: a day is five minutes, a season is seven days. The clock keeps running while the game is closed."><img id="seasonic" alt=""><div><div id="date"></div><div id="daybar"><i id="dayfill"></i></div></div></div>
     <div class="spacer"></div>
     <button class="hbtn big" id="landbtn" data-act="nextIdle" data-tip="Jump to the next craft that needs you (Tab)">0 ARRIVED</button>
-    <button class="hbtn" id="sndbtn" data-act="sound" data-tip="Sound on/off">&#9835;</button>
-    <button class="hbtn" data-act="help" data-tip="About the game">?</button>
+    <button class="hbtn" id="sndbtn" data-act="sound" data-tip="Sound on/off" aria-label="Sound on or off">&#9835;</button>
+    <button class="hbtn" data-act="help" data-tip="About the game" aria-label="About the game">?</button>
   </header>
   <div id="stage">
     <div id="mapwrap">
-      <canvas id="map"></canvas>
-      <div id="zoom"><button class="hbtn" data-act="zin" data-tip="Zoom in">+</button><button class="hbtn" data-act="zout" data-tip="Zoom out">&minus;</button><button class="hbtn" data-act="zhome" data-tip="Whole state">ME</button></div>
+      <canvas id="map" role="img" aria-label="Map of your ports and craft"></canvas>
+      <div id="zoom"><button class="hbtn" data-act="zin" data-tip="Zoom in" aria-label="Zoom in">+</button><button class="hbtn" data-act="zout" data-tip="Zoom out" aria-label="Zoom out">&minus;</button><button class="hbtn" data-act="zhome" data-tip="Back to your home waters" aria-label="Back to your home waters">ME</button></div>
       <div id="bevmap"></div>
       <div id="banner"></div>
-      <div id="toasts"></div>
+      <div id="toasts" role="status" aria-live="polite"></div>
+      <div id="catchup" role="status" aria-live="polite"><div class="cubox"><b>CATCHING UP</b><span id="catchtxt"></span><div class="bar"><i id="catchbar"></i></div></div></div>
     </div>
     <div id="sheetwrap">
       <div id="sheet">
@@ -676,11 +686,11 @@ h3{font-size:13px}.tag{font-size:11px}.item .tx b{font-size:14px}
       <button class="mbtn" data-act="menu" data-arg="almanac" data-tip="Season, weather, how to play, the books"><img id="mi3" alt=""><span>ALMANAC</span></button>
     </div>
   </div>
-  <footer id="ticker"><b>THE DOORYARD DISPATCH</b><img id="tface" alt=""><span id="tmsg"><span id="tmi"></span></span></footer>
+  <footer id="ticker"><b>THE DOORYARD DISPATCH</b><img id="tface" alt=""><span id="tmsg" aria-live="off"><span id="tmi"></span></span></footer>
 </div>
 <div id="tip"></div>
-<div id="coach"><div id="coachring"></div><div id="coachbub"></div></div>
-<div id="modal"><div id="mbox"></div></div>
+<div id="coach" role="status" aria-live="polite"><div id="coachring"></div><div id="coachbub"></div></div>
+<div id="modal" role="dialog" aria-modal="true" aria-label="Pocket Maine"><div id="mbox"></div></div>
 <script>
 'use strict';
 /* =====================================================================
@@ -1410,7 +1420,37 @@ function loadGame(store) {
     g.crafts = g.crafts.filter(c => CRAFT_BY[c.type]); g.wx = g.wx || []; g.parts = g.parts || {}; g.stored = (g.stored || []).filter(c => CRAFT_BY[c.type]); g.hall = g.hall || []; g.traps = g.traps || {}; g.log = g.log || {}; if (g.ev === undefined) g.ev = null;
     // a save from the Maine-only map: everything with a position moves over by the width the map grew to the west
     if (!g.geo) { const dx = (GEO_OLD_LONMIN - GEO.lonMin) * KM_LON; g.crafts.forEach(c => { if (typeof c.x === 'number') c.x += dx; if (c.route && c.route.pts) c.route.pts = c.route.pts.map(q => [q[0] + dx, q[1]]); }); g.wx.forEach(w => { if (typeof w.x === 'number') w.x += dx; }); g.geo = 2; }
-    G = g; SIM.dirty = true; return true; } catch (e) { return false; }
+    sanitizeSave(g); G = g; SIM.dirty = true; return true; } catch (e) { return false; }
+}
+// A save is data from outside: a code somebody pasted, or storage that something else wrote to. Its numbers, ids and kinds end up
+// in the page (a price, a button's argument, a class name), so each is forced to the type it should be, and anything that points
+// at a port, craft or good that does not exist is dropped. Text is cut to length here and escaped where it is shown.
+function sanitizeSave(g) {
+  const num = (v, d) => (typeof v === 'number' && isFinite(v)) ? v : d, int = (v, d) => Math.round(num(v, d)), str = (v, n) => String(v == null ? '' : v).slice(0, n), word = (v, n) => str(v, n).replace(/[^A-Za-z0-9_]/g, ''), obj = v => v && typeof v === 'object' && !Array.isArray(v), arr = v => Array.isArray(v) ? v : [];
+  g.money = num(g.money, 0); g.xp = Math.max(0, num(g.xp, 0)); g.level = clamp(int(g.level, 1), 1, 99); g.t = Math.max(0, num(g.t, 0)); g.slots = clamp(int(g.slots, 4), 1, 80); g.nextId = Math.max(1, int(g.nextId, 1)); g.wall = num(g.wall, Date.now()); g.start = word(g.start, 16);
+  const job = j => { if (!obj(j) || !PORT_BY[j.to] || (j.kind !== 'p' && j.kind !== 'c')) return false; j.pay = Math.max(0, int(j.pay, 0)); j.label = str(j.label, 80); j.ic = word(j.ic, 24); j.id = int(j.id, g.nextId++); if (j.from && !PORT_BY[j.from]) j.from = j.to;
+    if (j.n !== undefined) j.n = clamp(int(j.n, 1), 1, 80); ['exp', 'rv', 'hops', 'kid'].forEach(k => { if (j[k] !== undefined) j[k] = num(j[k], 0); }); ['vip', 'pref', 'via'].forEach(k => { if (j[k] !== undefined && typeof j[k] !== 'number' && typeof j[k] !== 'boolean') j[k] = word(j[k], 16); }); return true; };
+  const jobs = a => arr(a).filter(job);
+  if (!obj(g.ports)) g.ports = {};
+  Object.keys(g.ports).forEach(k => { const st = g.ports[k]; if (!PORT_BY[k] || !obj(st)) { delete g.ports[k]; return; } st.open = !!st.open; st.xp = Math.max(0, num(st.xp, 0)); st.lvl = clamp(int(st.lvl, 1), 1, PORT_MAX_LVL); st.jobs = jobs(st.jobs); st.lay = jobs(st.lay); st.next = num(st.next, 0); if (st.favor !== undefined) st.favor = clamp(int(st.favor, 0), 0, 99); });
+  PORTS.forEach(p => { if (!g.ports[p.id]) g.ports[p.id] = { open: p.cost === 0, xp: 0, lvl: 1, jobs: [], lay: [], next: 2 }; });
+  const home = (PORTS.find(p => g.ports[p.id].open) || PORTS[0]).id;
+  const craft = c => { c.name = str(c.name, 24) || 'Craft'; c.upg = obj(c.upg) ? c.upg : {}; if (c.cond !== undefined) c.cond = clamp(num(c.cond, 100), 0, 100); if (c.liv !== undefined) c.liv = clamp(int(c.liv, 0), 0, 99); if (c.fit !== undefined) c.fit = word(c.fit, 12);
+    if (obj(c.crew)) { c.crew.name = str(c.crew.name, 24); c.crew.perk = word(c.crew.perk, 12); c.crew.trips = Math.max(0, int(c.crew.trips, 0)); } else c.crew = null; };
+  g.crafts = arr(g.crafts).filter(c => obj(c) && CRAFT_BY[c.type]); g.crafts.forEach(c => { craft(c); c.id = int(c.id, g.nextId++); c.jobs = jobs(c.jobs); c.state = word(c.state, 8) || 'dock';
+    c.goods = arr(c.goods).filter(q => obj(q) && GOOD_BY[q.g]); c.goods.forEach(q => { q.n = clamp(int(q.n, 1), 1, 200); q.cost = Math.max(0, num(q.cost, 0)); if (!PORT_BY[q.from]) delete q.from; }); if (!c.goods.length) delete c.goods;
+    if (c.at != null && !PORT_BY[c.at]) c.at = null; if ((c.state === 'dock' || c.state === 'landed' || c.state === 'hold') && !c.at) { c.at = home; c.state = 'dock'; c.plan = null; c.route = null; }
+    if (c.state === 'move' && !(obj(c.route) && Array.isArray(c.route.pts) && c.route.pts.length > 1)) { c.at = PORT_BY[c.from] ? c.from : home; c.state = 'dock'; c.plan = null; c.route = null; } });
+  g.stored = arr(g.stored).filter(c => obj(c) && CRAFT_BY[c.type]); g.stored.forEach(craft);
+  g.news = arr(g.news).slice(0, 40).filter(obj).map(n => ({ t: num(n.t, 0), msg: str(n.msg, 300), kind: str(n.kind, 8).replace(/[^a-z]/g, '') }));
+  if (!obj(g.parts)) g.parts = {}; Object.keys(g.parts).forEach(k => { const m = /^([a-z0-9]+):([0-2])$/.exec(k); if (!m || !CRAFT_BY[m[1]]) delete g.parts[k]; else g.parts[k] = clamp(int(g.parts[k], 0), 0, 99); });
+  ['offers', 'active'].forEach(key => { g[key] = arr(g[key]).filter(k => obj(k) && PORT_BY[k.from] && PORT_BY[k.to]); g[key].forEach(k => { k.id = int(k.id, g.nextId++); ['rate', 'total', 'bonus', 'loaded', 'delivered'].forEach(f => { if (k[f] !== undefined) k[f] = Math.max(0, int(k[f], 0)); }); k.title = str(k.title, 60); k.what = str(k.what, 60); k.ic = word(k.ic, 24); if (k.k !== 'p') k.k = 'c'; }); });
+  g.reqs = arr(g.reqs).filter(r => obj(r) && PORT_BY[r.pid] && GOOD_BY[r.g]); g.reqs.forEach(r => { r.id = int(r.id, g.nextId++); r.n = clamp(int(r.n, 1), 1, 99); r.got = clamp(int(r.got, 0), 0, 99); r.until = num(r.until, g.t); });
+  g.hall = arr(g.hall).filter(obj); g.hall.forEach(h => { h.id = int(h.id, g.nextId++); h.name = str(h.name, 24); h.perk = word(h.perk, 12); h.cost = Math.max(0, int(h.cost, 0)); });
+  if (!obj(g.stats)) g.stats = {}; Object.keys(g.stats).forEach(k => { g.stats[k] = num(g.stats[k], 0); });
+  ['earned', 'delivered', 'trips', 'fishUnits', 'fishMoney', 'fuel', 'contracts', 'tips'].forEach(k => { if (g.stats[k] === undefined) g.stats[k] = 0; });
+  if (!obj(g.tut)) g.tut = {}; if (g.les !== undefined && !obj(g.les)) g.les = {}; if (!obj(g.glut)) g.glut = {}; if (g.gg !== undefined && !obj(g.gg)) g.gg = {};
+  return g;
 }
 
 /* ---------- helpers ---------- */
@@ -1420,6 +1460,10 @@ function addXp(pid, n) { const before = standingLevel(pid); G.ports[pid].xp = Ma
   if (after > before) news(PORT_BY[pid].name + ' now considers you "' + STANDING[after].name + '." More work, better pay.', 'good'); }
 function cstat(c) { const T = CRAFT_BY[c.type], u = c.upg, f = FITS[c.fit] || {}; let cargo = Math.round(T.cargo * ((u.pod || u.deck) ? 1.5 : 1)); if (f.cargoX) cargo = Math.max(cargo + 1, Math.round(cargo * f.cargoX)); if (f.cargo) cargo = Math.max(0, cargo + f.cargo);
   return { T, pax: T.pax, cargo, speed: T.speed * SPEED_SCALE * ((u.engine || u.diesel) ? 1.2 : 1) * condSpeed(c) * (crewHas(c, 'quick') ? 1.1 : 1) * (f.speed || 1), hold: T.hold || 0, range: Math.round(T.range * (f.range || 1)), fuel: T.fuel * (f.fuel || 1) }; }
+// A boat is paid half again for every load. Pay goes by distance and a boat covers it at a quarter of a plane's speed,
+// so without this a ferry earned what a bush plane a tenth its price did. Excursion boats are paid their own way.
+const SEA_FARE = 1.5;
+function fareMult(c) { const T = CRAFT_BY[c.type]; return T.cls === 'boat' && !T.tour ? SEA_FARE : 1; }
 const slotsOf = j => j.n || 1;      // a lot or a group is one job that takes several slots
 function loadOf(c) { let p = 0, k = 0; c.jobs.forEach(j => { if (j.kind === 'p') p += slotsOf(j); else k += slotsOf(j); }); (c.goods || []).forEach(q => { k += q.n; }); return { pax: p, cargo: k }; }
 function craftsAt(pid) { return G.crafts.filter(c => c.at === pid); }
@@ -1437,7 +1481,8 @@ function gainXp(n) { G.xp += n; while (G.xp >= xpNeed(G.level)) { G.xp -= xpNeed
 function slotCost() { return Math.round(400 * Math.pow(1.55, G.slots - 4) / 50) * 50; }
 function buySlot() { const c = slotCost(); if (G.money < c) return 'Can\'t afford it yet.'; G.money -= c; G.slots++; emit('buy', {}); return null; }
 function portsOwned() { let n = 0; PORTS.forEach(p => { if (G.ports[p.id].open) n++; }); return n; }
-function portCost(pid) { return Math.round(PORT_BY[pid].cost * (1 + 0.1 * Math.max(0, portsOwned() - 3)) / 50) * 50; }
+const PORT_STEP = 0.04;      // each port you own makes the next one this much dearer
+function portCost(pid) { return Math.round(PORT_BY[pid].cost * (1 + PORT_STEP * Math.max(0, portsOwned() - 3)) / 50) * 50; }
 // can this craft type put down at this port?  null = yes, else the reason
 function landWhy(T, upg, port, s) {
   if (T.cls === 'boat') return port.water !== 'sea' ? 'no harbor' : (T.deep && !has(port, 'deep')) ? 'needs a deep-water berth' : null;
@@ -1467,7 +1512,7 @@ function spawnWeather() {
     news(pick(['Fog bank making up off ', 'Thick o\' fog rolling in at ', 'Pea soup expected around ']) + nearestPortName(c.x, c.y) + '.', 'wx'); return; }
   if (r < [0.4, 0.55, 0.3, 0.12][s] + [0.2, 0.28, 0.34, 0.3][s]) {
     if (s === SUMMER) { const c = { type: 'storm', x: A.x - rnd(60, 150), y: A.y + rnd(-70, 70), r: rnd(30, 44), vx: rnd(0.11, 0.18), vy: rnd(-0.02, 0.05), t0: G.t, life: rnd(300, 450) }; G.wx.push(c); news('Thunderheads building near ' + nearestPortName(c.x, c.y) + '. Light planes will sit this one out.', 'wx'); }
-    else { const c = { type: 'storm', x: A.x - rnd(10, 70), y: A.y + rnd(90, 150), r: rnd(60, 88), vx: rnd(0.11, 0.16), vy: rnd(-0.1, -0.06), t0: G.t, life: rnd(380, 560) }; G.wx.push(c); news(s === WINTER ? 'Nor\'easter working up the coast. Small boats and light planes stay put.' : 'Gale warning, Casco Bay to Eastport. Small craft stay put.', 'wx'); }
+    else { const c = { type: 'storm', x: A.x - rnd(10, 70), y: A.y + rnd(90, 150), r: rnd(60, 88), vx: rnd(0.11, 0.16), vy: rnd(-0.1, -0.06), t0: G.t, life: rnd(380, 560) }; G.wx.push(c); news(s === WINTER ? 'Nor\'easter working up the coast toward ' + nearestPortName(c.x, c.y - 60) + '. Small boats and light planes stay put.' : 'Gale warning off ' + nearestPortName(c.x, c.y - 60) + '. Small craft stay put.', 'wx'); }
     return; }
   if (s === WINTER && r < 0.75) { const c = { type: 'snow', x: A.x - rnd(90, 190), y: A.y + rnd(-90, 60), r: rnd(55, 85), vx: rnd(0.07, 0.13), vy: rnd(-0.012, 0.035), t0: G.t, life: rnd(330, 520) }; G.wx.push(c); news('Snow squalls moving across ' + nearestPortName(c.x + 60, c.y) + ' way. Light planes are grounded in it.', 'wx'); }
 }
@@ -1569,7 +1614,7 @@ function legInfo(c, fromId, toId) {
 function routeInfo(c, stops) {
   let from = c.at, dist = 0, time = 0, fuel = 0, wx = null; const legs = [];
   for (let i = 0; i < stops.length; i++) { const li = legInfo(c, from, stops[i]); if (!li.ok) return { ok: false, why: li.why, at: i }; dist += li.dist; time += li.time; fuel += li.fuel; if (i === 0) wx = li.wx; legs.push(li); from = stops[i]; }
-  let income = 0; const bd = bonusDest(c); c.jobs.forEach(j => { if (stops.indexOf(j.to) >= 0) income += j.pay * (bd === j.to ? 1.25 : 1); });
+  let income = 0; const bd = bonusDest(c), fm = fareMult(c); c.jobs.forEach(j => { if (stops.indexOf(j.to) >= 0) income += j.pay * fm * (bd === j.to ? 1.25 : 1); });
   if (CRAFT_BY[c.type].tour) { const seen = {}; stops.forEach((sid, i) => { income += tourPay(c, sid, legs[i].dist, seen[sid]); seen[sid] = 1; }); }
   return { ok: stops.length > 0, dist, time, fuel, legs, wx, income: Math.round(income), bonus: bd && stops.indexOf(bd) >= 0 };
 }
@@ -1629,7 +1674,7 @@ function arrive(c) {
   // once catch & traps are unlocked a boat comes home with its catch still aboard: nothing to collect, you choose where to sell
   if (r.kind === 'fishBack' && feat('catch')) { c.state = 'dock'; c.plan = null; emit('fishIn', { c, pid, x: port.x, y: port.y }); return; }
   let pay = 0, units = 0, bonus = 0; const keep = [];
-  c.jobs.forEach(j => { if (j.to !== pid) { if (j.vip) j.hops = (j.hops || 0) + 1; keep.push(j); return; } const p = Math.round(j.pay * (j.bonus ? 1.25 : 1) * (j.kind === 'p' && crewHas(c, 'charm') ? 1.1 : 1) * crewFare(c)); pay += p; if (j.urgent) bonusXp(20, j.relief ? 'storm relief' : 'medical run'); if (j.vip && !vipDeliver(j, c, pid) && j.vip === 'tip') pay -= Math.round(p * 0.5); if (j.bonus) bonus += p - j.pay; units += slotsOf(j); addXp(pid, j.n ? 3 : 1); if (G.ports[j.from]) addXp(j.from, 0.5);
+  c.jobs.forEach(j => { if (j.to !== pid) { if (j.vip) j.hops = (j.hops || 0) + 1; keep.push(j); return; } const base = j.pay * fareMult(c), p = Math.round(base * (j.bonus ? 1.25 : 1) * (j.kind === 'p' && crewHas(c, 'charm') ? 1.1 : 1) * crewFare(c)); pay += p; if (j.urgent) bonusXp(20, j.relief ? 'storm relief' : 'medical run'); if (j.vip && !vipDeliver(j, c, pid) && j.vip === 'tip') pay -= Math.round(p * 0.5); if (j.bonus) bonus += p - Math.round(base); units += slotsOf(j); addXp(pid, j.n ? 3 : 1); if (G.ports[j.from]) addXp(j.from, 0.5);
     if (j.kid) { const k = G.active.find(x => x.id === j.kid); if (k) { k.loaded--; k.delivered++; if (k.delivered >= k.total) completeContract(k); } } });
   c.jobs = keep;
   // an excursion boat is paid at every stop of its loop; a harbor it has already shown them pays half
@@ -1649,12 +1694,23 @@ function arrive(c) {
 function collect(c, auto) {
   if (c.state !== 'landed') return null; const pd = c.pend || { pay: 0, units: 0, bonus: 0, fish: '', fishPay: 0, stops: 1 }, port = PORT_BY[c.at];
   if (auto && c.run) { pd.pay = Math.round(pd.pay * (1 - RUN_CUT)); c.run.earned += pd.pay; }
-  G.money += pd.pay; G.stats.earned += pd.pay; const xp = Math.round(pd.pay / 10); c.state = 'dock'; c.pend = null;
+  G.money += pd.pay; G.stats.earned += pd.pay; const xp = Math.round(Math.max(0, pd.pay - (c.hurried || 0)) / 10); c.hurried = 0; c.state = 'dock'; c.pend = null;
   c.last = { pay: pd.pay, units: pd.units, bonus: pd.bonus, fish: pd.fish, fuel: c.tripFuel || 0, xp, at: c.at }; c.tripFuel = 0;
   emit(auto ? 'runCollect' : 'collect', { c, pay: pd.pay, xp, bonus: pd.bonus, units: pd.units, fish: pd.fish, x: port.x, y: port.y }); gainXp(xp); if (!auto) tutMark('collect'); return c.last;
 }
-function hurryCost(c) { let rem = 0; if (c.state === 'move') rem = (c.route.len - c.route.pos) / cstat(c).speed; else if (c.state === 'fish') rem = c.fishDur - c.fishT; return Math.max(5, Math.ceil(rem * (0.18 + 0.05 * G.level) / 5) * 5); }
-function hurry(c) { if (c.state !== 'move' && c.state !== 'fish') return 'Nothing to hurry.'; const cost = hurryCost(c); if (G.money < cost) return 'Can\'t afford to hurry it.'; G.money -= cost; if (c.state === 'move') c.route.pos = c.route.len; else c.fishT = c.fishDur; return null; }
+// Hurrying a craft in costs what the wait is worth: the fare it is carrying to the stops still ahead (or the catch it is after),
+// and never less than a price for the time saved. It used to be priced on time alone, a hundred dollars or so against a load worth
+// thousands, so every trip could be skipped at a profit and the whole game played in an hour. XP is earned on what is left of the fare.
+const HURRY_SHARE = 1;
+function hurryFare(c) { const T = CRAFT_BY[c.type], f = c.plan && c.plan.fish;
+  if (f) { if (f.mode === 'set') return 0; const units = c.fish ? c.fish.units : f.mode === 'haul' ? T.hold * trapFill(f.g) : T.hold * 0.6; return units * fishPrice(f.land, f.sp); }
+  if (!c.plan || !c.plan.stops) return 0; const ahead = c.plan.stops.slice(c.plan.i), fm = fareMult(c); let v = 0;
+  c.jobs.forEach(j => { if (ahead.indexOf(j.to) >= 0) v += j.pay * fm * (j.bonus ? 1.25 : 1); });
+  if (T.tour && c.route) v += tourPay(c, ahead[0], c.route.len, (c.plan.seen || {})[ahead[0]]);
+  return v; }
+function hurryCost(c) { let rem = 0; if (c.state === 'move') rem = (c.route.len - c.route.pos) / cstat(c).speed + (c.route.cust > 0 ? c.route.cust : 0); else if (c.state === 'fish') rem = c.fishDur - c.fishT;
+  const time = Math.max(5, Math.ceil(rem * (0.18 + 0.05 * G.level) / 5) * 5); return Math.max(time, Math.ceil(hurryFare(c) * HURRY_SHARE / 5) * 5); }
+function hurry(c) { if (c.state !== 'move' && c.state !== 'fish') return 'Nothing to hurry.'; const cost = hurryCost(c); if (G.money < cost) return 'Can\'t afford to hurry it.'; G.money -= cost; c.hurried = (c.hurried || 0) + cost; if (c.state === 'move') { c.route.pos = c.route.len; c.route.cust = 0; } else c.fishT = c.fishDur; return null; }
 function updateCraft(c, dt) {
   if (c.state === 'move') {
     const st = cstat(c), T = st.T, w = wxAt(c.x, c.y); let sp = st.speed;
@@ -1787,7 +1843,10 @@ function tick(dt) {
 }
 
 // time away: run the clock forward in coarse steps so flights land and boards refresh while the game was closed
-function fastForward(sec) { sec = Math.min(sec, OFFLINE_CAP); const before = G.crafts.filter(c => c.state === 'landed').length; for (let t = 0; t < sec; t += 2) tick(Math.min(2, sec - t)); SIM.events = []; SIM.dirty = true; return G.crafts.filter(c => c.state === 'landed').length - before; }
+// Catching up on time away. SIM.away is set while it runs: port requests do not run down and the rival stays home,
+// because nobody was there to answer either. awayTick is one slice of it, so the page can do a long catch-up a bit at a time.
+function awayTick(dt) { SIM.away = true; try { tick(dt); } finally { SIM.away = false; } }
+function fastForward(sec) { sec = Math.min(sec, OFFLINE_CAP); const before = G.crafts.filter(c => c.state === 'landed').length; for (let t = 0; t < sec; t += 2) awayTick(Math.min(2, sec - t)); SIM.events = []; SIM.dirty = true; return G.crafts.filter(c => c.state === 'landed').length - before; }
 
 /* ===== Things that unlock as you level: names & paint, events, wear, catch & traps, crew, port works, standing runs =====
    Levels come from XP, and XP now comes from more than fares: new ports, new craft, first landings, contracts, events.
@@ -1824,10 +1883,13 @@ function paintCraft(c, i) { if (!feat('names')) return 'Paint unlocks at level '
 
 /* ---------- wear & overhaul ---------- */
 const condOf = c => c.cond === undefined ? 100 : c.cond;
-function condSpeed(c) { const k = condOf(c); return k < 25 ? 0.75 : k < 50 ? 0.9 : 1; }
+// A worn craft is slow enough that an overhaul is worth buying: it used to lose a quarter of its speed at worst, against
+// an overhaul that cost an eighth of the craft, so the right answer for anything expensive was never to fix it.
+function condSpeed(c) { const k = condOf(c); return k < 25 ? 0.6 : k < 50 ? 0.85 : 1; }
 function wearCraft(c, dist) { if (!feat('wear')) return; let w = 2 + dist / 50; if (crewHas(c, 'mech')) w *= 0.5; c.cond = Math.max(0, condOf(c) - w);
   if (c.cond < 25 && !c.warned) { c.warned = 1; news('"' + c.name + '" is running rough. A ' + yardWord(CRAFT_BY[c.type]) + ' can overhaul it.', 'bad'); emit('worn', { c }); } }
-function overhaulCost(c) { return Math.max(10, Math.round((100 - condOf(c)) * CRAFT_BY[c.type].price * 0.0012 / 5) * 5); }
+const OVERHAUL_RATE = 0.0004;      // of the craft's price, for each point of condition put back: a full overhaul is 4%
+function overhaulCost(c) { return Math.max(10, Math.round((100 - condOf(c)) * CRAFT_BY[c.type].price * OVERHAUL_RATE / 5) * 5); }
 function sparePart(t) { let best = -1, n = 0; [0, 1, 2].forEach(s => { const k = G.parts[partKey(t, s)] || 0; if (k > n) { n = k; best = s; } }); return best; }
 function overhaul(c, usePart) { const T = CRAFT_BY[c.type]; if (c.state !== 'dock') return 'It has to be tied up.'; if (!hasYard(c.at, T)) return 'Overhauls are done at a ' + yardWord(T) + '.'; if (condOf(c) >= 100) return 'Nothing to fix.';
   if (usePart) { const s = sparePart(c.type); if (s < 0) return 'No spare part for it.'; const k = partKey(c.type, s); if (--G.parts[k] <= 0) delete G.parts[k]; }
@@ -1956,6 +2018,8 @@ function buildWork(pid, id) { if (!feat('works')) return 'Port works unlock at l
   news(WORKS[id].n + ' built at ' + PORT_BY[pid].name + '.', 'good'); bonusXp(15, 'port works'); emit('yard', {}); return null; }
 
 /* ---------- standing runs ---------- */
+// A run leaves when it is half full, or with whatever it has after RUN_PATIENCE seconds at the dock. It used to leave with one job.
+const RUN_FILL = 0.5, RUN_PATIENCE = 150;
 const RUN_CUT = 0.15;      // the regular crew keeps a share, so sending a craft yourself always pays a bit better
 function runMax() { return feat('runs') ? 1 + Math.floor((G.level - FEATURE_BY.runs.lvl) / 2) : 0; }
 function runCount() { return G.crafts.filter(c => c.run).length; }
@@ -1977,15 +2041,18 @@ function updateRuns(dt) { for (let n = 0; n < G.crafts.length; n++) { const c = 
     const next = s[(at + 1) % s.length], li = legInfo(c, c.at, next);
     if (!li.ok) { news('"' + c.name + '" stopped its standing run: ' + li.why + '.', 'bad'); c.run = null; emit('yard', {}); continue; }
     // the regular crew has a tired craft overhauled when the run brings it to a yard
-    if (condOf(c) < 30 && hasYard(c.at, CRAFT_BY[c.type]) && G.money >= overhaulCost(c)) { const cost = overhaulCost(c); if (!overhaul(c, false)) news('"' + c.name + '" was overhauled between runs for ' + money(cost) + '.', 'idle'); }
+    // ...but only out of what the run itself has cleared, so a run never spends more than it brings in
+    if (condOf(c) < 30 && hasYard(c.at, CRAFT_BY[c.type]) && G.money >= overhaulCost(c) && r.earned - (r.cost || 0) >= overhaulCost(c)) { const cost = overhaulCost(c); r.cost = (r.cost || 0) + cost; if (overhaul(c, false)) r.cost -= cost; else news('"' + c.name + '" was overhauled between runs for ' + money(cost) + '.', 'idle'); }
     r.wait = (r.wait || 0) + dt; if (r.wait < 4) continue;
     c.jobs.filter(j => j.via === c.at).forEach(j => { if (!unloadJob(c, j.id)) delete j.via; });       // left here for the other run
     const st = G.ports[c.at]; st.lay.concat(st.jobs).sort((a, b) => b.pay - a.pay).forEach(j => { if (roomFor(c, j.kind) < slotsOf(j)) return;
       if (j.to !== c.at && s.indexOf(j.to) >= 0) { loadJob(c, j.id); return; }
       if (j.lay) return; const hub = s.find(h => h !== c.at && runServes(c, h, j.to)); if (hub && !loadJob(c, j.id)) j.via = hub; });
-    const loaded = CRAFT_BY[c.type].tour || c.jobs.some(j => j.via || s.indexOf(j.to) >= 0);
+    const tour = !!CRAFT_BY[c.type].tour, some = c.jobs.some(j => j.via || s.indexOf(j.to) >= 0), cs = cstat(c), ld = loadOf(c), cap = cs.pax + cs.cargo;
+    const loaded = tour || (some && (!cap || (ld.pax + ld.cargo) / cap >= RUN_FILL || r.wait >= RUN_PATIENCE));
+    if (some && !loaded) continue;
     if (!loaded && !(r.wait > 45 && s.some(o => o !== c.at && G.ports[o].lay.concat(G.ports[o].jobs).some(j => j.to !== o && s.indexOf(j.to) >= 0)))) continue;
-    if (G.money < li.fuel) continue; r.wait = 0; r.trips++; dispatch(c, [next]); } }
+    if (G.money < li.fuel) continue; r.wait = 0; r.trips++; r.cost = (r.cost || 0) + li.fuel; dispatch(c, [next]); } }
 
 /* ---------- save codes: carry a game between a phone and a desktop ---------- */
 function exportSave() { G.wall = Date.now(); return btoa(unescape(encodeURIComponent(JSON.stringify(G)))); }
@@ -2117,8 +2184,11 @@ function holidayGreet() { const h = holidayNow(); if (!h) return null; const key
    look after, what to grab before somebody else does, and what one craft should be good at. */
 
 /* ---------- goods ---------- */
-// A port either makes a good, wants it, or neither. It is cheap where it is made and dearer the farther you carry it,
-// dearer still where it is wanted. Every unit you buy pushes the price up there; every unit you sell pushes it down.
+// A port either makes a good, wants it, or neither. A good is cheap where it is made and gains GOOD_KM dollars for every
+// kilometre you carry it from where you bought it, and a third more again where it is wanted. A port that makes it pays no more
+// than its own price. Every unit you buy pushes the price up there; every unit you sell pushes it down.
+// (It used to be priced by how far the nearest maker was, so a long haul toward another maker paid nothing, and the margin was a
+// fifth to a half of a job's pay on the same run. Now a full hold of goods is worth about half what jobs would be.)
 const GOODS = [
   { id: 'wares',   name: 'City wares',     base: 55, ic: 'crate',   from: p => has(p, 'city') && !has(p, 'customs'),          want: p => has(p, 'island') || has(p, 'remote') || has(p, 'camp') || has(p, 'woods') },
   { id: 'seafood', name: 'Packed seafood', base: 90, ic: 'cooler',  from: p => has(p, 'lobster') || has(p, 'scallop') || p.id === 'rkd',         want: p => has(p, 'city') || !p.water },
@@ -2134,24 +2204,31 @@ const goodMakes = (p, g) => !!g.from(p), goodWants = (p, g) => !g.from(p) && !!g
 const makerDist = {};
 function nearestMaker(pid, g) { const k = g.id + pid; if (makerDist[k] === undefined) { const p = PORT_BY[pid]; let d = 1e9; PORTS.forEach(q => { if (goodMakes(q, g)) d = Math.min(d, Math.hypot(q.x - p.x, q.y - p.y)); }); makerDist[k] = d; } return makerDist[k]; }
 function goodGlut(pid, gid) { return (G.gg || {})[pid + ':' + gid] || 0; }
-function bumpGlut(pid, gid, d) { const m = G.gg || (G.gg = {}), k = pid + ':' + gid; m[k] = clamp((m[k] || 0) + d, -0.3, 0.5); }
-// what a unit sells for at a port right now
-function goodPrice(pid, gid) { const g = GOOD_BY[gid], p = PORT_BY[pid], f = goodMakes(p, g) ? 1 : Math.min(3, 1 + nearestMaker(pid, g) / 220) * (goodWants(p, g) ? 1.35 : 1); return Math.max(5, Math.round(g.base * f * (1 - goodGlut(pid, gid)))); }
+function bumpGlut(pid, gid, d) { const m = G.gg || (G.gg = {}), k = pid + ':' + gid; m[k] = clamp((m[k] || 0) + d, -0.3, 0.45); }
+const GOOD_KM = 0.45, GOOD_FAR = 600, GOOD_WANT = 1.35;
+// what a unit sells for at a port right now. fromId is where it was bought; without it, the distance to the nearest port that makes it.
+function goodPrice(pid, gid, fromId) { const g = GOOD_BY[gid], p = PORT_BY[pid]; let v = g.base;
+  if (!goodMakes(p, g)) { const o = fromId && PORT_BY[fromId], far = o ? Math.hypot(o.x - p.x, o.y - p.y) : nearestMaker(pid, g); v = (g.base + GOOD_KM * Math.min(far, GOOD_FAR)) * (goodWants(p, g) ? GOOD_WANT : 1); }
+  return Math.max(5, Math.round(v * (1 - goodGlut(pid, gid)))); }
 function goodBuyPrice(pid, gid) { return Math.round(goodPrice(pid, gid) * 1.08); }
 function goodsFor(pid) { const p = PORT_BY[pid]; return GOODS.filter(g => goodMakes(p, g)); }
 function goodsCount(c) { let n = 0; (c.goods || []).forEach(q => { n += q.n; }); return n; }
-// the best price among your ports this craft could plausibly carry it to
-function bestMarket(c, gid) { const T = CRAFT_BY[c.type], here = PORT_BY[c.at], rng = cstat(c).range; let best = null; if (!here) return null;
-  PORTS.forEach(p => { if (p.id === c.at || !G.ports[p.id].open || landWhy(T, c.upg, p, season()) || Math.hypot(p.x - here.x, p.y - here.y) > rng) return; const pr = goodPrice(p.id, gid); if (!best || pr > best.price) best = { pid: p.id, name: p.name, price: pr }; }); return best; }
+// what the lots of one good aboard would bring here right now, each priced by where it came from
+function goodQuote(c, gid, pid) { let n = 0, rev = 0, cost = 0; (c.goods || []).forEach(q => { if (q.g !== gid) return; n += q.n; cost += q.cost; rev += q.n * goodPrice(pid, gid, q.from); }); return { n, cost, each: n ? Math.round(rev / n) : 0, paid: n ? Math.round(cost / n) : 0 }; }
+// the best price among your ports this craft could plausibly carry it to, bought here
+function bestMarket(c, gid, fromId) { const T = CRAFT_BY[c.type], here = PORT_BY[c.at], rng = cstat(c).range; let best = null; if (!here) return null;
+  PORTS.forEach(p => { if (p.id === c.at || !G.ports[p.id].open || landWhy(T, c.upg, p, season()) || Math.hypot(p.x - here.x, p.y - here.y) > rng) return; const pr = goodPrice(p.id, gid, fromId || c.at); if (!best || pr > best.price) best = { pid: p.id, name: p.name, price: pr }; }); return best; }
 function buyGood(c, gid, n) { if (!feat('trade')) return 'Trading unlocks at level ' + FEATURE_BY.trade.lvl + '.'; if (c.state !== 'dock') return 'Tie it up first.'; const g = GOOD_BY[gid]; if (!g || !goodMakes(PORT_BY[c.at], g)) return 'Nobody sells that here.';
   n = Math.min(n || 1, roomFor(c, 'c')); if (n <= 0) return 'No cargo room left.'; let spent = 0, got = 0;
-  for (let i = 0; i < n; i++) { const pr = goodBuyPrice(c.at, gid); if (G.money < pr) break; G.money -= pr; spent += pr; got++; bumpGlut(c.at, gid, -0.03); }
-  if (!got) return 'Can\'t afford it yet.'; const L = c.goods || (c.goods = []); let q = L.find(x => x.g === gid); if (!q) { q = { g: gid, n: 0, cost: 0 }; L.push(q); } q.n += got; q.cost += spent;
+  for (let i = 0; i < n; i++) { const pr = goodBuyPrice(c.at, gid); if (G.money < pr) break; G.money -= pr; spent += pr; got++; bumpGlut(c.at, gid, -0.02); }
+  if (!got) return 'Can\'t afford it yet.'; const L = c.goods || (c.goods = []); let q = L.find(x => x.g === gid && x.from === c.at); if (!q) { q = { g: gid, n: 0, cost: 0, from: c.at }; L.push(q); } q.n += got; q.cost += spent;
   emit('trade', { c, buy: true, g: gid, n: got, spent }); return null; }
-function sellGood(c, gid, n) { if (c.state !== 'dock') return 'Tie it up first.'; const L = c.goods || [], q = L.find(x => x.g === gid); if (!q) return 'None aboard.'; n = Math.min(n || q.n, q.n); const unit = q.cost / q.n, g = GOOD_BY[gid], port = PORT_BY[c.at], rq = reqFor(c.at, gid); let rev = 0, asked = 0;
-  for (let i = 0; i < n; i++) { let pr = goodPrice(c.at, gid); if (rq && rq.got < rq.n) { pr = Math.round(pr * 1.6); rq.got++; asked++; } rev += pr; bumpGlut(c.at, gid, 0.025); }
-  q.n -= n; q.cost -= unit * n; if (q.n <= 0) L.splice(L.indexOf(q), 1);
-  const profit = Math.round(rev - unit * n), xp = Math.max(0, Math.round(profit / 10)); G.money += rev; G.stats.earned += Math.max(0, profit); G.stats.trade = (G.stats.trade || 0) + profit; G.stats.goods = (G.stats.goods || 0) + n; addXp(c.at, n * 0.3);
+// sells every lot of that good aboard, or n units of it, the dearest-bought first
+function sellGood(c, gid, n) { if (c.state !== 'dock') return 'Tie it up first.'; const L = c.goods || [], lots = L.filter(x => x.g === gid); if (!lots.length) return 'None aboard.'; const have = lots.reduce((a, q) => a + q.n, 0); n = Math.min(n || have, have);
+  const g = GOOD_BY[gid], port = PORT_BY[c.at], rq = reqFor(c.at, gid); let rev = 0, asked = 0, cost = 0, left = n;
+  lots.forEach(q => { const k = Math.min(q.n, left), unit = q.cost / q.n; for (let i = 0; i < k; i++) { let pr = goodPrice(c.at, gid, q.from); if (rq && rq.got < rq.n) { pr = Math.round(pr * 1.6); rq.got++; asked++; } rev += pr; bumpGlut(c.at, gid, 0.02); }
+    q.n -= k; q.cost -= unit * k; cost += unit * k; left -= k; if (q.n <= 0) L.splice(L.indexOf(q), 1); });
+  const profit = Math.round(rev - cost), xp = Math.max(0, Math.round(profit / 10)); G.money += rev; G.stats.earned += Math.max(0, profit); G.stats.trade = (G.stats.trade || 0) + profit; G.stats.goods = (G.stats.goods || 0) + n; addXp(c.at, n * 0.3);
   emit('trade', { c, g: gid, n, rev, profit, xp, asked, x: port.x, y: port.y }); logFirst('good', gid, 10, 'first ' + g.name.toLowerCase() + ' sold'); if (xp) gainXp(xp); if (rq && rq.got >= rq.n) fillRequest(rq); return null; }
 
 /* ---------- requests: a port asks for something ---------- */
@@ -2165,14 +2242,16 @@ function spawnRequest() { const open = PORTS.filter(p => G.ports[p.id].open), op
   (G.reqs || (G.reqs = [])).push(rq); news(o[0].name + ' is asking for ' + rq.n + ' ' + o[1].name.toLowerCase() + '. It pays 60% over the going price, for three days.', 'good'); emit('request', { pid: rq.pid, g: rq.g, n: rq.n }); return rq; }
 function fillRequest(rq) { const i = G.reqs.indexOf(rq); if (i >= 0) G.reqs.splice(i, 1); const st = G.ports[rq.pid], P = PORT_BY[rq.pid]; st.favor = (st.favor || 0) + 1; addXp(rq.pid, 25); G.stats.reqs = (G.stats.reqs || 0) + 1; bonusXp(30, 'request filled');
   news(P.name + ' got what it asked for. ' + (st.favor <= 5 ? 'Fares out of there now pay ' + st.favor * 3 + '% more.' : 'They think the world of you there.'), 'good'); emit('requestDone', { pid: rq.pid, g: rq.g, favor: st.favor }); }
-function updateRequests() { const L = G.reqs || (G.reqs = []); for (let i = L.length - 1; i >= 0; i--) if (G.t >= L[i].until) { const rq = L[i]; L.splice(i, 1); addXp(rq.pid, -8); news(PORT_BY[rq.pid].name + ' went without its ' + GOOD_BY[rq.g].name.toLowerCase() + '.', 'bad'); emit('request', { pid: rq.pid, gone: true }); }
+function updateRequests(dt) { const L = G.reqs || (G.reqs = []); if (SIM.away) { L.forEach(r => { r.until += dt || 0; }); if (G.reqNext !== undefined) G.reqNext += dt || 0; return; }
+  for (let i = L.length - 1; i >= 0; i--) if (G.t >= L[i].until) { const rq = L[i]; L.splice(i, 1); addXp(rq.pid, -8); news(PORT_BY[rq.pid].name + ' went without its ' + GOOD_BY[rq.g].name.toLowerCase() + '.', 'bad'); emit('request', { pid: rq.pid, gone: true }); }
   if (!feat('trade')) return; if (G.reqNext === undefined) G.reqNext = G.t + 100; if (G.t >= G.reqNext) { G.reqNext = G.t + rnd(280, 460); if (L.length < 2) spawnRequest(); } }
 
 /* ---------- a rival ---------- */
 // Now and then the other outfit puts a claim on the best load at one of your ports. Load it within eighty seconds or it goes with them.
 // They leave ports alone where your standing is high, and the Almanac can switch them off.
 const RIVAL = 'Quoddy Air & Freight', RIVAL_WAIT = 80;
-function updateRival() {
+function updateRival(dt) {
+  if (SIM.away) { PORTS.forEach(p => { G.ports[p.id].jobs.forEach(j => { if (j.rv) j.rv += dt || 0; }); }); if (G.rivalNext !== undefined) G.rivalNext += dt || 0; return; }
   PORTS.forEach(p => { const st = G.ports[p.id]; if (!st.open) return; let n = 0, to = null; for (let i = st.jobs.length - 1; i >= 0; i--) { const j = st.jobs[i]; if (j.rv && G.t >= j.rv) { to = j.to; st.jobs.splice(i, 1); n++; } }
     if (n) { G.stats.lost = (G.stats.lost || 0) + n; news(RIVAL + ' took ' + n + (n === 1 ? ' job' : ' jobs') + ' out of ' + p.name + ' for ' + PORT_BY[to].name + '.', 'bad'); emit('rival', { pid: p.id, to, n, took: true }); SIM.dirty = true; } });
   if (!feat('rival') || G.rivalOff) return; if (G.rivalNext === undefined) G.rivalNext = G.t + 90; if (G.t < G.rivalNext) return; G.rivalNext = G.t + rnd(170, 280);
@@ -2201,7 +2280,7 @@ function crewRank(c) { const t = c.crew ? (c.crew.trips || 0) : 0; return t >= 6
 function crewFare(c) { return 1 + 0.04 * crewRank(c); }
 function crewTrip(c) { if (!c.crew) return; const r0 = crewRank(c); c.crew.trips = (c.crew.trips || 0) + 1; const r1 = crewRank(c); if (r1 > r0) { news(c.crew.name + ' on "' + c.name + '" is ' + (r1 === 2 ? 'an old hand' : 'seasoned') + ' now. Fares pay ' + r1 * 4 + '% more.', 'good'); emit('crewRank', { c, rank: r1 }); } }
 
-function updateDepth(dt) { const m = G.gg; if (m) { const k = Math.exp(-dt / 700); for (const id in m) { m[id] *= k; if (Math.abs(m[id]) < 0.004) delete m[id]; } } updateRequests(); updateRival(); }
+function updateDepth(dt) { const m = G.gg; if (m) { const k = Math.exp(-dt / 700); for (const id in m) { m[id] *= k; if (Math.abs(m[id]) < 0.004) delete m[id]; } } updateRequests(dt); updateRival(dt); }
 
 /* =====================================================================
    Section 4: ART  — every sprite is drawn here from text grids. No image files.
@@ -2960,7 +3039,7 @@ function htmlAlmanac() {
   h += '</div><h3>LOGBOOK</h3><div class="card" style="margin-top:0"><div class="sub">Ports served <b>' + portsOwned() + '</b> of ' + PORTS.length + ' \u00b7 craft types flown <b>' + logCount('types') + '</b> of ' + CRAFT.length + ' \u00b7 species landed <b>' + logCount('sp') + '</b> of ' + Object.keys(FISH).length + ' \u00b7 VIPs met <b>' + logCount('vip') + '</b> of ' + vipTotal() + '</div></div>';
   if (feat('vip')) h += '<div class="lst" style="margin-top:8px">' + CHAINS.map(ch => { const st = (G.chains || {})[ch.id] || { n: 0 }; return '<div class="item' + (st.n ? '' : ' dim') + '"><div class="tx"><b>' + esc(ch.label) + '</b><small>Wants to be taken to ' + esc(ch.goal) + '. Finishing the list earns the ' + esc(ch.paint[0]) + ' paint.</small></div><span class="tag' + (st.done ? ' green' : '') + '">' + (st.done ? 'DONE' : st.n + ' OF ' + ch.need) + '</span></div>'; }).join('') + '</div>';
   h += '<h3>SAVE CODE</h3><div class="sub">Copy this code to carry your game to another phone or computer, then paste it there and hit LOAD.</div><div class="row wrap" style="margin-top:8px"><button class="btn" data-act="showCode">MAKE A CODE</button><button class="btn plain" data-act="loadCode">LOAD A CODE</button><button class="btn plain" data-act="saveFile">SAVE TO A FILE</button><button class="btn plain" data-act="loadFile">LOAD A FILE</button></div><textarea id="codebox" class="code" spellcheck="false" placeholder="Paste a save code here"></textarea>';
-  h += '<h3>HOW IT WORKS</h3><button class="btn" data-act="tutRestart" style="margin-bottom:8px">REPLAY THE TUTORIAL</button><div class="sub"><p style="margin:4px 0"><b>The loop.</b> Open a craft to see its port. Every passenger and parcel is one slot: hit LOAD, then FLY (CAST OFF for a boat), pick the stops on the map, and hit it again. Fuel is paid when it leaves. When it shows ARRIVED, open it to collect the fare and the XP.</p><p style="margin:4px 0"><b>Time.</b> Real time, no pause. Hops take minutes; job boards refresh every four. The game keeps running while it is closed (up to twelve hours), so send everything out and check back.</p><p style="margin:4px 0"><b>Growing.</b> XP raises your level, which unlocks bigger craft. Fleet slots and ports cost coins, and each costs more than the last. Improve a port for a bigger job board.</p><p style="margin:4px 0"><b>Hangars and boatyards.</b> Some towns have one (the map marks them H and B). Each keeps a few parts on the shelf and restocks daily. Collect an airframe, engine and controls (hull, engine and wheelhouse for a boat) and build the craft there for about two thirds of the new price. Contracts and new levels pay out a free crate. A craft tied up empty at a yard can go into storage, which gives its fleet slot back; take it out again at any yard that suits it.</p><p style="margin:4px 0"><b>Full-load bonus.</b> Fill every slot with jobs for a single destination and that delivery pays 25% more.</p><p style="margin:4px 0"><b>Layovers.</b> Put a job ashore at an in-between port and it waits there for another craft.</p><p style="margin:4px 0"><b>Who lands where.</b> Wheels need a strip (bush planes take grass and gravel; bigger ones want pavement). Floats need water. Boats need a harbor and go around the land, not over it.</p><p style="margin:4px 0"><b>Seasons.</b> Seven days each. Winter freezes the lakes (fit skis). Spring mud closes rough strips (fit tundra tires). Demand, fish and prices move with the calendar.</p><p style="margin:4px 0"><b>Riding along.</b> Watch a craft under way and coins drift past in the picture; click them.</p><p style="margin:4px 0"><b>Keys.</b> Tab next craft that needs you \u00b7 Enter GO \u00b7 Esc back \u00b7 wheel or +/- zooms.</p></div>';
+  h += '<h3>HOW IT WORKS</h3><button class="btn" data-act="tutRestart" style="margin-bottom:8px">REPLAY THE TUTORIAL</button><div class="sub"><p style="margin:4px 0"><b>The loop.</b> Open a craft to see its port. Every passenger and parcel is one slot: hit LOAD, then FLY (CAST OFF for a boat), pick the stops on the map, and hit it again. Fuel is paid when it leaves. When it shows ARRIVED, open it to collect the fare and the XP.</p><p style="margin:4px 0"><b>Time.</b> Real time, no pause. Hops take minutes; job boards refresh every four. The game keeps running while it is closed or behind another window (up to twelve hours), so send everything out and check back. HURRY brings a craft in at once, and costs the fare it is carrying.</p><p style="margin:4px 0"><b>Growing.</b> XP raises your level, which unlocks bigger craft. Fleet slots and ports cost coins, and each costs more than the last. Improve a port for a bigger job board.</p><p style="margin:4px 0"><b>Hangars and boatyards.</b> Some towns have one (the map marks them H and B). Each keeps a few parts on the shelf and restocks daily. Collect an airframe, engine and controls (hull, engine and wheelhouse for a boat) and build the craft there for about two thirds of the new price. Contracts and new levels pay out a free crate. A craft tied up empty at a yard can go into storage, which gives its fleet slot back; take it out again at any yard that suits it.</p><p style="margin:4px 0"><b>Full-load bonus.</b> Fill every slot with jobs for a single destination and that delivery pays 25% more.</p><p style="margin:4px 0"><b>Boats.</b> A boat is slow, so every load it carries pays half again. With a boat open, the board shows the boat\'s price.</p><p style="margin:4px 0"><b>Layovers.</b> Put a job ashore at an in-between port and it waits there for another craft.</p><p style="margin:4px 0"><b>Who lands where.</b> Wheels need a strip (bush planes take grass and gravel; bigger ones want pavement). Floats need water. Boats need a harbor and go around the land, not over it.</p><p style="margin:4px 0"><b>Seasons.</b> Seven days each. Winter freezes the lakes (fit skis). Spring mud closes rough strips (fit tundra tires). Demand, fish and prices move with the calendar.</p><p style="margin:4px 0"><b>Riding along.</b> Watch a craft under way and coins drift past in the picture; click them.</p><p style="margin:4px 0"><b>Keys.</b> Tab next craft that needs you \u00b7 Enter GO \u00b7 Esc back \u00b7 wheel or +/- zooms.</p></div>';
   h += '<h3>THE DOORYARD DISPATCH</h3>' + G.news.slice(0, 14).map(n => '<div class="news ' + n.kind + '"><small>' + SEASON_NAMES[seasonOf(n.t)].slice(0, 3).toUpperCase() + ' ' + (dayOf(n.t) % SEASON_DAYS + 1) + '</small>' + esc(n.msg) + '</div>').join('');
   h += '<h3>GAME</h3><div class="row wrap"><button class="btn sm" data-act="save">SAVE NOW</button><button class="btn sm plain" data-act="sound">SOUND: ' + (G.sound ? 'ON' : 'OFF') + '</button>' + (feat('rival') ? '<button class="btn sm plain" data-act="rival">RIVAL: ' + (G.rivalOff ? 'OFF' : 'ON') + '</button>' : '') + '<button class="btn sm plain" data-act="holiday">HOLIDAYS: ' + (holidayPref() === 'auto' ? 'AUTO' : holidayPref() === 'off' ? 'OFF' : esc(HOLIDAY_BY[holidayPref()].name.toUpperCase()) + ' (PREVIEW)') + '</button><button class="btn sm plain" data-act="lesToggle">LESSONS: ' + (G.lesOff ? 'OFF' : 'ON') + '</button><button class="btn sm plain" data-act="help">ABOUT</button><button class="btn sm red" data-act="askNew">NEW GAME</button></div><div class="sub" style="margin-top:6px">Lessons: Aunt Bev shows each new thing once, when its level opens it. REPLAY THE TUTORIAL brings them all back.</div><div class="sub" style="margin-top:6px">Holidays follow the real calendar: decorations, holiday jobs and VIPs. Tap HOLIDAYS to switch them off or preview one.</div><div class="sub" style="margin-top:6px">Saves to this browser automatically.</div></div>';
   return h;
@@ -3161,7 +3240,15 @@ function lessonFor(id) {
 function lessonStep() {
   if (G.lesOff) return null; if (!G.les) G.les = {}; if (UI.lesWait && performance.now() < UI.lesWait) return null;
   // the lesson already on screen keeps the floor; otherwise the first one, in the order things unlock, that has something to point at
-  const ids = LESSON_ORDER.filter(id => !G.les[id] && feat(id)); if (UI.lesCur && ids.indexOf(UI.lesCur) > 0) { ids.splice(ids.indexOf(UI.lesCur), 1); ids.unshift(UI.lesCur); }
+  let ids = LESSON_ORDER.filter(id => !G.les[id] && feat(id)); if (UI.lesCur && ids.indexOf(UI.lesCur) > 0) { ids.splice(ids.indexOf(UI.lesCur), 1); ids.unshift(UI.lesCur); }
+  // A game that already has four or more things unlocked and untaught (a save from before the lessons, mostly) is asked once
+  // whether it wants them, instead of being handed a queue.
+  if (!G.lesAsked) { G.lesAsked = 1; if (ids.length >= 4) G.lesAsk = 1; }
+  if (G.lesAsk) { if (!ids.length) { G.lesAsk = 0; return null; }
+    return UI.screen === 'map' ? { id: 'les-offer', les: '*', head: 'CATCHING UP', text: 'Your levels have opened ' + ids.length + ' things I never showed you. Want the short lessons? They come one at a time, and each can be skipped.', next: 'SHOW ME' } : null; }
+  // A lesson starts on the map. Inside a port or a craft it only carries on if it is the one you were following,
+  // so opening a craft for your own reasons never brings up a lesson you did not ask for.
+  if (UI.screen !== 'map') { if (!UI.lesCur || ids[0] !== UI.lesCur) return null; ids = [UI.lesCur]; }
   for (let i = 0; i < ids.length; i++) { const st = lessonFor(ids[i]);
     if (!st) { if (ids[i] === UI.lesCur && UI.screen !== 'map') return null; continue; }      // mid-lesson and looking at something else: wait, do not start another
     UI.lesCur = ids[i]; st.id = 'les-' + ids[i] + '-' + st.n; st.les = ids[i];
@@ -3170,13 +3257,14 @@ function lessonStep() {
     return st; }
   return null;
 }
-function lesNext() { if (UI.lesCur) lessonDone(UI.lesCur); sfx.click(); }
-function lesSkip() { if (UI.lesCur) lessonDone(UI.lesCur); UI.lesWait = 0; }
+function lesNext() { if (G.lesAsk) { G.lesAsk = 0; UI.coachKey = ''; SIM.dirty = true; } else if (UI.lesCur) lessonDone(UI.lesCur); sfx.click(); }
+function lesSkip() { if (G.lesAsk) { G.lesAsk = 0; LESSON_ORDER.forEach(id => { if (feat(id)) G.les[id] = 1; }); UI.lesCur = ''; UI.coachKey = ''; SIM.dirty = true; toast('No lessons, then. REPLAY THE TUTORIAL in the Almanac brings them back.', ''); return; }
+  if (UI.lesCur) lessonDone(UI.lesCur); UI.lesWait = 0; }
 function lesToggle() { G.lesOff = !G.lesOff; UI.coachKey = ''; UI.lesWait = 0; toast(G.lesOff ? 'Aunt Bev will keep her lessons to herself.' : 'Aunt Bev will show you each new thing as it unlocks.', ''); SIM.dirty = true; }
 function tutNext() { const id = UI.coachId, T = G.tut; if (id === 'intro') T.intro = 1; else if (id === 'loop') T.loop = 1; else if (id === 'yard2') { T.yard = 1; deselect(); } else if (id === 'ports') { T.ports = 1; G.tutDone = true; UI.lesWait = performance.now() + LESSON_GAP; news('Aunt Bev: "Now go make us some money."', 'good'); toast('Tutorial done. You can replay it from the Almanac.', 'good'); }
   UI.coachKey = ''; SIM.dirty = true; sfx.click(); }
 function tutSkip() { G.tutDone = true; UI.lesWait = performance.now() + LESSON_GAP; UI.coachKey = ''; SIM.dirty = true; toast('Tutorial off. You can replay it from the Almanac.', ''); }
-function tutRestart() { G.tut = {}; G.tutDone = false; G.les = {}; G.lesOff = false; UI.lesCur = ''; UI.lesWait = 0; UI.coachKey = ''; closeModal(); deselect(); SIM.dirty = true; }
+function tutRestart() { G.tut = {}; G.tutDone = false; G.les = {}; G.lesOff = false; G.lesAsked = 1; G.lesAsk = 0; UI.lesCur = ''; UI.lesWait = 0; UI.coachKey = ''; closeModal(); deselect(); SIM.dirty = true; }
 function renderCoach() {
   const box = $('coach'), st = coachStep(); if (!st) { if (UI.coachOn) { UI.coachOn = false; UI.coachKey = ''; UI.coachId = ''; box.classList.remove('on'); } return; }
   const vw = window.innerWidth, vh = window.innerHeight, ring = $('coachring'), bub = $('coachbub'); let R = null;
@@ -3189,7 +3277,7 @@ function renderCoach() {
   const key = st.id + '|' + st.text + '|' + (R ? [R.l, R.t, R.r, R.b].map(Math.round).join(',') : '-') + '|' + vw + 'x' + vh; if (key === UI.coachKey) return; UI.coachKey = key; UI.coachId = st.id; UI.coachOn = true; box.classList.add('on');
   // the bubble: rebuilt only when its words change, so a button is never swapped out from under a finger
   const hk = st.id + '|' + st.text; if (hk !== UI.coachHtml) { UI.coachHtml = hk; const done = TUT_PHASES.filter(k => G.tut[k]).length;
-    bub.innerHTML = '<img src="' + portraitURL(4242, 'elder') + '" alt=""><div class="cb"><div class="cbh"><b>AUNT BEV · ' + (st.les ? 'NEW: ' + esc(FEATURE_BY[st.les].name.toUpperCase()) : Math.min(TUT_PHASES.length, done + 1) + ' OF ' + TUT_PHASES.length) + '</b><button class="cskip" data-act="' + (st.les ? 'lesSkip' : 'tutSkip') + '">SKIP</button></div><p>' + esc(st.text) + '</p>' + (st.next ? '<div class="cbrow"><button class="btn go" data-act="' + (st.les ? 'lesNext' : 'tutNext') + '">' + st.next + '</button></div>' : '') + '</div><i class="tip"></i>'; }
+    bub.innerHTML = '<img src="' + portraitURL(4242, 'elder') + '" alt=""><div class="cb"><div class="cbh"><b>AUNT BEV · ' + (st.head ? esc(st.head) : st.les ? 'NEW: ' + esc(FEATURE_BY[st.les].name.toUpperCase()) : Math.min(TUT_PHASES.length, done + 1) + ' OF ' + TUT_PHASES.length) + '</b><button class="cskip" data-act="' + (st.les ? 'lesSkip' : 'tutSkip') + '">' + (st.les === '*' ? 'NO THANKS' : 'SKIP') + '</button></div><p>' + esc(st.text) + '</p>' + (st.next ? '<div class="cbrow"><button class="btn go" data-act="' + (st.les ? 'lesNext' : 'tutNext') + '">' + st.next + '</button></div>' : '') + '</div><i class="tip"></i>'; }
   ring.className = R ? 'on' + (st.soft ? '' : ' spot') : ''; if (R) { ring.style.left = (R.l - 5) + 'px'; ring.style.top = (R.t - 5) + 'px'; ring.style.width = (R.r - R.l + 10) + 'px'; ring.style.height = (R.b - R.t + 10) + 'px'; }
   const w = bub.offsetWidth, h = bub.offsetHeight, tip = bub.querySelector('.tip'); let left = (vw - w) / 2, top = 58;
   let A = R; if (R && st.avoid) { const a = st.avoid.getBoundingClientRect(); A = { l: Math.min(R.l, a.left), t: Math.min(R.t, a.top), r: Math.max(R.r, a.right), b: Math.max(R.b, a.bottom) }; }
@@ -3205,7 +3293,7 @@ function slotsHTML(c, live) {
   const cs = cstat(c), pj = c.jobs.filter(j => j.kind === 'p'), cj = c.jobs.filter(j => j.kind === 'c'), bd = bonusDest(c); let h = '<div class="slots' + (cs.pax + cs.cargo >= 10 ? ' mini' : '') + '">';
   const grp = list => { const m = new Map(); list.forEach(j => { const k = j.to + '|' + (j.vip ? j.id : ''), g = m.get(k) || { j, n: 0 }; g.n += slotsOf(j); m.set(k, g); }); return Array.from(m.values()); };
   const one = (j, kind, cnt) => { if (j && j.good) return '<div class="slot c full" data-tip="' + esc(GOOD_BY[j.good].name) + '"><img src="' + ICON_URL[GOOD_BY[j.good].ic] + '" alt=""><span>' + (j.n ? '\u00d7' + j.n : 'GOODS') + '</span></div>'; if (!j) return '<div class="slot ' + kind + ' empty" data-tip="Empty ' + (kind === 'p' ? 'seat' : 'cargo space') + '"><img src="' + ICON_URL[kind === 'p' ? 'ui_pax' : 'ui_box'] + '" alt=""></div>';
-    const tip = '<b>' + esc(j.label) + '</b>\nTo ' + esc(portName(j.to)) + ' · pays ' + money(j.pay) + ((j.bonus || bd === j.to) ? ' +25%' : '') + (live ? '\nClick to put ashore' : '');
+    const tip = '<b>' + esc(j.label) + '</b>\nTo ' + esc(portName(j.to)) + ' · pays ' + money(Math.round(j.pay * fareMult(c))) + ((j.bonus || bd === j.to) ? ' +25%' : '') + (live ? '\nClick to put ashore' : '');
     return '<' + (live ? 'button' : 'div') + ' class="slot ' + kind + ' full' + ((j.bonus || bd === j.to) ? ' bonus' : '') + '"' + (live ? ' data-act="unload" data-arg="' + j.id + '"' : '') + ' data-tip="' + esc(tip) + '"><img src="' + jobIconURL(j) + '" alt=""><span>' + j.to.toUpperCase() + (cnt > 1 ? ' \u00d7' + cnt : !cnt && j.n ? ' \u00d7' + j.n : '') + '</span></' + (live ? 'button' : 'div') + '>'; };
   const mini = cs.pax + cs.cargo >= 10, ld = loadOf(c), gj = []; (c.goods || []).forEach(q => { for (let i = 0; i < (mini ? 1 : q.n); i++) gj.push({ good: q.g, n: mini ? q.n : 0 }); });
   const rest = (n, kind) => n > 0 ? '<div class="slot ' + kind + ' empty cnt" data-tip="' + n + ' empty ' + (kind === 'p' ? 'seat' : 'cargo space') + (n === 1 ? '' : 's') + '"><img src="' + ICON_URL[kind === 'p' ? 'ui_pax' : 'ui_box'] + '" alt=""><span>\u00d7' + n + '</span></div>' : '';
@@ -3214,7 +3302,7 @@ function slotsHTML(c, live) {
   if (mini) { const m = new Map(); c.jobs.forEach(j => { const g = m.get(j.to) || { to: j.to, p: 0, c: 0, pay: 0, vip: 0 }; g[j.kind === 'p' ? 'p' : 'c'] += slotsOf(j); g.pay += j.pay; if (j.vip) g.vip = 1; m.set(j.to, g); });
     const list = Array.from(m.values()).sort((x, y) => (y.p + y.c) - (x.p + x.c)), max = Math.max(2, (window.innerWidth < 800 ? 7 : 12) - gj.length), show = list.length > max ? list.slice(0, max - 1) : list, more = list.slice(show.length);
     const say = g => (g.p ? g.p + ' passenger' + (g.p === 1 ? '' : 's') : '') + (g.p && g.c ? ', ' : '') + (g.c ? g.c + ' cargo' : '');
-    show.forEach(g => { const tip = '<b>To ' + esc(portName(g.to)) + '</b>\n' + say(g) + ' \u00b7 pays ' + money(g.pay) + (bd === g.to ? ' +25%' : '') + (live ? '\nClick to put them ashore' : '');
+    show.forEach(g => { const tip = '<b>To ' + esc(portName(g.to)) + '</b>\n' + say(g) + ' \u00b7 pays ' + money(Math.round(g.pay * fareMult(c))) + (bd === g.to ? ' +25%' : '') + (live ? '\nClick to put them ashore' : '');
       h += '<' + (live ? 'button' : 'div') + ' class="slot full dest' + (g.vip ? ' vip' : '') + (bd === g.to ? ' bonus' : '') + '"' + (live ? ' data-act="unloadTo" data-arg="' + g.to + '"' : '') + ' data-tip="' + esc(tip) + '"><span>' + g.to.toUpperCase() + ' \u00d7' + (g.p + g.c) + '</span></' + (live ? 'button' : 'div') + '>'; });
     if (more.length) h += '<div class="slot empty dest more" data-tip="' + esc(more.map(g => portName(g.to) + ' \u00d7' + (g.p + g.c)).join('\n')) + '"><span>+' + more.length + ' MORE</span></div>';
     gj.forEach(j => { h += one(j, 'c'); }); }
@@ -3229,14 +3317,15 @@ function destLine(d, info, extra) { return '<span>to <em class="' + (info ? (inf
 // The job board, grouped by where things are going: one heading per destination (with the distance and a LOAD ALL),
 // one short line per job under it. Places this craft cannot reach are folded away at the bottom.
 function jobRowsHTML(pid, c) {
+  const fm = c ? fareMult(c) : 1;      // a boat is paid half again for every load, and the board shows what this craft would get
   const st = G.ports[pid], infos = {}, info = to => c ? (infos[to] || (infos[to] = legInfo(c, pid, to))) : null; let h = '';
   const row = (cls, icon, label, n, tag, pay, each, btn) => '<div class="jrow ' + cls + '"><img class="jic" src="' + icon + '" alt=""><div class="jtx"><b>' + esc(label) + (n > 1 ? ' <span class="jcount">×' + n + '</span>' : '') + '</b>' + (tag || '') + '</div><div class="jr"><div class="jpay">$' + pay + (each ? '<small>each</small>' : '') + '</div>' + (btn || '') + '</div></div>';
   // what is aboard, with UNLOAD
-  let ab = ''; if (c && c.jobs.length) { const worth = c.jobs.reduce((a, q) => a + q.pay, 0); ab = '<div class="dg ab"><div class="dh"><b>ABOARD</b><span class="dd">' + c.jobs.length + ' · worth ' + money(worth) + '</span></div>';
-    groupJobs(c.jobs).forEach(g => { ab += row('aboard', jobIconURL(g.j), g.j.label, g.n, '<span>to ' + esc(PORT_BY[g.to].name) + '</span>', g.pay, g.n > 1, '<button class="btn red" data-act="unload" data-arg="' + g.ids[0] + '">UNLOAD</button>'); }); ab += '</div>'; }
+  let ab = ''; if (c && c.jobs.length) { const worth = Math.round(c.jobs.reduce((a, q) => a + q.pay, 0) * fm); ab = '<div class="dg ab"><div class="dh"><b>ABOARD</b><span class="dd">' + c.jobs.length + ' · worth ' + money(worth) + '</span></div>';
+    groupJobs(c.jobs).forEach(g => { ab += row('aboard', jobIconURL(g.j), g.j.label, g.n, '<span>to ' + esc(PORT_BY[g.to].name) + '</span>', Math.round(g.pay * fm), g.n > 1, '<button class="btn red" data-act="unload" data-arg="' + g.ids[0] + '">UNLOAD</button>'); }); ab += '</div>'; }
   if (c && goodsCount(c)) { ab += '<div class="dg ab"><div class="dh"><b>GOODS ABOARD</b><span class="dd">' + goodsCount(c) + ' \u00b7 sell them here or carry them on</span></div>';
-    c.goods.forEach(q => { const gd = GOOD_BY[q.g], rq = reqFor(pid, q.g), here = Math.round(goodPrice(pid, q.g) * (rq ? 1.6 : 1)), paid = Math.round(q.cost / q.n), bm = bestMarket(c, q.g);
-      ab += row('aboard', ICON_URL[gd.ic], gd.name, q.n, '<span>paid ' + money(paid) + (rq ? ' \u00b7 asked for here' : bm && bm.price > here ? ' \u00b7 ' + money(bm.price) + ' at ' + esc(bm.name) : '') + '</span>', here, true, '<button class="btn buy" data-act="sellGood" data-arg="' + q.g + '">SELL</button>'); }); ab += '</div>'; }
+    const seenG = {}; c.goods.forEach(q => { if (seenG[q.g]) return; seenG[q.g] = 1; const gd = GOOD_BY[q.g], rq = reqFor(pid, q.g), qt = goodQuote(c, q.g, pid), here = Math.round(qt.each * (rq ? 1.6 : 1)), paid = qt.paid, bm = bestMarket(c, q.g, q.from);
+      ab += row('aboard', ICON_URL[gd.ic], gd.name, qt.n, '<span>paid ' + money(paid) + (rq ? ' \u00b7 asked for here' : bm && bm.price > here ? ' \u00b7 ' + money(bm.price) + ' at ' + esc(bm.name) : '') + '</span>', here, true, '<button class="btn buy" data-act="sellGood" data-arg="' + q.g + '">SELL</button>'); }); ab += '</div>'; }
   let reqH = '', tradeH = ''; (G.reqs || []).forEach(r => { if (r.pid === pid && G.t < r.until) reqH += '<div class="note"><b>' + esc(PORT_BY[pid].name) + ' is asking for ' + (r.n - r.got) + ' ' + esc(GOOD_BY[r.g].name.toLowerCase()) + '.</b> It pays 60% over the going price, for ' + secs(r.until - G.t) + ' more.</div>'; });
   if (c && c.state === 'dock' && feat('trade') && !CRAFT_BY[c.type].tour) { const gs = goodsFor(pid); if (gs.length) { tradeH = '<div class="dg trade"><div class="dh"><b>GOODS FOR SALE</b><span class="dd">fills spare cargo</span></div>';
       gs.forEach(gd => { const pr = goodBuyPrice(pid, gd.id), n = Math.max(0, Math.min(roomFor(c, 'c'), 5, Math.floor(G.money / pr))), bm = bestMarket(c, gd.id);
@@ -3261,11 +3350,11 @@ function jobRowsHTML(pid, c) {
   dests.forEach(d => { if (!d.ok && !UI.showFar) return; const P = PORT_BY[d.to], fit = c ? d.groups.reduce((a, g) => a + (roomFor(c, g.kind) > 0 ? g.n : 0), 0) : 0;
     h += '<div class="dg' + (d.ok ? '' : ' no') + '" data-to="' + d.to + '"><div class="dh"><b>' + esc(P.name) + '</b><span class="dd">' + (d.info ? (d.ok ? Math.round(d.info.dist) + ' km' : esc(d.info.why)) : d.n + (d.n === 1 ? ' job' : ' jobs')) + '</span>' +
       (c && d.ok && fit > 1 && d.groups.length > 1 ? '<button class="btn sm go" data-act="loadAll" data-arg="' + d.to + '">LOAD ALL</button>' : '') + '</div>';
-    d.ks.forEach(k => { const n = contractAvail(k), room = c ? roomFor(c, k.k) : 0; h += row('k', k.k === 'p' ? portraitURL(k.id, k.ic) : ICON_URL[k.ic], k.title, n, '<span class="tag yel">CONTRACT</span>', k.rate, true, c ? '<button class="btn load" data-act="loadK" data-arg="' + k.id + '"' + (room > 0 && d.ok ? '' : ' disabled') + '>LOAD' + (Math.min(room, n) > 1 ? ' ' + Math.min(room, n) : '') + '</button>' : ''); });
+    d.ks.forEach(k => { const n = contractAvail(k), room = c ? roomFor(c, k.k) : 0; h += row('k', k.k === 'p' ? portraitURL(k.id, k.ic) : ICON_URL[k.ic], k.title, n, '<span class="tag yel">CONTRACT</span>', Math.round(k.rate * fm), true, c ? '<button class="btn load" data-act="loadK" data-arg="' + k.id + '"' + (room > 0 && d.ok ? '' : ' disabled') + '>LOAD' + (Math.min(room, n) > 1 ? ' ' + Math.min(room, n) : '') + '</button>' : ''); });
     d.groups.sort((a, b) => ((b.j.vip ? 1 : 0) - (a.j.vip ? 1 : 0)) || ((b.lay || 0) - (a.lay || 0)) || (b.pay - a.pay));
     d.groups.forEach(g => { const room = c ? roomFor(c, g.kind) : 0, need = g.j.n || 1, many = Math.min(g.n, Math.floor(room / need));
       const btn = !c ? '' : (!d.ok && !any) ? '<button class="btn load" disabled>LOAD</button>' : many > 1 ? '<button class="btn load' + (d.ok ? '' : ' far') + '" data-act="loadIds" data-arg="' + g.ids.slice(0, many).join(',') + '">LOAD ' + many + '</button>' : '<button class="btn load' + (!d.ok && room > 0 ? ' far' : '') + '" data-act="load" data-arg="' + g.ids[0] + '"' + (room >= need ? '' : ' disabled data-tip="' + (need > 1 && room > 0 ? 'Takes ' + need + (g.kind === 'p' ? ' seats' : ' cargo slots') : 'No ' + (g.kind === 'p' ? 'seats' : 'cargo room') + ' left') + '"') + '>LOAD</button>';
-      h += row((g.kind === 'c' ? 'c' : 'p') + (g.j.vip ? ' vip' : '') + (d.ok ? '' : ' no'), jobIconURL(g.j), g.j.label, g.n, g.j.rv ? '<span class="tag red">RIVAL WANTS IT</span>' : g.j.conn ? '<span class="tag blue">CONNECTION</span>' : g.j.n ? '<span class="tag org">' + (g.kind === 'p' ? 'GROUP' : 'LOT') + ' OF ' + g.j.n + '</span>' : g.j.vip ? '<span class="tags"><span class="tag gold">VIP \u00b7 ' + VIP_REWARD[g.j.vip] + '</span>' + (g.j.pref ? '<span class="tag gold2">' + VIP_PREF[g.j.pref] + '</span>' : '') + '</span>' : g.j.urgent ? '<span class="tag red">URGENT ' + secs(Math.max(0, g.j.urgent - G.t)) + '</span>' : g.lay ? '<span class="tag blue">LAYOVER</span>' : g.j.ev ? '<span class="tag yel">EVENT</span>' : g.j.hol ? '<span class="tag hol">HOLIDAY</span>' : '', g.pay, g.n > 1, btn); });
+      h += row((g.kind === 'c' ? 'c' : 'p') + (g.j.vip ? ' vip' : '') + (d.ok ? '' : ' no'), jobIconURL(g.j), g.j.label, g.n, g.j.rv ? '<span class="tag red">RIVAL WANTS IT</span>' : g.j.conn ? '<span class="tag blue">CONNECTION</span>' : g.j.n ? '<span class="tag org">' + (g.kind === 'p' ? 'GROUP' : 'LOT') + ' OF ' + g.j.n + '</span>' : g.j.vip ? '<span class="tags"><span class="tag gold">VIP \u00b7 ' + VIP_REWARD[g.j.vip] + '</span>' + (g.j.pref ? '<span class="tag gold2">' + VIP_PREF[g.j.pref] + '</span>' : '') + '</span>' : g.j.urgent ? '<span class="tag red">URGENT ' + secs(Math.max(0, g.j.urgent - G.t)) + '</span>' : g.lay ? '<span class="tag blue">LAYOVER</span>' : g.j.ev ? '<span class="tag yel">EVENT</span>' : g.j.hol ? '<span class="tag hol">HOLIDAY</span>' : '', Math.round(g.pay * fm), g.n > 1, btn); });
     h += '</div>'; });
   if (far.length && any) h += '<button class="farbtn" data-act="showFar">' + (UI.showFar ? 'HIDE' : 'SHOW') + ' ' + farN + (farN === 1 ? ' JOB' : ' JOBS') + ' ' + (c ? esc(c.name.toUpperCase()) + ' CAN\'T DELIVER' : '') + '</button>';
   if (!isFull) h += ab;
@@ -3301,7 +3390,7 @@ function holdHTML(c) { const T = CRAFT_BY[c.type], cs = cstat(c), ld = loadOf(c)
   const size = cap >= 10 ? 'lg' : cap >= 4 ? 'md' : 'sm';
   const capBox = (kind, n, of, label) => '<div class="cap ' + kind + (of && n >= of ? ' full' : '') + '"><img src="' + ICON_URL[kind === 'p' ? 'ui_pax' : 'ui_box'] + '" alt=""><b>' + n + (of ? '<small>/' + of + '</small>' : '') + '</b><i>' + label + '</i></div>';
   const caps = '<div class="caps">' + (T.tour ? capBox('p', T.tour, 0, 'SIGHTSEERS') : '') + (cs.pax ? capBox('p', ld.pax, cs.pax, cs.pax === 1 ? 'SEAT' : 'SEATS') : '') + (cs.cargo ? capBox('c', ld.cargo, cs.cargo, 'CARGO') : '') + '</div>';
-  const arrow = d => many ? '<button class="btn sm dark cyc" data-act="cycle" data-arg="' + d + '">' + (d < 0 ? '\u25c2' : '\u25b8') + '</button>' : '';
+  const arrow = d => many ? '<button class="btn sm dark cyc" data-act="cycle" data-arg="' + d + '" aria-label="' + (d < 0 ? 'Previous craft here' : 'Next craft here') + '">' + (d < 0 ? '\u25c2' : '\u25b8') + '</button>' : '';
   const clear = c.jobs.length && size !== 'sm' ? '<button class="btn sm plain clr" data-act="unloadAll" data-tip="Put everything aboard back on the dock">CLEAR</button>' : '';
   return '<div class="holdbar v2 ' + size + '"><div class="ctop">' + arrow(-1) + '<div class="cpic">' + sprImgC(c, 120, 4) + '</div><div class="cinfo"><b>' + esc(c.name) + '</b><span class="ct">' + esc(T.name) + '</span>' + caps + (size === 'sm' ? slotsHTML(c, true) : '') + '</div>' + arrow(1) + '</div>' +
     (size === 'sm' ? '' : '<div class="cbot">' + slotsHTML(c, true) + clear + '</div>') +
@@ -3412,7 +3501,7 @@ function tabCraft(c) { const T = CRAFT_BY[c.type], segs = [['gear', 'GEAR']]; if
   if (seg === 'gear') {
     if (feat('fits')) h += fitsHTML(c, atYard);
     if (feat('wear')) { const k = Math.round(condOf(c)), sp = sparePart(c.type), cost = overhaulCost(c);
-      h += '<h3>CONDITION <em>' + k + '%</em></h3><div class="bar ' + (k < 25 ? 'red' : k < 50 ? 'amber' : '') + '"><i style="width:' + k + '%"></i></div><div class="sub" style="margin-top:6px">' + (k < 25 ? 'Running rough: a quarter slower, and it may stall before leaving.' : k < 50 ? 'Worn: ten percent slower.' : 'Running fine.') + (atYard || k >= 100 ? '' : ' Overhauls are done at a ' + yardWord(T) + (ny ? '; the nearest is ' + esc(ny.name) : '') + '.') + '</div>' +
+      h += '<h3>CONDITION <em>' + k + '%</em></h3><div class="bar ' + (k < 25 ? 'red' : k < 50 ? 'amber' : '') + '"><i style="width:' + k + '%"></i></div><div class="sub" style="margin-top:6px">' + (k < 25 ? 'Running rough: four tenths slower, and it may stall before leaving.' : k < 50 ? 'Worn: fifteen percent slower.' : 'Running fine.') + (atYard || k >= 100 ? '' : ' Overhauls are done at a ' + yardWord(T) + (ny ? '; the nearest is ' + esc(ny.name) : '') + '.') + '</div>' +
         (k < 100 ? '<div class="row wrap" style="margin-top:8px"><button class="btn" data-act="overhaul"' + (atYard && G.money >= cost ? '' : ' disabled') + '>OVERHAUL ' + money(cost) + '</button>' + (sp >= 0 ? '<button class="btn plain" data-act="overhaulPart"' + (atYard ? '' : ' disabled') + '>USE A SPARE ' + PART_NAMES[T.cls][sp].toUpperCase() + '</button>' : '') + '</div>' : ''); }
     h += '<h3>WORKSHOP</h3><div class="lst">';
     upgradesFor(c).forEach(u => { const cost = upgradeCost(c, u.id); h += '<div class="item"><div class="tx"><b>' + esc(u.name) + '</b><small>' + esc(u.desc) + '</small></div>' + (c.upg[u.id] ? '<span class="tag green">FITTED</span>' : '<button class="btn" data-act="upg" data-arg="' + u.id + '"' + (G.money >= cost ? '' : ' disabled') + '>' + money(cost) + '</button>') + '</div>'; });
@@ -3429,7 +3518,7 @@ function tabCraft(c) { const T = CRAFT_BY[c.type], segs = [['gear', 'GEAR']]; if
     if (!(G.hall || []).length) h += '<div class="sub">Nobody is looking for work today.</div>';
     h += '</div><div class="sub" style="margin-top:6px">One hand per craft.' + (c.crew ? ' Hiring replaces ' + esc(c.crew.name) + '.' : '') + '</div>'; }
   else if (seg === 'run') {
-    if (c.run) h += '<h3>STANDING RUN</h3><div class="card" style="margin-top:0"><b class="sk" style="font-size:13px">' + esc(runLabel(c.run).toUpperCase()) + '</b><div class="sub">' + c.run.trips + ' trips · earned ' + money(c.run.earned) + '. It loads, goes and collects by itself; the crew keeps ' + Math.round(RUN_CUT * 100) + '%.</div><div class="row wrap" style="margin-top:8px"><button class="btn red" data-act="stopRun">STOP THE RUN</button><button class="btn go" data-act="pickRun"' + (c.state === 'dock' && runStops(c.run).length < RUN_STOPS ? '' : ' disabled') + '>ADD A STOP \u25b8</button></div><div class="sub" style="margin-top:8px">A run can have up to four stops. Two runs that share a port hand loads to each other there.</div></div>';
+    if (c.run) h += '<h3>STANDING RUN</h3><div class="card" style="margin-top:0"><b class="sk" style="font-size:13px">' + esc(runLabel(c.run).toUpperCase()) + '</b><div class="sub">' + c.run.trips + ' trips · earned ' + money(c.run.earned) + ', ' + money(c.run.earned - (c.run.cost || 0)) + ' after fuel and repairs. It waits for half a load, goes and collects by itself; the crew keeps ' + Math.round(RUN_CUT * 100) + '%.</div><div class="row wrap" style="margin-top:8px"><button class="btn red" data-act="stopRun">STOP THE RUN</button><button class="btn go" data-act="pickRun"' + (c.state === 'dock' && runStops(c.run).length < RUN_STOPS ? '' : ' disabled') + '>ADD A STOP \u25b8</button></div><div class="sub" style="margin-top:8px">A run can have up to four stops. Two runs that share a port hand loads to each other there.</div></div>';
     else h += '<h3>STANDING RUN <em>' + runCount() + ' OF ' + runMax() + ' IN USE</em></h3><div class="sub">Pick the other end, and ' + esc(c.name) + ' will shuttle between here and there by itself, even while you are away. The crew keeps ' + Math.round(RUN_CUT * 100) + '%.</div><button class="btn go" data-act="pickRun" style="margin-top:8px"' + (c.state === 'dock' && runCount() < runMax() ? '' : ' disabled') + '>PICK THE OTHER END ▸</button>'; }
   else {
     h += '<h3>STORAGE <em>' + G.stored.length + '/' + STORE_CAP + '</em></h3><div class="row between"><span class="sub">' + (atYard ? 'Put it away and get the fleet slot back. Must be empty.' : 'Storage is at a ' + yardWord(T) + (ny ? '. The nearest is ' + esc(ny.name) + '.' : '.')) + '</span><button class="btn" data-act="store" data-arg="' + c.id + '"' + (atYard && !c.jobs.length && G.stored.length < STORE_CAP && G.crafts.length > 1 ? '' : ' disabled') + '>STORE</button></div>';
@@ -3452,7 +3541,7 @@ function leftUnderway(c) { let h = '<div class="card" style="margin-top:0"><div 
   if (c.plan && c.plan.stops && c.plan.stops.length > 1) h += '<div class="stops" style="margin-top:10px">' + c.plan.stops.map((s, i) => '<span class="stop' + (i === c.plan.i ? ' new' : '') + '" style="' + (i < c.plan.i ? 'opacity:.4' : '') + '">' + esc(portName(s)) + '</span>').join('<span>\u25b8</span>') + '</div>';
   return h + '</div>'; }
 function bodyUnderway(c) { const cs = cstat(c); let h = (c.run ? '<div class="card" style="margin-top:0"><b class="sk" style="font-size:13px">STANDING RUN \u00b7 ' + esc(runLabel(c.run).toUpperCase()) + '</b><div class="sub">' + c.run.trips + ' trips \u00b7 earned ' + money(c.run.earned) + '</div><button class="btn red" data-act="stopRun" style="margin-top:8px">STOP THE RUN</button></div>' : '') + '<h3>ABOARD <em>' + loadOf(c).pax + '/' + cs.pax + ' SEATS \u00b7 ' + loadOf(c).cargo + '/' + cs.cargo + ' CARGO</em></h3><div class="holdbar v2 plain">' + slotsHTML(c, false) + '</div>';
-  if (c.jobs.length) { h += '<div class="rows" style="margin-top:10px">'; groupJobs(c.jobs).forEach(g => { h += '<div class="jrow aboard"><img class="jic" src="' + jobIconURL(g.j) + '" alt=""><div class="jtx"><b>' + esc(g.j.label) + (g.n > 1 ? ' <span class="jcount">\u00d7' + g.n + '</span>' : '') + '</b><span>to <em>' + esc(portName(g.to)) + '</em></span></div><div class="jpay">$' + g.pay + (g.n > 1 ? '<small>each</small>' : '') + '</div></div>'; }); h += '</div>'; }
+  if (c.jobs.length) { h += '<div class="rows" style="margin-top:10px">'; groupJobs(c.jobs).forEach(g => { h += '<div class="jrow aboard"><img class="jic" src="' + jobIconURL(g.j) + '" alt=""><div class="jtx"><b>' + esc(g.j.label) + (g.n > 1 ? ' <span class="jcount">\u00d7' + g.n + '</span>' : '') + '</b><span>to <em>' + esc(portName(g.to)) + '</em></span></div><div class="jpay">$' + Math.round(g.pay * fareMult(c)) + (g.n > 1 ? '<small>each</small>' : '') + '</div></div>'; }); h += '</div>'; }
   if (c.fish) h += '<div class="item" style="margin-top:10px"><img class="ic" src="' + ICON_URL['fish_' + c.fish.sp] + '" alt=""><div class="tx"><b>' + c.fish.units + ' ' + esc(FISH[c.fish.sp].name) + ' in the hold</b><small>' + (feat('catch') ? 'Stays aboard until you sell it' : 'Sells back at the dock' + (c.plan && c.plan.fish ? ' at ' + esc(portName(c.plan.fish.land)) + ' for about ' + money(c.fish.units * fishPrice(c.plan.fish.land, c.fish.sp)) : '')) + '</small></div></div>';
   if (!c.jobs.length && !c.fish) h += '<div class="sub" style="margin-top:10px">Running empty.</div>';
   return h; }
@@ -3484,7 +3573,7 @@ function renderPanel(now) {
     h = UI.sheet === 'contracts' ? htmlContracts() : UI.sheet === 'market' ? htmlMarket() : UI.sheet === 'yard' ? htmlYard() : htmlAlmanac(); }
   else if (c && c.state !== 'dock') { const T = CRAFT_BY[c.type];
     head = BACK + '<div class="grow"><h2>' + esc(c.name) + '</h2><div class="sub2">' + esc(T.name) + ' \u00b7 ' + esc(craftStatus(c)) + '</div></div>'; left = leftUnderway(c); h = bodyUnderway(c);
-    foot = '<div class="grow"></div>' + ((c.state === 'move' || c.state === 'fish') ? '<button class="btn" data-act="hurry" data-tip="Pay the crew to step on it: it arrives right now">HURRY <span id="hurrycost"></span></button><button class="btn blue" data-act="follow" data-tip="Close this and follow it on the map">WATCH ON MAP</button>' : '') + (c.state === 'hold' ? '<button class="btn red" data-act="cancelPlan">' + (c.holdWhy === 'turnaround' ? 'STOP HERE' : 'CANCEL TRIP') + '</button>' : ''); }
+    foot = '<div class="grow"></div>' + ((c.state === 'move' || c.state === 'fish') ? '<button class="btn" data-act="hurry" data-tip="Pay the crew to step on it: it arrives right now. It costs the fare it is carrying, so hurry what you need back, not what you want paid.">HURRY <span id="hurrycost"></span></button><button class="btn blue" data-act="follow" data-tip="Close this and follow it on the map">WATCH ON MAP</button>' : '') + (c.state === 'hold' ? '<button class="btn red" data-act="cancelPlan">' + (c.holdWhy === 'turnaround' ? 'STOP HERE' : 'CANCEL TRIP') + '</button>' : ''); }
   else { if (!UI.selPort || !PORT_BY[UI.selPort]) { deselect(); return; } const pid = UI.selPort, p = PORT_BY[pid], st = G.ports[pid];
     head = BACK + '<div class="grow"><h2>' + esc(p.name) + '</h2><div class="sub2">' + esc(p.reg) + ' ' + pips(p) + (st.open ? '<span class="hp"> \u00b7 terminal level ' + st.lvl + '</span>' : '<span class="hp"> \u00b7 not served yet</span>') + '</div></div>' + (st.open ? '<div class="reft">NEW JOBS IN<b id="reft"></b></div>' : '<span class="tag">NOT SERVED</span>'); tut = '';
     if (!st.open) { left = leftLocked(pid); h = tabPort(pid); }
@@ -3493,7 +3582,7 @@ function renderPanel(now) {
       tabs = tb('jobs', 'JOBS <span style="opacity:.6">' + (st.jobs.length + st.lay.length) + '</span>') + (canFish ? tb('fish', 'FISHING') : '') + tb('port', p.yard === 'h' ? 'HANGAR' : p.yard === 'm' ? 'BOATYARD' : p.yard ? 'YARD' : 'PORT') + (c ? tb('craft', 'CRAFT') : '');
       left = leftDock(pid, c);
       h = UI.stab === 'port' ? tabPort(pid) : UI.stab === 'craft' ? tabCraft(c) : UI.stab === 'fish' ? tabFish(c) : tabJobs(pid, c);
-      if (c) { const wx = wxBlock(c, p.x, p.y), worth = c.jobs.reduce((a, j) => a + j.pay, 0);
+      if (c) { const wx = wxBlock(c, p.x, p.y), worth = Math.round(c.jobs.reduce((a, j) => a + j.pay, 0) * fareMult(c));
         foot = '<div class="grow">' + (tut ? '<span class="ft-bev">' + esc(tut) + '</span>' : '') + '<span class="ft-def">' + (wx ? '<span class="ftwx"><span class="tag org">' + esc(wx.toUpperCase()) + ' HERE</span><span>It waits for a break.</span></span>' : c.jobs.length ? c.jobs.length + ' aboard \u00b7 <b style="color:var(--greend)">' + money(worth) + '</b>' : UI.stab === 'fish' ? '' : reachAny(c) ? '' : 'No port in reach from here.') + '</span></div>' + (UI.stab === 'fish' ? '' : reachAny(c) ? '<button class="btn big go" data-act="route" data-tip="Choose where to go on the map (Enter)">' + goWord(c) + ' \u25b8</button>' : canFish ? '<button class="btn big go" data-act="stab" data-arg="fish">GO FISHING \u25b8</button>' : '<button class="btn big go" disabled data-tip="No port you serve is within reach">' + goWord(c) + ' \u25b8</button>'); } } }
   $('sheet').classList.toggle('single', left === null); $('sheet').classList.toggle('tut', !!tut);
   $('shead').innerHTML = head; $('stabs').innerHTML = tabs; $('stabs').style.display = tabs ? 'flex' : 'none'; $('lbody').innerHTML = left || ''; body.innerHTML = h; fitFilters(); body.scrollTop = sc; cols.scrollTop = sc2; $('sfoot').innerHTML = foot; if (UI.wantLv) { UI.wantLv = false; const e = $('lvtop'); if (e) e.scrollIntoView(); }
@@ -3746,11 +3835,23 @@ function frame(now) { try { frameBody(now); UI.badFrames = 0; } catch (e) { setT
 // This runs every frame and before every save. A browser stops drawing frames when the tab is hidden or the window is
 // covered, but it still fires the autosave timer and the visibility event, and a save stamps the time. Catching up
 // first means that stamp never throws away the time spent hidden.
+// A long absence is caught up a slice at a time, behind a note that says so, instead of freezing the page: twelve hours of a
+// big game is one to two seconds of work on a desktop and several on a phone. While the page is hidden nobody is watching,
+// so it is done in one go. Port requests and the rival stand still for all of it (awayTick).
+const CATCH_MIN = 120, CATCH_BUDGET = 20;      // seconds away before the catch-up is spread out; milliseconds of it done per frame
+const landedNow = () => G.crafts.filter(c => c.state === 'landed').length;
+function catchStep(all) { const cu = UI.catchUp, t0 = performance.now(); if (!cu) return;
+  while (cu.left > 0 && (all || performance.now() - t0 < CATCH_BUDGET)) { const dt = Math.min(2, cu.left); awayTick(dt); cu.left -= dt; }
+  SIM.events = []; const box = $('catchup');
+  if (cu.left > 0) { box.classList.add('on'); $('catchbar').style.width = Math.round(100 * (1 - cu.left / cu.total)) + '%'; $('catchtxt').textContent = 'Playing out the ' + secs(cu.total) + ' you were away'; return; }
+  UI.catchUp = null; box.classList.remove('on'); SIM.dirty = true; UI.away = (UI.away || 0) + cu.total; UI.awayLanded = (UI.awayLanded || 0) + Math.max(0, landedNow() - cu.landed); UI.fleetKey = ''; forcePanel(); }
 function advance() {
   if (!UI.started || UI.paused) return; const wall = Date.now(), el = (wall - G.wall) / 1000; G.wall = wall;
-  if (el > 3) { const landed = fastForward(el); UI.away = (UI.away || 0) + el; UI.awayLanded = (UI.awayLanded || 0) + landed; UI.fleetKey = ''; forcePanel(); }
+  if (UI.catchUp) { UI.catchUp.left = Math.min(OFFLINE_CAP, UI.catchUp.left + Math.max(0, el)); catchStep(document.hidden); }
+  else if (el > CATCH_MIN && !document.hidden) { const sec = Math.min(el, OFFLINE_CAP); UI.catchUp = { left: sec, total: sec, landed: landedNow() }; catchStep(false); }
+  else if (el > 3) { const landed = fastForward(el); UI.away = (UI.away || 0) + el; UI.awayLanded = (UI.awayLanded || 0) + landed; UI.fleetKey = ''; forcePanel(); }
   else if (el > 0) tick(el);
-  if (UI.away && !document.hidden) { if (UI.away > 45) awayNote(UI.away, UI.awayLanded); UI.away = 0; UI.awayLanded = 0; }
+  if (UI.away && !UI.catchUp && !document.hidden) { if (UI.away > 45) awayNote(UI.away, UI.awayLanded); UI.away = 0; UI.awayLanded = 0; }
 }
 function frameBody(now) {
   advance();
@@ -3768,7 +3869,9 @@ function boot() {
   UI.shownMoney = G.money; SIM.events = []; $('coinic').src = ICON_URL.coin; $('mi1').src = ICON_URL.paper; $('mi2').src = ICON_URL.fish_lobster; $('mi3').src = ICON_URL.books; $('mi4').src = ICON_URL.ui_wrench;
   initInput(); showTitle(false); if (G.news[0]) showNews(G.news[0]);
   // "save" action and autosave share the same store
-  const doSave = () => { if (UI.started) { advance(); saveGame(STORE); } };
+  // a save finishes any catch-up first, so the time stamp it writes is true; and says so, once, if the browser will not keep it
+  const doSave = () => { if (!UI.started) return; advance(); if (UI.catchUp) catchStep(true); const ok = saveGame(STORE);
+    if (!ok && !UI.saveWarned) { UI.saveWarned = 1; toast('This browser is not keeping the save: storage is full or switched off. SAVE TO A FILE in the Almanac still works.', 'bad'); } else if (ok) UI.saveWarned = 0; };
   setInterval(doSave, 15000); document.addEventListener('visibilitychange', doSave); window.addEventListener('pagehide', doSave);
   requestAnimationFrame(frame);
   // installed from the site, the game keeps a copy of itself so it opens with no connection

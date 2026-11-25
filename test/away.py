@@ -37,12 +37,18 @@ with sync_playwright() as p:
         # the page saves itself as it closes, so the clock in the save is wound back from the title screen of a fresh page, then that page is loaded again
         pg.evaluate("()=>saveGame(STORE)"); pg.close(); q=open_page()
         q.evaluate("([k,h])=>{ const g=JSON.parse(localStorage.getItem(k)); g.wall-=h*3600*1000; localStorage.setItem(k,JSON.stringify(g)); }",[KEY,hours]); q.reload(); q.wait_for_timeout(700)
-        tap(q,'#mbox [data-act=continue]'); q.wait_for_timeout(1500); return q
+        tap(q,'#mbox [data-act=continue]')
+        # a long absence is played out a slice a frame behind a note: watch that the note shows, that frames keep coming, and wait for it to finish
+        w=q.evaluate("""()=>new Promise(res=>{ let seen=false, worst=0, last=performance.now(), n=0; const f=t=>{ const on=document.getElementById('catchup').classList.contains('on'); if(on){ seen=true; worst=Math.max(worst,t-last); } last=t; if((!UI.catchUp&&n>20)||n>1800) res({seen,worst,frames:n,left:UI.catchUp?UI.catchUp.left:0}); else { n++; requestAnimationFrame(f); } }; requestAnimationFrame(f); })""")
+        away.last=w; q.wait_for_timeout(500); return q
     pg=away(pg,2); s2=pg.evaluate(STATE%cid); print('after 2 hours closed: %s at %s, fare waiting $%d, clock moved %.0f s, toast: %s'%(s2['state'],s2['at'],s2['pend'],s2['t']-s1['t'],s2['toast'][:90].replace('\n',' ')))
     expect(s2['state']=='landed' and s2['at']=='lew' and s2['pend']==100, 'it landed while closed and the fare is waiting to be collected')
     expect(abs((s2['t']-s1['t'])-7200)<30, 'two hours closed is two hours of game time')
     expect('Away' in s2['toast'], 'a note says how long you were away')
+    expect(away.last['left']==0, 'two hours away is caught up and done (a small game does it inside one frame, so the note may never show)')
     m0=s2['money']; pg.evaluate("(id)=>{ selectCraft(id,true); }",cid); pg.wait_for_timeout(900); s3=pg.evaluate(STATE%cid); expect(s3['money']==m0+100 and s3['state']=='dock', 'opening the craft collects the fare')
     pg=away(pg,20); s4=pg.evaluate(STATE%cid); print('after 20 hours closed: clock moved %.1f hours'%((s4['t']-s3['t'])/3600))
     expect(abs((s4['t']-s3['t'])-12*3600)<60, 'longer than twelve hours counts as twelve')
+    print('catching up 12 hours: the note showed %s, longest gap between frames %.0f ms over %d frames'%(away.last['seen'],away.last['worst'],away.last['frames']))
+    expect(away.last['seen'] and away.last['left']==0 and away.last['worst']<250, 'twelve hours is caught up without freezing the page')
     expect(not errs, 'no errors: '+str(errs[:2])); print('PROBLEMS:',len(probs)); b.close()

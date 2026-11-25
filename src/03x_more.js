@@ -33,10 +33,13 @@ function paintCraft(c, i) { if (!feat('names')) return 'Paint unlocks at level '
 
 /* ---------- wear & overhaul ---------- */
 const condOf = c => c.cond === undefined ? 100 : c.cond;
-function condSpeed(c) { const k = condOf(c); return k < 25 ? 0.75 : k < 50 ? 0.9 : 1; }
+// A worn craft is slow enough that an overhaul is worth buying: it used to lose a quarter of its speed at worst, against
+// an overhaul that cost an eighth of the craft, so the right answer for anything expensive was never to fix it.
+function condSpeed(c) { const k = condOf(c); return k < 25 ? 0.6 : k < 50 ? 0.85 : 1; }
 function wearCraft(c, dist) { if (!feat('wear')) return; let w = 2 + dist / 50; if (crewHas(c, 'mech')) w *= 0.5; c.cond = Math.max(0, condOf(c) - w);
   if (c.cond < 25 && !c.warned) { c.warned = 1; news('"' + c.name + '" is running rough. A ' + yardWord(CRAFT_BY[c.type]) + ' can overhaul it.', 'bad'); emit('worn', { c }); } }
-function overhaulCost(c) { return Math.max(10, Math.round((100 - condOf(c)) * CRAFT_BY[c.type].price * 0.0012 / 5) * 5); }
+const OVERHAUL_RATE = 0.0004;      // of the craft's price, for each point of condition put back: a full overhaul is 4%
+function overhaulCost(c) { return Math.max(10, Math.round((100 - condOf(c)) * CRAFT_BY[c.type].price * OVERHAUL_RATE / 5) * 5); }
 function sparePart(t) { let best = -1, n = 0; [0, 1, 2].forEach(s => { const k = G.parts[partKey(t, s)] || 0; if (k > n) { n = k; best = s; } }); return best; }
 function overhaul(c, usePart) { const T = CRAFT_BY[c.type]; if (c.state !== 'dock') return 'It has to be tied up.'; if (!hasYard(c.at, T)) return 'Overhauls are done at a ' + yardWord(T) + '.'; if (condOf(c) >= 100) return 'Nothing to fix.';
   if (usePart) { const s = sparePart(c.type); if (s < 0) return 'No spare part for it.'; const k = partKey(c.type, s); if (--G.parts[k] <= 0) delete G.parts[k]; }
@@ -165,6 +168,8 @@ function buildWork(pid, id) { if (!feat('works')) return 'Port works unlock at l
   news(WORKS[id].n + ' built at ' + PORT_BY[pid].name + '.', 'good'); bonusXp(15, 'port works'); emit('yard', {}); return null; }
 
 /* ---------- standing runs ---------- */
+// A run leaves when it is half full, or with whatever it has after RUN_PATIENCE seconds at the dock. It used to leave with one job.
+const RUN_FILL = 0.5, RUN_PATIENCE = 150;
 const RUN_CUT = 0.15;      // the regular crew keeps a share, so sending a craft yourself always pays a bit better
 function runMax() { return feat('runs') ? 1 + Math.floor((G.level - FEATURE_BY.runs.lvl) / 2) : 0; }
 function runCount() { return G.crafts.filter(c => c.run).length; }
@@ -186,15 +191,18 @@ function updateRuns(dt) { for (let n = 0; n < G.crafts.length; n++) { const c = 
     const next = s[(at + 1) % s.length], li = legInfo(c, c.at, next);
     if (!li.ok) { news('"' + c.name + '" stopped its standing run: ' + li.why + '.', 'bad'); c.run = null; emit('yard', {}); continue; }
     // the regular crew has a tired craft overhauled when the run brings it to a yard
-    if (condOf(c) < 30 && hasYard(c.at, CRAFT_BY[c.type]) && G.money >= overhaulCost(c)) { const cost = overhaulCost(c); if (!overhaul(c, false)) news('"' + c.name + '" was overhauled between runs for ' + money(cost) + '.', 'idle'); }
+    // ...but only out of what the run itself has cleared, so a run never spends more than it brings in
+    if (condOf(c) < 30 && hasYard(c.at, CRAFT_BY[c.type]) && G.money >= overhaulCost(c) && r.earned - (r.cost || 0) >= overhaulCost(c)) { const cost = overhaulCost(c); r.cost = (r.cost || 0) + cost; if (overhaul(c, false)) r.cost -= cost; else news('"' + c.name + '" was overhauled between runs for ' + money(cost) + '.', 'idle'); }
     r.wait = (r.wait || 0) + dt; if (r.wait < 4) continue;
     c.jobs.filter(j => j.via === c.at).forEach(j => { if (!unloadJob(c, j.id)) delete j.via; });       // left here for the other run
     const st = G.ports[c.at]; st.lay.concat(st.jobs).sort((a, b) => b.pay - a.pay).forEach(j => { if (roomFor(c, j.kind) < slotsOf(j)) return;
       if (j.to !== c.at && s.indexOf(j.to) >= 0) { loadJob(c, j.id); return; }
       if (j.lay) return; const hub = s.find(h => h !== c.at && runServes(c, h, j.to)); if (hub && !loadJob(c, j.id)) j.via = hub; });
-    const loaded = CRAFT_BY[c.type].tour || c.jobs.some(j => j.via || s.indexOf(j.to) >= 0);
+    const tour = !!CRAFT_BY[c.type].tour, some = c.jobs.some(j => j.via || s.indexOf(j.to) >= 0), cs = cstat(c), ld = loadOf(c), cap = cs.pax + cs.cargo;
+    const loaded = tour || (some && (!cap || (ld.pax + ld.cargo) / cap >= RUN_FILL || r.wait >= RUN_PATIENCE));
+    if (some && !loaded) continue;
     if (!loaded && !(r.wait > 45 && s.some(o => o !== c.at && G.ports[o].lay.concat(G.ports[o].jobs).some(j => j.to !== o && s.indexOf(j.to) >= 0)))) continue;
-    if (G.money < li.fuel) continue; r.wait = 0; r.trips++; dispatch(c, [next]); } }
+    if (G.money < li.fuel) continue; r.wait = 0; r.trips++; r.cost = (r.cost || 0) + li.fuel; dispatch(c, [next]); } }
 
 /* ---------- save codes: carry a game between a phone and a desktop ---------- */
 function exportSave() { G.wall = Date.now(); return btoa(unescape(encodeURIComponent(JSON.stringify(G)))); }

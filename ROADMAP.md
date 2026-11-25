@@ -22,7 +22,7 @@ Everything on the first version of this roadmap is in the game.
 These need a person, not more code.
 
 - **A test on real phones.** Everything is tested in headless Chrome at phone sizes: layout, taps, the tutorial, a long session. It has been played on one phone so far, and the first thing that showed was that the craft in hand was hard to read; its card was redrawn for that. Other phones and longer sessions are still untested.
-- **Balance.** A simulated player that neither trades nor answers the rival reaches level 9 and eleven ports in three hours. The numbers behind goods, requests, fits, the rival and the New England ports are first guesses, and nobody has played them by hand. This is the thing most likely to need changing.
+- **Balance.** It has had one pass with numbers: a review measured every craft's income, twelve hours away, goods against jobs, and what hurrying every trip does, and the rules were changed where the numbers were bad (hurry, standing runs, overhauls, boat pay, goods, port prices). A simulated player that neither trades nor answers the rival now reaches level 8 in about two hours and fourteen ports in six. Opening every port costs about two million. None of it has been tuned by a person playing for hours, and that is still the thing most likely to need changing.
 - **Old saves.** A save from the Maine-only map is moved onto the bigger one when it loads. That is tested in the rules, but only one save has been through it.
 
 ## Ideas, not promises

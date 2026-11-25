@@ -3,8 +3,11 @@
    look after, what to grab before somebody else does, and what one craft should be good at. */
 
 /* ---------- goods ---------- */
-// A port either makes a good, wants it, or neither. It is cheap where it is made and dearer the farther you carry it,
-// dearer still where it is wanted. Every unit you buy pushes the price up there; every unit you sell pushes it down.
+// A port either makes a good, wants it, or neither. A good is cheap where it is made and gains GOOD_KM dollars for every
+// kilometre you carry it from where you bought it, and a third more again where it is wanted. A port that makes it pays no more
+// than its own price. Every unit you buy pushes the price up there; every unit you sell pushes it down.
+// (It used to be priced by how far the nearest maker was, so a long haul toward another maker paid nothing, and the margin was a
+// fifth to a half of a job's pay on the same run. Now a full hold of goods is worth about half what jobs would be.)
 const GOODS = [
   { id: 'wares',   name: 'City wares',     base: 55, ic: 'crate',   from: p => has(p, 'city') && !has(p, 'customs'),          want: p => has(p, 'island') || has(p, 'remote') || has(p, 'camp') || has(p, 'woods') },
   { id: 'seafood', name: 'Packed seafood', base: 90, ic: 'cooler',  from: p => has(p, 'lobster') || has(p, 'scallop') || p.id === 'rkd',         want: p => has(p, 'city') || !p.water },
@@ -20,24 +23,31 @@ const goodMakes = (p, g) => !!g.from(p), goodWants = (p, g) => !g.from(p) && !!g
 const makerDist = {};
 function nearestMaker(pid, g) { const k = g.id + pid; if (makerDist[k] === undefined) { const p = PORT_BY[pid]; let d = 1e9; PORTS.forEach(q => { if (goodMakes(q, g)) d = Math.min(d, Math.hypot(q.x - p.x, q.y - p.y)); }); makerDist[k] = d; } return makerDist[k]; }
 function goodGlut(pid, gid) { return (G.gg || {})[pid + ':' + gid] || 0; }
-function bumpGlut(pid, gid, d) { const m = G.gg || (G.gg = {}), k = pid + ':' + gid; m[k] = clamp((m[k] || 0) + d, -0.3, 0.5); }
-// what a unit sells for at a port right now
-function goodPrice(pid, gid) { const g = GOOD_BY[gid], p = PORT_BY[pid], f = goodMakes(p, g) ? 1 : Math.min(3, 1 + nearestMaker(pid, g) / 220) * (goodWants(p, g) ? 1.35 : 1); return Math.max(5, Math.round(g.base * f * (1 - goodGlut(pid, gid)))); }
+function bumpGlut(pid, gid, d) { const m = G.gg || (G.gg = {}), k = pid + ':' + gid; m[k] = clamp((m[k] || 0) + d, -0.3, 0.45); }
+const GOOD_KM = 0.45, GOOD_FAR = 600, GOOD_WANT = 1.35;
+// what a unit sells for at a port right now. fromId is where it was bought; without it, the distance to the nearest port that makes it.
+function goodPrice(pid, gid, fromId) { const g = GOOD_BY[gid], p = PORT_BY[pid]; let v = g.base;
+  if (!goodMakes(p, g)) { const o = fromId && PORT_BY[fromId], far = o ? Math.hypot(o.x - p.x, o.y - p.y) : nearestMaker(pid, g); v = (g.base + GOOD_KM * Math.min(far, GOOD_FAR)) * (goodWants(p, g) ? GOOD_WANT : 1); }
+  return Math.max(5, Math.round(v * (1 - goodGlut(pid, gid)))); }
 function goodBuyPrice(pid, gid) { return Math.round(goodPrice(pid, gid) * 1.08); }
 function goodsFor(pid) { const p = PORT_BY[pid]; return GOODS.filter(g => goodMakes(p, g)); }
 function goodsCount(c) { let n = 0; (c.goods || []).forEach(q => { n += q.n; }); return n; }
-// the best price among your ports this craft could plausibly carry it to
-function bestMarket(c, gid) { const T = CRAFT_BY[c.type], here = PORT_BY[c.at], rng = cstat(c).range; let best = null; if (!here) return null;
-  PORTS.forEach(p => { if (p.id === c.at || !G.ports[p.id].open || landWhy(T, c.upg, p, season()) || Math.hypot(p.x - here.x, p.y - here.y) > rng) return; const pr = goodPrice(p.id, gid); if (!best || pr > best.price) best = { pid: p.id, name: p.name, price: pr }; }); return best; }
+// what the lots of one good aboard would bring here right now, each priced by where it came from
+function goodQuote(c, gid, pid) { let n = 0, rev = 0, cost = 0; (c.goods || []).forEach(q => { if (q.g !== gid) return; n += q.n; cost += q.cost; rev += q.n * goodPrice(pid, gid, q.from); }); return { n, cost, each: n ? Math.round(rev / n) : 0, paid: n ? Math.round(cost / n) : 0 }; }
+// the best price among your ports this craft could plausibly carry it to, bought here
+function bestMarket(c, gid, fromId) { const T = CRAFT_BY[c.type], here = PORT_BY[c.at], rng = cstat(c).range; let best = null; if (!here) return null;
+  PORTS.forEach(p => { if (p.id === c.at || !G.ports[p.id].open || landWhy(T, c.upg, p, season()) || Math.hypot(p.x - here.x, p.y - here.y) > rng) return; const pr = goodPrice(p.id, gid, fromId || c.at); if (!best || pr > best.price) best = { pid: p.id, name: p.name, price: pr }; }); return best; }
 function buyGood(c, gid, n) { if (!feat('trade')) return 'Trading unlocks at level ' + FEATURE_BY.trade.lvl + '.'; if (c.state !== 'dock') return 'Tie it up first.'; const g = GOOD_BY[gid]; if (!g || !goodMakes(PORT_BY[c.at], g)) return 'Nobody sells that here.';
   n = Math.min(n || 1, roomFor(c, 'c')); if (n <= 0) return 'No cargo room left.'; let spent = 0, got = 0;
-  for (let i = 0; i < n; i++) { const pr = goodBuyPrice(c.at, gid); if (G.money < pr) break; G.money -= pr; spent += pr; got++; bumpGlut(c.at, gid, -0.03); }
-  if (!got) return 'Can\'t afford it yet.'; const L = c.goods || (c.goods = []); let q = L.find(x => x.g === gid); if (!q) { q = { g: gid, n: 0, cost: 0 }; L.push(q); } q.n += got; q.cost += spent;
+  for (let i = 0; i < n; i++) { const pr = goodBuyPrice(c.at, gid); if (G.money < pr) break; G.money -= pr; spent += pr; got++; bumpGlut(c.at, gid, -0.02); }
+  if (!got) return 'Can\'t afford it yet.'; const L = c.goods || (c.goods = []); let q = L.find(x => x.g === gid && x.from === c.at); if (!q) { q = { g: gid, n: 0, cost: 0, from: c.at }; L.push(q); } q.n += got; q.cost += spent;
   emit('trade', { c, buy: true, g: gid, n: got, spent }); return null; }
-function sellGood(c, gid, n) { if (c.state !== 'dock') return 'Tie it up first.'; const L = c.goods || [], q = L.find(x => x.g === gid); if (!q) return 'None aboard.'; n = Math.min(n || q.n, q.n); const unit = q.cost / q.n, g = GOOD_BY[gid], port = PORT_BY[c.at], rq = reqFor(c.at, gid); let rev = 0, asked = 0;
-  for (let i = 0; i < n; i++) { let pr = goodPrice(c.at, gid); if (rq && rq.got < rq.n) { pr = Math.round(pr * 1.6); rq.got++; asked++; } rev += pr; bumpGlut(c.at, gid, 0.025); }
-  q.n -= n; q.cost -= unit * n; if (q.n <= 0) L.splice(L.indexOf(q), 1);
-  const profit = Math.round(rev - unit * n), xp = Math.max(0, Math.round(profit / 10)); G.money += rev; G.stats.earned += Math.max(0, profit); G.stats.trade = (G.stats.trade || 0) + profit; G.stats.goods = (G.stats.goods || 0) + n; addXp(c.at, n * 0.3);
+// sells every lot of that good aboard, or n units of it, the dearest-bought first
+function sellGood(c, gid, n) { if (c.state !== 'dock') return 'Tie it up first.'; const L = c.goods || [], lots = L.filter(x => x.g === gid); if (!lots.length) return 'None aboard.'; const have = lots.reduce((a, q) => a + q.n, 0); n = Math.min(n || have, have);
+  const g = GOOD_BY[gid], port = PORT_BY[c.at], rq = reqFor(c.at, gid); let rev = 0, asked = 0, cost = 0, left = n;
+  lots.forEach(q => { const k = Math.min(q.n, left), unit = q.cost / q.n; for (let i = 0; i < k; i++) { let pr = goodPrice(c.at, gid, q.from); if (rq && rq.got < rq.n) { pr = Math.round(pr * 1.6); rq.got++; asked++; } rev += pr; bumpGlut(c.at, gid, 0.02); }
+    q.n -= k; q.cost -= unit * k; cost += unit * k; left -= k; if (q.n <= 0) L.splice(L.indexOf(q), 1); });
+  const profit = Math.round(rev - cost), xp = Math.max(0, Math.round(profit / 10)); G.money += rev; G.stats.earned += Math.max(0, profit); G.stats.trade = (G.stats.trade || 0) + profit; G.stats.goods = (G.stats.goods || 0) + n; addXp(c.at, n * 0.3);
   emit('trade', { c, g: gid, n, rev, profit, xp, asked, x: port.x, y: port.y }); logFirst('good', gid, 10, 'first ' + g.name.toLowerCase() + ' sold'); if (xp) gainXp(xp); if (rq && rq.got >= rq.n) fillRequest(rq); return null; }
 
 /* ---------- requests: a port asks for something ---------- */
@@ -51,14 +61,16 @@ function spawnRequest() { const open = PORTS.filter(p => G.ports[p.id].open), op
   (G.reqs || (G.reqs = [])).push(rq); news(o[0].name + ' is asking for ' + rq.n + ' ' + o[1].name.toLowerCase() + '. It pays 60% over the going price, for three days.', 'good'); emit('request', { pid: rq.pid, g: rq.g, n: rq.n }); return rq; }
 function fillRequest(rq) { const i = G.reqs.indexOf(rq); if (i >= 0) G.reqs.splice(i, 1); const st = G.ports[rq.pid], P = PORT_BY[rq.pid]; st.favor = (st.favor || 0) + 1; addXp(rq.pid, 25); G.stats.reqs = (G.stats.reqs || 0) + 1; bonusXp(30, 'request filled');
   news(P.name + ' got what it asked for. ' + (st.favor <= 5 ? 'Fares out of there now pay ' + st.favor * 3 + '% more.' : 'They think the world of you there.'), 'good'); emit('requestDone', { pid: rq.pid, g: rq.g, favor: st.favor }); }
-function updateRequests() { const L = G.reqs || (G.reqs = []); for (let i = L.length - 1; i >= 0; i--) if (G.t >= L[i].until) { const rq = L[i]; L.splice(i, 1); addXp(rq.pid, -8); news(PORT_BY[rq.pid].name + ' went without its ' + GOOD_BY[rq.g].name.toLowerCase() + '.', 'bad'); emit('request', { pid: rq.pid, gone: true }); }
+function updateRequests(dt) { const L = G.reqs || (G.reqs = []); if (SIM.away) { L.forEach(r => { r.until += dt || 0; }); if (G.reqNext !== undefined) G.reqNext += dt || 0; return; }
+  for (let i = L.length - 1; i >= 0; i--) if (G.t >= L[i].until) { const rq = L[i]; L.splice(i, 1); addXp(rq.pid, -8); news(PORT_BY[rq.pid].name + ' went without its ' + GOOD_BY[rq.g].name.toLowerCase() + '.', 'bad'); emit('request', { pid: rq.pid, gone: true }); }
   if (!feat('trade')) return; if (G.reqNext === undefined) G.reqNext = G.t + 100; if (G.t >= G.reqNext) { G.reqNext = G.t + rnd(280, 460); if (L.length < 2) spawnRequest(); } }
 
 /* ---------- a rival ---------- */
 // Now and then the other outfit puts a claim on the best load at one of your ports. Load it within eighty seconds or it goes with them.
 // They leave ports alone where your standing is high, and the Almanac can switch them off.
 const RIVAL = 'Quoddy Air & Freight', RIVAL_WAIT = 80;
-function updateRival() {
+function updateRival(dt) {
+  if (SIM.away) { PORTS.forEach(p => { G.ports[p.id].jobs.forEach(j => { if (j.rv) j.rv += dt || 0; }); }); if (G.rivalNext !== undefined) G.rivalNext += dt || 0; return; }
   PORTS.forEach(p => { const st = G.ports[p.id]; if (!st.open) return; let n = 0, to = null; for (let i = st.jobs.length - 1; i >= 0; i--) { const j = st.jobs[i]; if (j.rv && G.t >= j.rv) { to = j.to; st.jobs.splice(i, 1); n++; } }
     if (n) { G.stats.lost = (G.stats.lost || 0) + n; news(RIVAL + ' took ' + n + (n === 1 ? ' job' : ' jobs') + ' out of ' + p.name + ' for ' + PORT_BY[to].name + '.', 'bad'); emit('rival', { pid: p.id, to, n, took: true }); SIM.dirty = true; } });
   if (!feat('rival') || G.rivalOff) return; if (G.rivalNext === undefined) G.rivalNext = G.t + 90; if (G.t < G.rivalNext) return; G.rivalNext = G.t + rnd(170, 280);
@@ -87,4 +99,4 @@ function crewRank(c) { const t = c.crew ? (c.crew.trips || 0) : 0; return t >= 6
 function crewFare(c) { return 1 + 0.04 * crewRank(c); }
 function crewTrip(c) { if (!c.crew) return; const r0 = crewRank(c); c.crew.trips = (c.crew.trips || 0) + 1; const r1 = crewRank(c); if (r1 > r0) { news(c.crew.name + ' on "' + c.name + '" is ' + (r1 === 2 ? 'an old hand' : 'seasoned') + ' now. Fares pay ' + r1 * 4 + '% more.', 'good'); emit('crewRank', { c, rank: r1 }); } }
 
-function updateDepth(dt) { const m = G.gg; if (m) { const k = Math.exp(-dt / 700); for (const id in m) { m[id] *= k; if (Math.abs(m[id]) < 0.004) delete m[id]; } } updateRequests(); updateRival(); }
+function updateDepth(dt) { const m = G.gg; if (m) { const k = Math.exp(-dt / 700); for (const id in m) { m[id] *= k; if (Math.abs(m[id]) < 0.004) delete m[id]; } } updateRequests(dt); updateRival(dt); }

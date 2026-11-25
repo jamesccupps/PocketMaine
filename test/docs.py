@@ -48,7 +48,7 @@ def run(pg, W):
     # the yard
     ev("() => { deselect(); givePart('beav', 0); givePart('beav', 1); givePart('loon', 2); stockShelf('pwm'); selectPort('pwm', true); act('stab', 'port'); }"); shot('phone-yard')
     # a lesson: Aunt Bev pointing at the goods for sale
-    ev("""() => { deselect(); G.lesOff = false; G.les = {}; LESSON_ORDER.forEach(id => { G.les[id] = 1; }); delete G.les.trade; UI.lesWait = 0; UI.lesCur = '';
+    ev("""() => { deselect(); G.lesOff = false; G.les = {}; LESSON_ORDER.forEach(id => { G.les[id] = 1; }); delete G.les.trade; G.lesAsked = 1; G.lesAsk = 0; UI.lesWait = 0; UI.lesCur = 'trade';      // as if she had been followed here from the map
         const c = DOC.wagon; c.jobs.slice().forEach(j => unloadJob(c, j.id)); selectCraft(c.id, true); }"""); pg.wait_for_timeout(900); shot('phone-lesson'); ev("() => { G.lesOff = true; }")
 
 SOCIAL = """(phone) => {

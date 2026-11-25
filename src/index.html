@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Pocket Maine - Air and Sea</title>
 <meta name="description" content="A cozy pixel-art transport tycoon in the browser. Fly bush planes, run ferries and lobster boats, and open 54 ports from Maine across New England. Free.">
 <meta name="author" content="James Cupps">
@@ -75,16 +75,17 @@
     <div class="hudbox" id="datebox" data-tip="Real time: a day is five minutes, a season is seven days. The clock keeps running while the game is closed."><img id="seasonic" alt=""><div><div id="date"></div><div id="daybar"><i id="dayfill"></i></div></div></div>
     <div class="spacer"></div>
     <button class="hbtn big" id="landbtn" data-act="nextIdle" data-tip="Jump to the next craft that needs you (Tab)">0 ARRIVED</button>
-    <button class="hbtn" id="sndbtn" data-act="sound" data-tip="Sound on/off">&#9835;</button>
-    <button class="hbtn" data-act="help" data-tip="About the game">?</button>
+    <button class="hbtn" id="sndbtn" data-act="sound" data-tip="Sound on/off" aria-label="Sound on or off">&#9835;</button>
+    <button class="hbtn" data-act="help" data-tip="About the game" aria-label="About the game">?</button>
   </header>
   <div id="stage">
     <div id="mapwrap">
-      <canvas id="map"></canvas>
-      <div id="zoom"><button class="hbtn" data-act="zin" data-tip="Zoom in">+</button><button class="hbtn" data-act="zout" data-tip="Zoom out">&minus;</button><button class="hbtn" data-act="zhome" data-tip="Whole state">ME</button></div>
+      <canvas id="map" role="img" aria-label="Map of your ports and craft"></canvas>
+      <div id="zoom"><button class="hbtn" data-act="zin" data-tip="Zoom in" aria-label="Zoom in">+</button><button class="hbtn" data-act="zout" data-tip="Zoom out" aria-label="Zoom out">&minus;</button><button class="hbtn" data-act="zhome" data-tip="Back to your home waters" aria-label="Back to your home waters">ME</button></div>
       <div id="bevmap"></div>
       <div id="banner"></div>
-      <div id="toasts"></div>
+      <div id="toasts" role="status" aria-live="polite"></div>
+      <div id="catchup" role="status" aria-live="polite"><div class="cubox"><b>CATCHING UP</b><span id="catchtxt"></span><div class="bar"><i id="catchbar"></i></div></div></div>
     </div>
     <div id="sheetwrap">
       <div id="sheet">
@@ -107,11 +108,11 @@
       <button class="mbtn" data-act="menu" data-arg="almanac" data-tip="Season, weather, how to play, the books"><img id="mi3" alt=""><span>ALMANAC</span></button>
     </div>
   </div>
-  <footer id="ticker"><b>THE DOORYARD DISPATCH</b><img id="tface" alt=""><span id="tmsg"><span id="tmi"></span></span></footer>
+  <footer id="ticker"><b>THE DOORYARD DISPATCH</b><img id="tface" alt=""><span id="tmsg" aria-live="off"><span id="tmi"></span></span></footer>
 </div>
 <div id="tip"></div>
-<div id="coach"><div id="coachring"></div><div id="coachbub"></div></div>
-<div id="modal"><div id="mbox"></div></div>
+<div id="coach" role="status" aria-live="polite"><div id="coachring"></div><div id="coachbub"></div></div>
+<div id="modal" role="dialog" aria-modal="true" aria-label="Pocket Maine"><div id="mbox"></div></div>
 <script>
 /*JS*/
 </script>

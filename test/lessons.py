@@ -87,10 +87,28 @@ with sync_playwright() as p:
     fl=ev("() => { const f=document.getElementById('fleet'); return [f.scrollLeft, f.scrollWidth-f.clientWidth]; }")
     if fl[1]>20 and fl[0]<fl[1]-4: bad('a lesson pointing at a craft pins the fleet strip: scrolled to the end, it snapped back to %d of %d'%(fl[0],fl[1]))
     ev("() => { deselect(); }")
-    # a save from before the lessons existed loads, and the lessons for what it has already unlocked are waiting
-    ev("() => { G.tutDone=true; G.level=5; delete G.les; delete G.lesOff; saveGame(STORE); }"); pg.reload(); pg.wait_for_timeout(700); tap('#mbox [data-act=continue]'); pg.wait_for_timeout(900)
-    st=ev(STATE)
-    if not st['on']: bad('an older save at level 5 gets no lessons')
+    # a save from before the lessons existed, with a lot already unlocked, is asked once instead of being handed a queue
+    def old_save(level):
+        ev("(l) => { G.tutDone=true; G.level=l; delete G.les; delete G.lesOff; delete G.lesAsked; delete G.lesAsk; G.vipNext=1e12; saveGame(STORE); }", level); pg.reload(); pg.wait_for_timeout(700); tap('#mbox [data-act=continue]'); pg.wait_for_timeout(1200); return ev(STATE)
+    st=old_save(5)
+    if not (st['on'] and st['id']=='les-offer' and 'CATCHING UP' in st['head']): bad('an older save at level 5 is not asked whether it wants the lessons (got %s)'%st.get('id'))
+    else:
+        print('   offer         %s | %s'%(st['head'],st['text'])); pg.screenshot(path='test/les%d_offer.png'%W)
+        for i in ev(AUDIT): bad('offer: %s'%i)
+        tapxy(*st['next']); pg.wait_for_timeout(500); st2=ev(STATE)
+        if not (st2['on'] and st2['id']!='les-offer' and st2['cur']): bad('SHOW ME does not start the lessons (got %s)'%st2.get('id'))
+    st=old_save(5)
+    if st.get('id')!='les-offer': bad('the offer does not come back for another old save')
+    else:
+        tap('#coachbub [data-act=lesSkip]'); pg.wait_for_timeout(500); st2=ev(STATE); armed=ev("() => LESSON_ORDER.filter(id => feat(id) && !G.les[id]).length")
+        if st2['on'] or armed: bad('NO THANKS leaves %d lessons waiting'%armed)
+        ev("() => { G.level=6; UI.lesWait=0; }"); pg.wait_for_timeout(800); st3=ev(STATE)
+        if not (st3['on'] and st3['cur'] in ('reg2','crew')): bad('after NO THANKS, the next level still gets its own lesson (got %s)'%st3.get('cur'))
+    st=old_save(2); 
+    if st.get('id')=='les-offer': bad('a game with only a couple of things unlocked gets the offer instead of the lessons')
+    # opening a craft for your own reasons never brings up a lesson you were not following
+    ev("() => { G.les={}; G.lesAsked=1; G.lesAsk=0; G.level=6; UI.lesCur=''; UI.lesWait=1e15; deselect(); const c=G.crafts.find(x=>x.state==='dock'); selectCraft(c.id,true); UI.lesWait=0; }"); pg.wait_for_timeout(800); st=ev(STATE)
+    if st['on']: bad('a lesson came up inside a craft that was opened without following one: %s'%st.get('text'))
     for e in errs: bad('JS ERROR: '+e)
     b.close()
 print('\nPROBLEMS: %d'%len(probs))

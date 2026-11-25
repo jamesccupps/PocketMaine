@@ -53,7 +53,7 @@ Also in the game:
 - **16 craft.** Nine planes and seven boats. The ferry and the freighter take groups and lots of ten or twenty in one tap. The excursion boat takes no jobs at all: pick two to four deep-water harbors and it is paid at every stop. Freighters and excursion boats need a deep-water harbor.
 - **Yards.** Hangars and boatyards sell parts (three parts build a craft) and store spare craft. One plane, the Gilded Beav, is never for sale: its parts only come in VIP crates.
 - **VIPs with lists.** Three of them keep coming back until they have been everywhere on their list. Finishing a list earns a paint no yard sells.
-- **Goods.** Eight of them, each made at some ports and wanted at others. A unit is cheap where it is made and dearer the farther it is carried. Buying pushes the price up, selling pushes it down, and both drift back. Goods fill whatever cargo room the jobs leave.
+- **Goods.** Eight of them, each made at some ports and wanted at others. A unit is cheap where it is made and gains value for every kilometre you carry it from where you bought it, and a third more where it is wanted; a port that makes it pays only its own price. Buying pushes the price up, selling pushes it down, and both drift back. Goods fill whatever cargo room the jobs leave.
 - **Requests.** A port asks for a good, two requests at a time across the map. Filling one pays 60% over the price and that port's fares pay 3% more from then on, up to 15%. Letting one lapse costs standing there.
 - **Connections.** A job no single craft of yours can deliver is marked CONNECTION and pays 35% more. Standing runs take up to four stops, and two runs that share a port hand loads to each other there.
 - **A rival.** From level 7 another outfit claims the best load at one of your ports; load it within eighty seconds or it is gone. It stays away from ports where your standing is high.
@@ -67,9 +67,13 @@ What is done, what is not, and what could come next is in the [roadmap](ROADMAP.
 ## Design choices
 
 - **Real time, no energy.** Trips take real minutes, and the game keeps going while it is closed or hidden, capped at twelve hours. There are no energy timers, no premium currency and nothing to buy.
+- **Waiting is the game.** HURRY brings a craft in at once, and costs the fare it is carrying, so it is for getting a craft back, not for getting paid sooner. A hurried trip earns no XP.
+- **Boats are paid half again.** Pay goes by distance and a boat covers it at a quarter of a plane's speed, so every load a boat delivers pays 50% more. The board shows the boat's price when a boat is open.
+- **Nothing punishes being away.** Port requests do not run down and the rival stays home while the game is closed. A long absence is played out behind a short CATCHING UP note.
 - **One job, one slot.** Every passenger or parcel takes one seat or one cargo slot, and jobs arrive in same-destination groups, so a bigger craft is still quick to fill. Standing runs take over the repetitive routes late in the game.
 - **You choose where to go.** Nothing picks a destination for you. The ports your load is bound for flash on the map.
 - **You can see what you are holding.** The craft in hand has a yellow card with its picture, its seats and cargo counted, and every slot drawn. A craft with ten or more slots lists its load by destination. The same craft is bracketed in the port scene and on the map.
+- **Upkeep is worth paying.** A full overhaul costs 4% of a craft's price. A worn craft runs 15% slower, then 40%. A standing run waits for half a load before it leaves, and only has its craft overhauled out of what the run has cleared.
 - **Boats follow the water.** Sea routes are found on a one-kilometre grid of the coast, so a boat goes around a peninsula, not over it.
 - **Features arrive one at a time.** A new game is only load, send, collect. Each system is hidden until its level.
 - **Original art only.** The map, craft, cargo icons and people are drawn in code. People are generated from a seed.
@@ -117,6 +121,7 @@ python3 test/levels.py 386x630x3 casco         # levels up and uses each unlock 
 python3 test/playtest.py 386x630x3 casco       # a long tap-driven session, checking the wording per craft
 python3 test/vip.py 386x630x3                  # VIPs, holidays and events by taps, through a save and reload
 python3 test/depth.py 386x630x3                # goods, a request, a fit, a three-stop run and the rival switch by taps
+node test/pace.js 8 casco 8                    # a simulated player for eight hours: levels, money, ports and fleet over time
 python3 test/away.py 386x630x3                 # hides the page mid-trip, then closes and reopens it: a real wait, two hours, twenty hours
 python3 test/shot.py 1440 900 stress           # 3,000 random steps through every system
 python3 test/docs.py                           # retakes the screenshots in docs/ and the link preview picture
