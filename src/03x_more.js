@@ -96,12 +96,12 @@ function shelfPrice(it) { return evGlob('swap') ? Math.max(25, Math.round(it.pri
 function seedEvent() { const e = G.ev; if (!e.port) return; const P = PORT_BY[e.port], s = season();
   PORTS.forEach(o => { const st = G.ports[o.id]; if (!st.open || (e.from ? o.id !== e.port : o.id === e.port)) return;
     const dests = e.from ? PORTS.filter(d => d.id !== o.id && G.ports[d.id].open) : [P]; if (!dests.length) return;
-    for (let k = 0; k < (e.from ? (e.ship ? 5 : 3) : 1); k++) { const d = pick(dests), n = 2 + ((Math.random() * 3) | 0), fl = jobFlavor(e.kind, o, d, s), pay = payFor(o, d, e.kind, s, false);
+    for (let k = 0; k < (e.from ? (e.ship ? 5 : 3) : 1); k++) { const d = pick(dests), n = 2 + ((rand() * 3) | 0), fl = jobFlavor(e.kind, o, d, s), pay = payFor(o, d, e.kind, s, false);
       for (let i = 0; i < n; i++) st.jobs.unshift({ id: G.nextId++, from: o.id, to: d.id, kind: e.kind, pay, label: fl[0], ic: fl[1], ev: 1 }); } }); SIM.dirty = true; }
 function startEvent(e, port) { if (port === undefined) port = e.port || null;
   G.ev = { id: e.id, name: e.name, port: port || null, kind: e.kind || null, mult: e.mult || 1, from: !!e.from, ship: e.ship || null, glob: e.glob || null, until: G.t + DAY_LEN * 2 };
   // a circuit visits up to four harbors, a day at each
-  if (e.circuit) { const ps = PORTS.filter(p => G.ports[p.id].open && has(p, e.circuit)).map(p => p.id).sort(() => Math.random() - 0.5).slice(0, 4); G.ev.circuit = ps; G.ev.ci = 0; G.ev.port = port = ps[0]; G.ev.until = G.t + DAY_LEN * ps.length; }
+  if (e.circuit) { const ps = PORTS.filter(p => G.ports[p.id].open && has(p, e.circuit)).map(p => p.id).sort(() => rand() - 0.5).slice(0, 4); G.ev.circuit = ps; G.ev.ci = 0; G.ev.port = port = ps[0]; G.ev.until = G.t + DAY_LEN * ps.length; }
   G.ev.text = evText(e.text ? e : G.ev); seedEvent(); const len = G.ev.circuit ? 'A day at each of ' + G.ev.circuit.length + ' harbors.' : 'Two days.';
   news(e.name + (port ? ' at ' + PORT_BY[port].name : '') + '. ' + e.blurb + ' ' + G.ev.text + ' ' + len, 'good'); emit('event', { start: true, port: port || null, name: e.name, text: G.ev.text, len }); }
 function moveCircuit() { const e = G.ev; if (!e || !e.circuit || e.ci + 1 >= e.circuit.length) return; e.ci++; e.port = e.circuit[e.ci]; e.text = evText(Object.assign({}, e, { text: '' })); seedEvent();
@@ -119,15 +119,15 @@ function expireUrgent() { PORTS.forEach(p => { const st = G.ports[p.id]; if (!st
 // The season's events are drawn up ahead of time, so the Almanac can say what is coming: three of them, on the second, fourth and sixth days.
 const seasonDay = () => dayOf(G.t) % SEASON_DAYS;
 function planSeason() { G.calS = season(); if (!feat('events')) { G.cal = []; return; } const c = eventChoices(), d0 = seasonDay(), days = (d0 ? [d0 + 1, d0 + 3, d0 + 5] : [1, 3, 5]).filter(d => d < SEASON_DAYS), picks = [];
-  while (picks.length < days.length && c.length) { const x = c.splice((Math.random() * c.length) | 0, 1)[0]; picks.push({ id: x[0].id, name: x[0].name, port: x[0].circuit ? null : x[1], day: days[picks.length] }); } G.cal = picks; }
+  while (picks.length < days.length && c.length) { const x = c.splice((rand() * c.length) | 0, 1)[0]; picks.push({ id: x[0].id, name: x[0].name, port: x[0].circuit ? null : x[1], day: days[picks.length] }); } G.cal = picks; }
 function rollEvent() { if (!feat('events')) return;
   if (G.ev && G.t >= G.ev.until) { news(G.ev.name + ' is over.', 'idle'); G.ev = null; emit('event', {}); }
   else if (G.ev && G.ev.circuit) moveCircuit();
   if (!G.cal || G.calS !== season()) planSeason();
   if (!G.ev && portsOwned() > 1) { const d = seasonDay(), k = G.cal.find(q => !q.done && q.day <= d); if (k) { k.done = 1; const e = EVENTS.find(q => q.id === k.id); if (e && (!k.port || G.ports[k.port].open)) startEvent(e, e.circuit ? undefined : k.port); } }
-  if (Math.random() < 0.4) urgentRun(); }
+  if (rand() < 0.4) urgentRun(); }
 // after a storm blows through, the place that took the worst of it needs things in a hurry
-function reliefRun(c) { if (!feat('events') || Math.random() < 0.5) return null; const open = PORTS.filter(p => G.ports[p.id].open); if (open.length < 2) return null;
+function reliefRun(c) { if (!feat('events') || rand() < 0.5) return null; const open = PORTS.filter(p => G.ports[p.id].open); if (open.length < 2) return null;
   const hit = open.filter(p => Math.hypot(p.x - c.x, p.y - c.y) < c.r + 45).sort((a, b) => Math.hypot(a.x - c.x, a.y - c.y) - Math.hypot(b.x - c.x, b.y - c.y))[0]; if (!hit) return null;
   const from = open.filter(p => p.id !== hit.id).sort((a, b) => b.size - a.size || Math.hypot(a.x - hit.x, a.y - hit.y) - Math.hypot(b.x - hit.x, b.y - hit.y))[0], s = season(), out = [];
   [['c', 'Storm relief: generators for ' + hit.name, 'parts'], ['c', 'Storm relief: fuel and line for ' + hit.name, 'drum'], ['p', 'Storm relief: a line crew for ' + hit.name, 'cap']].forEach(q => { const j = { id: G.nextId++, from: from.id, to: hit.id, kind: q[0], pay: Math.round(payFor(from, hit, q[0], s, false) * 2.5 / 5) * 5, label: q[1], ic: q[2], urgent: G.t + 480, relief: 1 }; G.ports[from.id].jobs.unshift(j); out.push(j); });
@@ -151,7 +151,7 @@ const CREW_NAMES = ['Earl', 'Dot', 'Merle', 'Linwood', 'Avis', 'Cappy', 'Junior'
 const crewHas = (c, p) => !!c.crew && c.crew.perk === p;
 function crewCost() { return Math.round((250 + 120 * G.level) / 50) * 50; }
 function refreshHall() { if (!feat('crew')) return; const keys = Object.keys(PERKS); G.hall = []; let guard = 0;
-  while (G.hall.length < 3 && guard++ < 40) { const perk = pick(keys); if (G.hall.some(h => h.perk === perk)) continue; G.hall.push({ id: G.nextId++, name: pick(CREW_NAMES), perk, seed: (Math.random() * 1e6) | 0, cost: Math.round(crewCost() * rnd(0.85, 1.2) / 10) * 10 }); }
+  while (G.hall.length < 3 && guard++ < 40) { const perk = pick(keys); if (G.hall.some(h => h.perk === perk)) continue; G.hall.push({ id: G.nextId++, name: pick(CREW_NAMES), perk, seed: (rand() * 1e6) | 0, cost: Math.round(crewCost() * rnd(0.85, 1.2) / 10) * 10 }); }
   emit('yard', {}); }
 function hireCrew(c, id) { if (!feat('crew')) return 'Crew unlock at level ' + FEATURE_BY.crew.lvl + '.'; const i = (G.hall || []).findIndex(h => h.id === id); if (i < 0) return 'They took another job.';
   const h = G.hall[i], P = PERKS[h.perk], T = CRAFT_BY[c.type]; if (P.cls && P.cls !== T.cls) return 'That skill is for a ' + P.cls + '.'; if (G.money < h.cost) return 'Can\'t afford it yet.';

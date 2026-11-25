@@ -56,7 +56,7 @@ function reqFor(pid, gid) { return (G.reqs || []).find(r => r.pid === pid && r.g
 function portFavor(pid) { return Math.min(5, (G.ports[pid] && G.ports[pid].favor) || 0); }
 function spawnRequest() { const open = PORTS.filter(p => G.ports[p.id].open), opts = []; let tot = 0;
   open.forEach(p => { if ((G.reqs || []).some(r => r.pid === p.id)) return; GOODS.forEach(g => { if (goodMakes(p, g) || !open.some(q => goodMakes(q, g))) return; const w = goodWants(p, g) ? 3 : 1; opts.push([p, g, w]); tot += w; }); });
-  if (!opts.length) return null; let r = Math.random() * tot, o = opts[0]; for (let i = 0; i < opts.length; i++) { r -= opts[i][2]; if (r <= 0) { o = opts[i]; break; } }
+  if (!opts.length) return null; let r = rand() * tot, o = opts[0]; for (let i = 0; i < opts.length; i++) { r -= opts[i][2]; if (r <= 0) { o = opts[i]; break; } }
   let cap = 1; G.crafts.forEach(c => { cap = Math.max(cap, cstat(c).cargo); }); const rq = { id: G.nextId++, pid: o[0].id, g: o[1].id, n: clamp(Math.round(cap * rnd(0.8, 1.6)), 2, 12), got: 0, until: G.t + DAY_LEN * 3 };
   (G.reqs || (G.reqs = [])).push(rq); news(o[0].name + ' is asking for ' + rq.n + ' ' + o[1].name.toLowerCase() + '. It pays 60% over the going price, for three days.', 'good'); emit('request', { pid: rq.pid, g: rq.g, n: rq.n }); return rq; }
 function fillRequest(rq) { const i = G.reqs.indexOf(rq); if (i >= 0) G.reqs.splice(i, 1); const st = G.ports[rq.pid], P = PORT_BY[rq.pid]; st.favor = (st.favor || 0) + 1; addXp(rq.pid, 25); G.stats.reqs = (G.stats.reqs || 0) + 1; bonusXp(30, 'request filled');
@@ -75,7 +75,7 @@ function updateRival(dt) {
     if (n) { G.stats.lost = (G.stats.lost || 0) + n; news(RIVAL + ' took ' + n + (n === 1 ? ' job' : ' jobs') + ' out of ' + p.name + ' for ' + PORT_BY[to].name + '.', 'bad'); emit('rival', { pid: p.id, to, n, took: true }); SIM.dirty = true; } });
   if (!feat('rival') || G.rivalOff) return; if (G.rivalNext === undefined) G.rivalNext = G.t + 90; if (G.t < G.rivalNext) return; G.rivalNext = G.t + rnd(170, 280);
   const free = j => !j.vip && !j.urgent && !j.rv, ports = PORTS.filter(p => G.ports[p.id].open && G.ports[p.id].jobs.filter(free).length >= 5); if (!ports.length) return null;
-  const p = pick(ports); if (Math.random() < 0.12 * standingLevel(p.id)) return null;
+  const p = pick(ports); if (rand() < 0.12 * standingLevel(p.id)) return null;
   const by = {}; G.ports[p.id].jobs.forEach(j => { if (free(j)) (by[j.to] || (by[j.to] = [])).push(j); }); let best = null, bv = 0; for (const k in by) { const v = by[k].reduce((a, j) => a + j.pay, 0); if (v > bv) { bv = v; best = k; } } if (!best) return null;
   by[best].forEach(j => { j.rv = G.t + RIVAL_WAIT; }); emit('rival', { pid: p.id, to: best, n: by[best].length }); SIM.dirty = true; return by[best]; }
 

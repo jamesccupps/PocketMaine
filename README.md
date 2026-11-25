@@ -27,7 +27,7 @@ On a desktop:
 ## How it plays
 
 1. Open a craft, hit **LOAD** on the jobs you want, then **FLY** (or **CAST OFF** for a boat) and tap where to go on the map.
-2. Trips take a few minutes of real time. When a craft shows **ARRIVED**, open it to collect the fare and the XP.
+2. Trips take a few minutes of real time (a third of that at the BRISK pace, below). When a craft shows **ARRIVED**, open it to collect the fare and the XP.
 3. Fill a craft with jobs for one destination for a 25% bonus.
 4. Spend what you earn on new ports, fleet slots and craft. Planes go from a hangar town, boats from a boatyard town.
 
@@ -67,6 +67,8 @@ What is done, what is not, and what could come next is in the [roadmap](ROADMAP.
 ## Design choices
 
 - **Real time, no energy.** Trips take real minutes, and the game keeps going while it is closed or hidden, capped at twelve hours. There are no energy timers, no premium currency and nothing to buy.
+- **Two paces.** POCKET runs on your watch and is made to be checked on through the day. BRISK runs the game's clock three times as fast, in view and while away, for sitting down with it at a desk. The start screen offers both (BRISK is the one lit on a desktop, POCKET on a phone) and PACE in the Almanac switches at any time. Every time the game shows is game time; the date box carries a 3× mark when the clock is fast.
+- **Levels are spaced by hand.** The first seven are set from what a simulated player earns: level 2 at about nine minutes, 3 at about twenty, 4 at about half an hour, 8 at about an hour and three quarters (POCKET pace). On the old curve the first port bought was enough for level 2, and four features arrived inside five minutes.
 - **Waiting is the game.** HURRY brings a craft in at once, and costs the fare it is carrying, so it is for getting a craft back, not for getting paid sooner. A hurried trip earns no XP, and the first tap only says what it will cost.
 - **Boats are paid half again.** Pay goes by distance and a boat covers it at a quarter of a plane's speed, so every load a boat delivers pays 50% more. The board shows the boat's price when a boat is open.
 - **Nothing punishes being away.** Port requests and signed contracts do not run down, and the rival stays home, while the game is closed. VIPs and urgent jobs on the boards still come and go; missing one costs nothing but the chance. A long absence is played out behind a short CATCHING UP note.
@@ -106,6 +108,9 @@ It needs only Python 3. The three fonts in `fonts/` are inlined into the page.
 
 ## Testing
 
+- **Nothing under 12 px, and one thing over the game at a time.** Small labels are set in the taller body face at 16 px; buttons, tabs and headings keep the pixel face at 12 px or more. A banner has the screen to itself, lesson bubbles step back for it, and notes take turns under the top bar (one on a phone, two at a desk) and move clear of a lesson.
+- **The dice are seeded.** Every roll in the rules comes from one generator whose state is kept in the save, so a game can be replayed from its seed: `SEED=7 node test/rules.js`, `SEED=7 node test/pace.js 4 casco 8`.
+
 The rules have no dependency on the page, so they are tested directly in Node:
 
 ```
@@ -115,15 +120,16 @@ node test/rules.js
 The rest drive the built page in headless Chrome through Playwright (`pip install playwright`; set `CHROME` to the browser's path if it is not `/usr/bin/google-chrome`). Run them from the repository root:
 
 ```
-python3 test/audit.py 386x630x3 1280x720x1     # nothing clipped, cropped or off screen, on every screen
+python3 test/audit.py 386x630x3 1280x720x1     # nothing clipped, cropped, off screen or under 12 px, on every screen
 python3 test/tutorial.py 386x630x3             # follows the tutorial by tapping only what it highlights
 python3 test/lessons.py 386x630x3              # follows each of Aunt Bev's lessons the same way, one per unlock
 python3 test/levels.py 386x630x3 casco         # levels up and uses each unlock by taps
 python3 test/playtest.py 386x630x3 casco       # a long tap-driven session, checking the wording per craft
 python3 test/vip.py 386x630x3                  # VIPs, holidays and events by taps, through a save and reload
 python3 test/depth.py 386x630x3                # goods, a request, a fit, a three-stop run, the rival switch, people and cargo marks, HURRY by taps
-node test/pace.js 8 casco 8                    # a simulated player for eight hours: levels, money, ports and fleet over time
-python3 test/away.py 386x630x3                 # hides the page mid-trip, then closes and reopens it: a real wait, two hours, twenty hours
+node test/pace.js 8 casco 8                    # a simulated player for eight hours: levels, money, ports and fleet over time; fails if a level arrives outside its bounds
+python3 test/overlays.py 386x630x3             # a banner, three notes and a lesson at once: who shows, where, and in what order
+python3 test/away.py 386x630x3                 # hides the page mid-trip, then closes and reopens it: a real wait, two hours, twenty hours; then the BRISK pace
 python3 test/offline.py                        # serves the game on localhost, cuts the network, and reloads it from the service worker's copy
 python3 test/shot.py 1440 900 stress           # 3,000 random steps through every system
 python3 test/docs.py                           # retakes the screenshots in docs/ and the link preview picture

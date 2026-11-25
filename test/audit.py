@@ -2,7 +2,7 @@
 # and on a port screen that opens without a LOAD button in view.
 import sys
 from playwright.sync_api import sync_playwright
-AUDIT = """() => { const out=[]; const vw=innerWidth, vh=innerHeight;
+AUDIT = """() => { const out=[]; const vw=innerWidth, vh=innerHeight, FONT_MIN=12;
   const scrollers=new Set(['fleet','sbody','scols','sleft','mbox','sheetwrap','tmsg']);
   const ignoreIds=new Set(['mapwrap','scenebox','app','stage','daybar','xpbar','splash','modal','sheet','scene','map','dock','main']);
   const desc=el=>{ let s=el.tagName.toLowerCase()+(el.id?'#'+el.id:'')+(el.className&&typeof el.className==='string'?'.'+el.className.trim().split(/\\s+/).join('.'):''); const t=(el.textContent||'').trim().replace(/\\s+/g,' ').slice(0,28); return s+(t?' "'+t+'"':''); };
@@ -13,6 +13,8 @@ AUDIT = """() => { const out=[]; const vw=innerWidth, vh=innerHeight;
     const clipX=(cs.overflowX==='hidden'||cs.overflowX==='clip'), clipY=(cs.overflowY==='hidden'||cs.overflowY==='clip');
     if(el.scrollWidth>el.clientWidth+1 && el.clientWidth>0 && cs.display!=='inline'){ out.push((clipX?'CLIPPED ':'SPILLS ')+desc(el)+' '+el.scrollWidth+'>'+el.clientWidth); }
     if(clipY && el.scrollHeight>el.clientHeight+2) out.push('CLIPPED-Y '+desc(el)+' '+el.scrollHeight+'>'+el.clientHeight);
+    // nothing a player has to read is under 12 px
+    if([...el.childNodes].some(n=>n.nodeType===3&&n.textContent.trim().length>0)){ const fs=parseFloat(cs.fontSize); if(fs<FONT_MIN) out.push('SMALL-TEXT '+fs+'px '+(cs.fontFamily.indexOf('Silk')>=0?'silk':'vt')+' '+desc(el)); }
     if((r.right>vw+1||r.left<-1) && !el.closest('#fleet') && !el.closest('#mapwrap')) out.push('OFFSCREEN '+desc(el)+' '+Math.round(r.left)+'..'+Math.round(r.right));
     if(r.bottom>vh+1 && !el.closest('#sbody,#scols,#sleft,#mbox,#mapwrap')) out.push('BELOW-SCREEN '+desc(el)+' '+Math.round(r.bottom)+'>'+vh);
   });
@@ -95,7 +97,7 @@ with sync_playwright() as p:
         pg.evaluate("() => { deselect(); showUnlock({level:8,bonus:800,unlocked:['Katahdin Twin'],feats:['runs','works']}); }"); chk('lg_levelup', True); pg.evaluate("() => closeModal()")
         pg.evaluate("() => deselect()"); chk('bigmap', True)
         print('%4dx%-4d  issues: %d%s'%(W,H,len(found),'  JS errors: '+str(errs[:2]) if errs else '')); total+=len(found)
-        for f in found[:14]: print('     ',f[:170])
+        for f in (found if __import__('os').environ.get('AUDIT_ALL') else found[:14]): print('     ',f[:170])
         ctx.close()
     b.close()
 print('TOTAL', total)

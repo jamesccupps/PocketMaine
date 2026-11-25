@@ -106,7 +106,8 @@ function drawMap(now, ui) {
     if (ui.hoverPort && sel.state === 'dock' && !fishMode) { const from = ui.stops.length ? ui.stops[ui.stops.length - 1] : sel.at; const li = legInfo(sel, from, ui.hoverPort); if (li.ok) drawPath(x, li.pts, '#ffffff', t, 0.5); }
   }
   layoutDocked();
-  const relabel = [];   // while routing, the names you are choosing between are drawn again on top of the craft
+  const relabel = [];   // the names of your ports (and, while routing, the ones you are choosing between) are drawn again on top of the craft:
+                        // at a busy port the craft parked there used to sit on the name
   // ports
   PORTS.forEach(p => {
     const st = G.ports[p.id], sx = wx2s(p.x), sy = wy2s(p.y); p.sx = sx; p.sy = sy; p.labR = null; if (sx < -60 || sx > bw + 60 || sy < -20 || sy > bh + 20) return;
@@ -133,7 +134,7 @@ function drawMap(now, ui) {
       if (side === 'l' && sx - tw - r - 3 < 1 && sx > -r) side = 'r'; else if (side === 'r' && sx + r + 4 + tw > bw - 1 && sx < bw + r) side = 'l';
       p.side = side; if (side === 'l') { lx = sx - tw - r - 3; ly = sy - 2; } else if (side === 'r') { lx = sx + r + 4; ly = sy - 2; } else { if (side === 't') ly = sy - r - 8; if (sx > 0 && sx < bw) lx = clamp(lx, 1, bw - tw - 1); }
       drawText(x, name, Math.round(lx), ly, flash ? '#ffe36a' : st.open ? '#ffffff' : '#aeb9c6', '#14273d'); p.labR = [Math.round(lx), ly, tw];
-      if (ui.screen === 'route' && (reach === true || stopN >= 0 || flash)) relabel.push([name, Math.round(lx), ly, flash ? '#ffe36a' : '#ffffff']);
+      if (st.open || (ui.screen === 'route' && (reach === true || stopN >= 0 || flash))) relabel.push([name, Math.round(lx), ly, flash ? '#ffe36a' : '#ffffff']);
       if (detail) { let px = Math.round(lx), py = ly + 7; const pip = col => { x.fillStyle = '#14273d'; x.fillRect(px - 1, py - 1, 4, 4); x.fillStyle = col; x.fillRect(px, py, 2, 2); px += 4; };
         if (p.strip === 2) pip('#9aa3ad'); if (p.strip === 1) pip(s === SPRING ? '#6b4a2a' : '#c89a5a'); if (p.water === 'sea') pip('#4f9be0'); if (p.water === 'lake') pip(s === WINTER ? '#ffffff' : '#8fe0f0');
         if (p.yard) { const yl = p.yard === 'hm' ? 'HB' : p.yard === 'h' ? 'H' : 'B', yw = textWidth(yl); x.fillStyle = '#14273d'; x.fillRect(px - 1, py - 2, yw + 3, 7); drawText(x, yl, px + 1, py - 1, '#ffd23f'); px += yw + 5; }

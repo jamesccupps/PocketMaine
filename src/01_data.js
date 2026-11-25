@@ -15,6 +15,7 @@ const SPEED_SCALE = 0.085;   // craft "speed" stat -> km per real second (a 100 
 const JOB_REFRESH = 240;     // seconds between job-board refreshes at each port
 const FISH_TIME = 150;       // seconds on the grounds
 const OFFLINE_CAP = 12 * 3600; // how much time away gets simulated when you come back
+const BRISK = 3;               // the BRISK pace: the game's clock runs this many times as fast as the wall clock (G.pace is 1 or BRISK)
 const SPRING = 0, SUMMER = 1, FALL = 2, WINTER = 3;
 const SEASON_NAMES = ['Spring', 'Summer', 'Fall', 'Winter'];
 const SEASON_BLURB = [

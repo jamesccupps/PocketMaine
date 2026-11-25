@@ -21,7 +21,7 @@ function catchStep(all) { const cu = UI.catchUp, t0 = performance.now(); if (!cu
   if (cu.left > 0) { box.classList.add('on'); $('catchbar').style.width = Math.round(100 * (1 - cu.left / cu.total)) + '%'; $('catchtxt').textContent = 'Playing out the ' + secs(cu.total) + ' you were away'; return; }
   UI.catchUp = null; box.classList.remove('on'); SIM.dirty = true; UI.away = (UI.away || 0) + cu.total; UI.awayLanded = (UI.awayLanded || 0) + Math.max(0, landedNow() - cu.landed); UI.fleetKey = ''; forcePanel(); }
 function advance() {
-  if (!UI.started || UI.paused) return; const wall = Date.now(), el = (wall - G.wall) / 1000; G.wall = wall;
+  if (!UI.started || UI.paused) return; const wall = Date.now(), el = (wall - G.wall) / 1000 * (G.pace || 1); G.wall = wall;   // el is game time: at the BRISK pace the clock runs three to one, away or not
   if (UI.catchUp) { UI.catchUp.left = Math.min(OFFLINE_CAP, UI.catchUp.left + Math.max(0, el)); catchStep(document.hidden); }
   else if (el > CATCH_MIN && !document.hidden) { const sec = Math.min(el, OFFLINE_CAP); UI.catchUp = { left: sec, total: sec, landed: landedNow() }; catchStep(false); }
   else if (el > 3) { const landed = fastForward(el); UI.away = (UI.away || 0) + el; UI.awayLanded = (UI.awayLanded || 0) + landed; UI.fleetKey = ''; forcePanel(); }
@@ -34,7 +34,7 @@ function frameBody(now) {
   refreshSel();
   const c = UI.selCraft; if (UI.screen === 'route' && (!c || c.state !== 'dock')) deselect();
   if ((UI.screen === 'route') !== !!UI.reach) computeReach();
-  handleEvents(); drawMap(now, UI); renderFleet(); renderPanel(now); updateLive(now); renderCoach();
+  handleEvents(); drawMap(now, UI); renderFleet(); renderPanel(now); updateLive(now); renderCoach(); toastPump();
   requestAnimationFrame(frame);
 }
 function boot() {

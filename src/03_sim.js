@@ -6,8 +6,12 @@ let G = null;
 const SIM = { events: [], dirty: true };
 function emit(type, data) { const e = data || {}; e.type = type; SIM.events.push(e); SIM.dirty = true; }
 const PORT_BY = {}, GROUND_BY = {};
-const rnd = (a, b) => a + Math.random() * (b - a);
-const pick = arr => arr[(Math.random() * arr.length) | 0];
+// Every roll in the rules comes from one generator whose state is saved with the game (G.seed). A game can be replayed from
+// a save, a bug report can name its seed, and a test can pin its luck. Nothing outside the rules draws from it.
+function rand() { if (!G) return Math.random(); const a = (G.seed = ((G.seed | 0) + 0x6D2B79F5) | 0); let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }
+const newSeed = () => (Date.now() ^ (Math.random() * 4294967296)) | 0;
+const rnd = (a, b) => a + rand() * (b - a);
+const pick = arr => arr[(rand() * arr.length) | 0];
 const has = (p, t) => p.tags.indexOf(t) >= 0;
 const money = n => (n < 0 ? '-$' : '$') + Math.abs(Math.round(n)).toLocaleString('en-US');
 
@@ -25,10 +29,10 @@ const hourOf = t => (t % DAY_LEN) / DAY_LEN * 24;
 const season = () => seasonOf(G.t);
 
 /* ---------- new game / save ---------- */
-function newGame(startId) {
+function newGame(startId, seed) {
   const S = STARTS.find(x => x.id === startId) || STARTS[0];
-  G = { v: 2, geo: 2, t: DAY_LEN * 0.3, wall: Date.now(), start: S.id, money: 300, xp: 0, level: 1, slots: S.craft.length, ports: {}, crafts: [], nextId: 1, wx: [], wxNext: 200, offers: [], active: [], glut: {}, news: [],
-        stats: { earned: 0, delivered: 0, trips: 0, fishUnits: 0, fishMoney: 0, fuel: 0, contracts: 0, tips: 0 }, tut: {}, tutDone: false, newsNext: 90, lastDay: 0, sound: true, usedNames: [], parts: {}, stored: [], ev: null, hall: [], traps: {}, log: {} };
+  G = { v: 2, geo: 2, seed: seed === undefined ? newSeed() : seed | 0, t: DAY_LEN * 0.3, wall: Date.now(), start: S.id, money: 300, xp: 0, level: 1, slots: S.craft.length, ports: {}, crafts: [], nextId: 1, wx: [], wxNext: 200, offers: [], active: [], glut: {}, news: [],
+        stats: { earned: 0, delivered: 0, trips: 0, fishUnits: 0, fishMoney: 0, fuel: 0, contracts: 0, tips: 0 }, tut: {}, tutDone: false, newsNext: 90, lastDay: 0, sound: true, pace: 1, usedNames: [], parts: {}, stored: [], ev: null, hall: [], traps: {}, log: {} };
   G.lastDay = dayOf(G.t);
   PORTS.forEach(p => { G.ports[p.id] = { open: S.ports.indexOf(p.id) >= 0, xp: 0, lvl: 1, jobs: [], lay: [], next: 0 }; });
   S.craft.forEach(c => addCraft(c[0], c[1])); G.log.types = {}; S.craft.forEach(c => { G.log.types[c[0]] = 1; });
@@ -56,9 +60,9 @@ function loadGame(store) {
 // A save is data from outside: a code somebody pasted, or storage that something else wrote to. Its numbers, ids and kinds end up
 // in the page (a price, a button's argument, a class name), so each is forced to the type it should be, and anything that points
 // at a port, craft or good that does not exist is dropped. Text is cut to length here and escaped where it is shown.
-function sanitizeSave(g) {
+function sanitizeSave(g) { g.pace = g.pace === BRISK ? BRISK : 1;
   const num = (v, d) => (typeof v === 'number' && isFinite(v)) ? v : d, int = (v, d) => Math.round(num(v, d)), str = (v, n) => String(v == null ? '' : v).slice(0, n), word = (v, n) => str(v, n).replace(/[^A-Za-z0-9_]/g, ''), obj = v => v && typeof v === 'object' && !Array.isArray(v), arr = v => Array.isArray(v) ? v : [];
-  g.money = num(g.money, 0); g.xp = Math.max(0, num(g.xp, 0)); g.level = clamp(int(g.level, 1), 1, 99); g.t = Math.max(0, num(g.t, 0)); g.slots = clamp(int(g.slots, 4), 1, 80); g.nextId = Math.max(1, int(g.nextId, 1)); g.wall = num(g.wall, Date.now()); g.start = word(g.start, 16);
+  g.seed = typeof g.seed === 'number' && isFinite(g.seed) ? g.seed | 0 : newSeed(); g.money = num(g.money, 0); g.xp = Math.max(0, num(g.xp, 0)); g.level = clamp(int(g.level, 1), 1, 99); g.t = Math.max(0, num(g.t, 0)); g.slots = clamp(int(g.slots, 4), 1, 80); g.nextId = Math.max(1, int(g.nextId, 1)); g.wall = num(g.wall, Date.now()); g.start = word(g.start, 16);
   const job = j => { if (!obj(j) || !PORT_BY[j.to] || (j.kind !== 'p' && j.kind !== 'c')) return false; j.pay = Math.max(0, int(j.pay, 0)); j.label = str(j.label, 80); j.ic = word(j.ic, 24); j.id = int(j.id, g.nextId++); if (j.from && !PORT_BY[j.from]) j.from = j.to;
     if (j.n !== undefined) j.n = clamp(int(j.n, 1), 1, 80); ['exp', 'rv', 'hops', 'kid'].forEach(k => { if (j[k] !== undefined) j[k] = num(j[k], 0); }); ['vip', 'pref', 'via'].forEach(k => { if (j[k] !== undefined && typeof j[k] !== 'number' && typeof j[k] !== 'boolean') j[k] = word(j[k], 16); }); return true; };
   const jobs = a => arr(a).filter(job);
@@ -105,7 +109,11 @@ function nextRank() { const v = netWorth(); for (let i = 0; i < RANKS.length; i+
 function tutMark(k) { if (G.tutDone) return; const m = { send: 'sent', fish: 'fish', collect: 'collect' }[k]; if (m && !G.tut[m]) { G.tut[m] = 1; SIM.dirty = true; } }
 
 /* ---------- levels, fleet slots, prices (the Pocket Planes progression spine) ---------- */
-function xpNeed(l) { return Math.round(60 * Math.pow(l, 1.7)); }
+// The first seven levels are spaced by hand, from what a simulated player earns (test/pace.js): level 2 at about nine minutes,
+// 3 at about twenty, 4 at about half an hour, 8 at about an hour and three quarters. On the curve alone the first port bought
+// was enough for level 2, and names, VIPs, events and goods all arrived inside five minutes. From level 8 the curve takes over.
+const XP_EARLY = [0, 300, 450, 650, 800, 950, 1150, 1500];
+function xpNeed(l) { return XP_EARLY[l] || Math.round(60 * Math.pow(l, 1.7)); }
 function gainXp(n) { G.xp += n; while (G.xp >= xpNeed(G.level)) { G.xp -= xpNeed(G.level); G.level++; const bonus = 100 * G.level; G.money += bonus;
     const un = CRAFT.filter(T => T.lvl === G.level && !T.rare).map(T => T.name); news('Level ' + G.level + '! ' + money(bonus) + ' bonus.' + (un.length ? ' Now for sale: ' + un.join(', ') + '.' : ''), 'good'); const fs = FEATURES.filter(f => f.lvl === G.level); fs.forEach(f => news('New at level ' + G.level + ': ' + f.name + '. ' + f.desc, 'good')); if (G.level === FEATURE_BY.crew.lvl) refreshHall();
     emit('level', { level: G.level, bonus, unlocked: un, feats: fs.map(f => f.id) }); awardPart('Level ' + G.level); fs.forEach(f => onUnlock(f.id)); } }
@@ -137,7 +145,7 @@ function nearestPortName(x, y) { let b = null, bd = 1e9; PORTS.forEach(p => { co
 function spawnWeather() {
   const s = season(); if (G.wx.length >= 2) return;
   const mine = PORTS.filter(p => G.ports[p.id].open), wxPorts = f => { const a = mine.filter(f); return a.length ? a : PORTS.filter(f); }, A = pick(wxPorts(() => true));
-  const r = Math.random();
+  const r = rand();
   if (r < [0.4, 0.55, 0.3, 0.12][s]) { const sp = pick(wxPorts(p => p.water === 'sea'));
     const c = { type: 'fog', x: sp.x + rnd(-25, 10), y: sp.y + rnd(0, 25), r: rnd(38, 62), vx: rnd(0.02, 0.06), vy: rnd(-0.035, 0.006), t0: G.t, life: rnd(330, 600) }; G.wx.push(c);
     news(pick(['Fog bank making up off ', 'Thick o\' fog rolling in at ', 'Pea soup expected around ']) + nearestPortName(c.x, c.y) + '.', 'wx'); return; }
@@ -174,13 +182,13 @@ function payFor(o, d, kind, s, rush) { const dist = Math.hypot(d.x - o.x, d.y - 
 function genParty(o) {
   const s = season(), cands = PORTS.filter(p => p.id !== o.id && G.ports[p.id].open); if (!cands.length) return [];
   let cargoShare = 0.5; if (has(o, 'potato') && s === FALL) cargoShare = 0.75; if (has(o, 'lobster')) cargoShare = 0.6;
-  const kind = Math.random() < cargoShare ? 'c' : 'p';
+  const kind = rand() < cargoShare ? 'c' : 'p';
   let tot = 0; const ws = cands.map(p => { const d = Math.hypot(p.x - o.x, p.y - o.y), w = p.size * pull(p, kind, s) * eventPull(o, p, kind) / (1 + d / 260); tot += w; return w; });
-  let r = Math.random() * tot, d = cands[0]; for (let i = 0; i < cands.length; i++) { r -= ws[i]; if (r <= 0) { d = cands[i]; break; } }
+  let r = rand() * tot, d = cands[0]; for (let i = 0; i < cands.length; i++) { r -= ws[i]; if (r <= 0) { d = cands[i]; break; } }
   // a craft with ten or more slots that can work this pair brings out the big loads
-  { const cap = bestCapFor(o, d, kind); if (cap >= 10 && Math.random() < 0.3) { const n = cap >= 30 && Math.random() < 0.4 ? 20 : 10, fl = pick(LOTS[kind]).split('|');
+  { const cap = bestCapFor(o, d, kind); if (cap >= 10 && rand() < 0.3) { const n = cap >= 30 && rand() < 0.4 ? 20 : 10, fl = pick(LOTS[kind]).split('|');
     return [{ id: G.nextId++, from: o.id, to: d.id, kind, n, pay: Math.round(payFor(o, d, kind, s, false) * n * 0.85 / 5) * 5, label: fl[0], ic: fl[1], ev: eventMult(o, d, kind) > 1 ? 1 : 0 }]; } }
-  const lvl = G.ports[o.id].lvl, maxN = Math.max(1, Math.min(bestCapFor(o, d, kind), 1 + lvl * 2 + o.size)), n = 1 + Math.floor(Math.pow(Math.random(), 1.6) * maxN);
+  const lvl = G.ports[o.id].lvl, maxN = Math.max(1, Math.min(bestCapFor(o, d, kind), 1 + lvl * 2 + o.size)), n = 1 + Math.floor(Math.pow(rand(), 1.6) * maxN);
   let fl = jobFlavor(kind, o, d, s), pay = payFor(o, d, kind, s, false); const out = [], hf = holidayFlavor(kind); if (hf) { fl = hf; pay = Math.round(pay * 1.25 / 5) * 5; }
   const conn = bestCapFor(o, d, kind) === 0 && fleetCanReach(o.id) && fleetCanReach(d.id); if (conn) pay = Math.round(pay * 1.35 / 5) * 5;
   for (let i = 0; i < n; i++) out.push({ id: G.nextId++, from: o.id, to: d.id, kind, pay, label: fl[0], ic: fl[1], ev: eventMult(o, d, kind) > 1 ? 1 : 0, hol: hf ? 1 : undefined, conn: conn ? 1 : undefined });
@@ -257,7 +265,7 @@ function beginLeg(c) {
   if (!li.ok) { c.state = 'dock'; c.plan = null; news('"' + c.name + '" can\'t continue to ' + PORT_BY[to].name + ': ' + li.why + '.', 'bad'); return; }
   if (li.wx) { c.state = 'hold'; c.holdWhy = li.wx; SIM.dirty = true; return; }
   // a badly worn craft sometimes needs coaxing before it will go
-  if (condOf(c) < 25 && !c.limped && Math.random() < 0.15) { c.limped = 1; c.state = 'hold'; c.holdWhy = 'engine trouble'; c.holdT = -20; SIM.dirty = true; return; }
+  if (condOf(c) < 25 && !c.limped && rand() < 0.15) { c.limped = 1; c.state = 'hold'; c.holdWhy = 'engine trouble'; c.holdT = -20; SIM.dirty = true; return; }
   G.money -= li.fuel; G.stats.fuel += li.fuel; G.stats.trips++; c.tripFuel = (c.tripFuel || 0) + li.fuel; startRoute(c, li.pts, li.dist, 'trip', to); emit('depart', { c });
 }
 function dispatch(c, stops) {
@@ -391,10 +399,10 @@ function partPool(pid, kind) { const port = PORT_BY[pid]; return CRAFT.filter(T 
 function rollPart(pool) { if (!pool.length) return null;
   // four times in ten the yard has something you are already collecting
   const want = []; pool.forEach(T => { const h = partsHeld(T.id); if (h.some(n => n > 0)) h.forEach((n, s) => { if (!n) want.push([T, s]); }); });
-  if (want.length && Math.random() < 0.4) return pick(want);
-  const T = pick(pool.filter(T => T.lvl <= G.level).length && Math.random() < 0.7 ? pool.filter(T => T.lvl <= G.level) : pool); return [T, (Math.random() * 3) | 0]; }
+  if (want.length && rand() < 0.4) return pick(want);
+  const T = pick(pool.filter(T => T.lvl <= G.level).length && rand() < 0.7 ? pool.filter(T => T.lvl <= G.level) : pool); return [T, (rand() * 3) | 0]; }
 function stockShelf(pid) { const st = G.ports[pid], y = PORT_BY[pid].yard, per = y.length > 1 ? 2 : 3; st.shelf = [];
-  y.split('').forEach(kind => { const pool = partPool(pid, kind); for (let i = 0; i < per; i++) { let r = rollPart(pool); for (let n = 0; r && n < 6 && st.shelf.some(x => x.t === r[0].id && x.s === r[1]); n++) r = rollPart(pool); if (!r) continue; const sale = Math.random() < 0.12;
+  y.split('').forEach(kind => { const pool = partPool(pid, kind); for (let i = 0; i < per; i++) { let r = rollPart(pool); for (let n = 0; r && n < 6 && st.shelf.some(x => x.t === r[0].id && x.s === r[1]); n++) r = rollPart(pool); if (!r) continue; const sale = rand() < 0.12;
     st.shelf.push({ id: G.nextId++, t: r[0].id, s: r[1], sale, price: Math.max(40, Math.round(partPrice(r[0]) * (sale ? 0.75 : rnd(0.9, 1.15)) / 10) * 10) }); } });
   st.shelfNext = G.t + SHELF_REFRESH; emit('yard', {}); }
 function updateShelves() { PORTS.forEach(p => { if (!p.yard) return; const st = G.ports[p.id]; if (st.open && (!st.shelf || G.t >= st.shelfNext)) stockShelf(p.id); }); }
@@ -402,7 +410,7 @@ function givePart(t, s) { const k = partKey(t, s); G.parts[k] = (G.parts[k] || 0
 function buyPart(pid, id) { const st = G.ports[pid], i = (st.shelf || []).findIndex(x => x.id === id); if (i < 0) return 'That one is gone.'; const it = st.shelf[i];
   const price = shelfPrice(it); if (G.money < price) return 'Can\'t afford it yet.'; G.money -= price; givePart(it.t, it.s); st.shelf.splice(i, 1); emit('buy', {}); return null; }
 // a free part: contracts and new levels pay one out
-function awardPart(why, rare) { const fancy = rare ? CRAFT.filter(T => T.rare && T.lvl <= G.level + 2) : [], pool = fancy.length && Math.random() < 0.5 ? fancy : CRAFT.filter(T => !T.rare && T.lvl <= G.level + 1), r = rollPart(pool); if (!r) return; givePart(r[0].id, r[1]);
+function awardPart(why, rare) { const fancy = rare ? CRAFT.filter(T => T.rare && T.lvl <= G.level + 2) : [], pool = fancy.length && rand() < 0.5 ? fancy : CRAFT.filter(T => !T.rare && T.lvl <= G.level + 1), r = rollPart(pool); if (!r) return; givePart(r[0].id, r[1]);
   news(why + ': a crate with a ' + partName(r[0].id, r[1]) + ' in it.', 'good'); emit('crate', { t: r[0].id, s: r[1], why }); }
 // a finished craft goes into the fleet if there is a slot, into storage if not
 function placeCraft(typeId, pid, name, upg) { const T = CRAFT_BY[typeId];
@@ -448,7 +456,7 @@ function refreshOffers() {
   const s = season(); G.offers = G.offers.filter(o => o.s === s && G.t - o.born < DAY_LEN * 3);
   const taken = {}; G.offers.concat(G.active).forEach(o => taken[o.title] = 1);
   const pool = CONTRACT_TEMPLATES.filter(t => t.s === s && !taken[t.title] && G.ports[t.from].open && G.ports[t.to].open);
-  while (G.offers.length < 3 && pool.length) { const i = (Math.random() * pool.length) | 0; G.offers.push(makeOffer(pool.splice(i, 1)[0])); }
+  while (G.offers.length < 3 && pool.length) { const i = (rand() * pool.length) | 0; G.offers.push(makeOffer(pool.splice(i, 1)[0])); }
   SIM.dirty = true;
 }
 function acceptContract(id) { if (G.active.length >= 2) return 'Two contracts at a time is plenty.'; const i = G.offers.findIndex(o => o.id === id); if (i < 0) return 'Offer withdrawn.'; const k = G.offers.splice(i, 1)[0]; k.deadline = G.t + k.dur; G.active.push(k);

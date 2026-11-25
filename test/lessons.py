@@ -6,7 +6,7 @@ import sys, os
 from playwright.sync_api import sync_playwright
 exec(open('test/audit.py').read().split("sizes=[")[0].split("import sys")[1].split("from playwright.sync_api import sync_playwright")[1])  # AUDIT
 W,H,D=[int(v) for v in (sys.argv[1] if len(sys.argv)>1 else '386x630x3').split('x')]; touch=W<800; probs=[]
-STATE = """() => { const b=document.getElementById('coachbub'), r=document.getElementById('coachring'), on=document.getElementById('coach').classList.contains('on');
+STATE = """() => { const b=document.getElementById('coachbub'), r=document.getElementById('coachring'), on=document.getElementById('coach').classList.contains('on')&&!document.getElementById('coach').classList.contains('held');   // she steps back while a banner is up
   if(!on) return {on:false, cur:UI.lesCur||'', done:Object.keys(G.les||{}).filter(k=>G.les[k]===1), screen:UI.screen};
   const br=b.getBoundingClientRect(), rr=r.classList.contains('on')?r.getBoundingClientRect():null, nx=b.querySelector('[data-act=lesNext]');
   return {on:true, id:UI.coachId, cur:UI.lesCur||'', text:b.querySelector('p').innerText, head:b.querySelector('b').innerText, bub:[br.left,br.top,br.right,br.bottom], ring:rr?[rr.left,rr.top,rr.right,rr.bottom]:null,
@@ -36,7 +36,7 @@ with sync_playwright() as p:
     if st['on']: bad('a lesson came up at level 1, before anything had unlocked: %s'%st.get('text'))
     order=ev("() => LESSON_ORDER"); lv=ev("() => { const o={}; LESSON_ORDER.forEach(id=>o[id]=FEATURE_BY[id].lvl); return o; }"); names=ev("() => { const o={}; LESSON_ORDER.forEach(id=>o[id]=FEATURE_BY[id].name.toUpperCase()); return o; }")
     for les in order:
-        ev("() => { deselect(); UI.lesWait=1e15; }"); ev(STAGE[les]); ev("(l) => { G.level=l; UI.lesCur=''; UI.lesWait=0; UI.coachKey=''; }", lv[les]); pg.wait_for_timeout(700)
+        ev("() => { deselect(); hideBanner(); UI.lesWait=1e15; }"); ev(STAGE[les]); ev("(l) => { G.level=l; UI.lesCur=''; UI.lesWait=0; UI.coachKey=''; }", lv[les]); pg.wait_for_timeout(700)
         print('== %s (level %d)'%(les, lv[les])); last=None; same=0; steps=0; shown=False
         while steps<14:
             steps+=1; st=ev(STATE)

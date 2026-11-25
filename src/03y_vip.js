@@ -29,17 +29,17 @@ function vipAt(pid) { const st = G.ports[pid]; return !!st && st.open && st.jobs
 function vipTotal() { return VIPS.p.length + VIPS.c.length + HOLIDAYS.reduce((a, h) => a + h.vip.p.length + h.vip.c.length, 0); }
 function spawnVip(o) {
   const open = PORTS.filter(p => G.ports[p.id].open && !vipAt(p.id)); if (open.length < 1 || portsOwned() < 2) return null;
-  if (!o || vipAt(o.id)) { const busy = open.filter(p => G.crafts.some(c => c.at === p.id)); o = pick(Math.random() < 0.7 && busy.length ? busy : open); }
-  const s = season(); let kind = Math.random() < 0.5 ? 'p' : 'c';
+  if (!o || vipAt(o.id)) { const busy = open.filter(p => G.crafts.some(c => c.at === p.id)); o = pick(rand() < 0.7 && busy.length ? busy : open); }
+  const s = season(); let kind = rand() < 0.5 ? 'p' : 'c';
   const dests = k => PORTS.filter(d => d.id !== o.id && G.ports[d.id].open && bestCapFor(o, d, k) > 0);
   let ds = dests(kind); if (!ds.length) { kind = kind === 'p' ? 'c' : 'p'; ds = dests(kind); } if (!ds.length) return null;
-  let tot = 0; const ws = ds.map(d => { const w = 40 + Math.hypot(d.x - o.x, d.y - o.y); tot += w; return w; }); let r = Math.random() * tot, d = ds[0]; for (let i = 0; i < ds.length; i++) { r -= ws[i]; if (r <= 0) { d = ds[i]; break; } }
-  const h = holidayNow(), list = h && Math.random() < 0.6 ? h.vip[kind] : VIPS[kind]; let fl = pick(list).split('|');
+  let tot = 0; const ws = ds.map(d => { const w = 40 + Math.hypot(d.x - o.x, d.y - o.y); tot += w; return w; }); let r = rand() * tot, d = ds[0]; for (let i = 0; i < ds.length; i++) { r -= ws[i]; if (r <= 0) { d = ds[i]; break; } }
+  const h = holidayNow(), list = h && rand() < 0.6 ? h.vip[kind] : VIPS[kind]; let fl = pick(list).split('|');
   // three times in ten, somebody with a list: sent somewhere they have not been yet
-  if (Math.random() < 0.3) { const ch = pick(CHAINS), st = chainState(ch.id), go = st.done ? [] : PORTS.filter(q => q.id !== o.id && G.ports[q.id].open && ch.want(q) && !st.seen[q.id] && bestCapFor(o, q, 'p') > 0); if (go.length) { kind = 'p'; d = pick(go); fl = ch.vip.split('|'); } }
-  const roll = Math.random(), reward = roll < 0.3 ? 'tip' : roll < 0.6 ? 'xp' : roll < 0.85 ? 'part' : 'word';
+  if (rand() < 0.3) { const ch = pick(CHAINS), st = chainState(ch.id), go = st.done ? [] : PORTS.filter(q => q.id !== o.id && G.ports[q.id].open && ch.want(q) && !st.seen[q.id] && bestCapFor(o, q, 'p') > 0); if (go.length) { kind = 'p'; d = pick(go); fl = ch.vip.split('|'); } }
+  const roll = rand(), reward = roll < 0.3 ? 'tip' : roll < 0.6 ? 'xp' : roll < 0.85 ? 'part' : 'word';
   const j = { id: G.nextId++, from: o.id, to: d.id, kind, pay: Math.round(payFor(o, d, kind, s, false) * (reward === 'tip' ? 4 : 3) / 5) * 5, label: fl[0], ic: fl[1], vip: reward, exp: G.t + VIP_STAY };
-  if (Math.random() < 0.4) j.pref = pick(feat('wear') ? ['direct', 'day', 'fit'] : ['direct', 'day']);
+  if (rand() < 0.4) j.pref = pick(feat('wear') ? ['direct', 'day', 'fit'] : ['direct', 'day']);
   G.ports[o.id].jobs.unshift(j); SIM.dirty = true; emit('vip', { from: o.id, to: d.id, label: j.label, pay: j.pay }); return j;
 }
 function updateVips() {
@@ -107,7 +107,7 @@ function holidayOn(date) { const m = date.getMonth() + 1, d = date.getDate(), y 
 const holCache = { k: -1, h: null };
 function holidayNow() { const pref = HOLIDAY_FORCE !== null ? HOLIDAY_FORCE : (G && G.hol) || 'auto'; if (pref === 'off') return null; if (pref !== 'auto') return HOLIDAY_BY[pref] || null;
   const k = Math.floor(Date.now() / 60000); if (holCache.k !== k) { holCache.k = k; holCache.h = holidayOn(new Date()); } return holCache.h; }
-function holidayFlavor(kind) { const h = holidayNow(); if (!h || Math.random() > 0.3) return null; return pick(h.jobs[kind]).split('|'); }
+function holidayFlavor(kind) { const h = holidayNow(); if (!h || rand() > 0.3) return null; return pick(h.jobs[kind]).split('|'); }
 // AUTO follows the calendar; OFF never dresses up; anything else is a preview of that holiday
 function holidayPref() { return (G && G.hol) || 'auto'; }
 function cycleHoliday() { const order = ['auto', 'off'].concat(HOLIDAYS.map(h => h.id)), i = order.indexOf(holidayPref()); G.hol = order[(i + 1) % order.length]; if (G.hol === 'auto') delete G.hol; G.holSeen = ''; SIM.dirty = true; return holidayNow(); }
