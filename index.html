@@ -4413,6 +4413,112 @@ h3 {
   }
 }
 
+/* home ports: the row on the CRAFT tab, and the group markers in the fleet strip */
+.homerow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  padding: 6px 10px;
+  background: var(--paper2);
+  border: 3px solid var(--paper3);
+}
+.homerow .hl {
+  flex: 1 1 auto;
+  font-size: 20px;
+  color: var(--ink);
+}
+.homerow .hl b {
+  font-family: 'VT323', monospace;
+  font-size: 18px;
+  font-weight: 400;
+  letter-spacing: 0.5px;
+  color: var(--redd);
+  margin-right: 4px;
+}
+.homerow .hl i {
+  font-style: normal;
+  opacity: 0.7;
+}
+.fgrp {
+  flex: 0 0 auto;
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 0 2px 0 6px;
+  font-family: 'VT323', monospace;
+  line-height: 1;
+  color: #9fb3c8;
+}
+.fgrp i {
+  font-style: normal;
+  font-size: 16px;
+  letter-spacing: 0.5px;
+}
+.fgrp b {
+  font-weight: 400;
+  font-size: 20px;
+  color: var(--yellow);
+  margin-top: 3px;
+}
+
+/* The fleet strip scrolls sideways. With a mouse there was no way to do it (a wheel only scrolls up and down), so once the fleet
+   outgrew the strip the craft at the far end, and the + FLEET SLOT button after them, could not be reached. The wheel moves it now,
+   and an arrow stands at whichever end has more to show. */
+#fleetwrap {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  position: relative;
+}
+#fleetwrap #fleet {
+  flex: 1;
+  min-width: 0;
+}
+#dock.routing #fleetwrap {
+  display: none;
+}
+.fnav {
+  position: absolute;
+  top: 8px;
+  bottom: 2px;
+  width: 30px;
+  z-index: 3;
+  padding: 0;
+  background: var(--navy2);
+  border: 3px solid var(--deep);
+  box-shadow: inset -2px -2px 0 var(--navy);
+  color: var(--yellow);
+  font-family: 'Silkscreen', monospace;
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+}
+.fnav:hover {
+  background: var(--navy3);
+}
+.fnav[hidden] {
+  display: none;
+}
+#fleetL {
+  left: 0;
+}
+#fleetR {
+  right: 0;
+}
+@media (max-width: 700px) {
+  #fleetwrap {
+    flex: none;
+  }
+  .fnav {
+    top: 2px;
+    width: 26px;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -4448,7 +4554,7 @@ h3 {
     </div>
   </div>
   <div id="dock">
-    <div id="fleet"></div>
+    <div id="fleetwrap"><button id="fleetL" class="fnav" data-act="fleetNav" data-arg="-1" aria-label="Show the craft to the left" hidden>&#9666;</button><div id="fleet"></div><button id="fleetR" class="fnav" data-act="fleetNav" data-arg="1" aria-label="Show more of the fleet" hidden>&#9656;</button></div>
     <div id="routebar"></div>
     <div id="menu">
       <button class="mbtn" data-act="menu" data-arg="contracts" data-tip="Seasonal contracts"><img id="mi1" alt=""><span id="mk">CONTRACTS</span></button>
@@ -7283,7 +7389,7 @@ function newGame(startId, seed) {
     crafts: [],
     nextId: 1,
     wx: [],
-    wxNext: 200,
+    wxNext: 600, // the first ten minutes of a new game are clear
     offers: [],
     active: [],
     glut: {},
@@ -7507,6 +7613,8 @@ function sanitizeSave(g) {
       c.plan = null;
       c.route = null;
     }
+    // a craft from before home ports is at home wherever it is now
+    if (!PORT_BY[c.home]) c.home = PORT_BY[c.at] ? c.at : PORT_BY[c.from] ? c.from : home;
   });
   g.stored = arr(g.stored).filter(c => obj(c) && CRAFT_BY[c.type]);
   g.stored.forEach(craft);
@@ -7780,8 +7888,12 @@ function spawnWeather() {
       return a.length ? a : PORTS.filter(f);
     },
     A = pick(wxPorts(() => true));
-  const r = rand();
-  if (r < [0.4, 0.55, 0.3, 0.12][s]) {
+  // How often a roll brings fog, and how often a storm (thunderheads in summer; gales and nor'easters the rest of the year), by season.
+  // Fog used to come on 55% of summer rolls and sat over the coast most of the time; thunderheads on 28%. Both are well under half that now.
+  const r = rand(),
+    FOG = [0.16, 0.2, 0.14, 0.08][s],
+    STORM = [0.2, 0.12, 0.34, 0.3][s];
+  if (r < FOG) {
     const sp = pick(wxPorts(p => p.water === 'sea'));
     const c = {
       type: 'fog',
@@ -7802,7 +7914,7 @@ function spawnWeather() {
     );
     return;
   }
-  if (r < [0.4, 0.55, 0.3, 0.12][s] + [0.2, 0.28, 0.34, 0.3][s]) {
+  if (r < FOG + STORM) {
     if (s === SUMMER) {
       const c = {
         type: 'storm',
@@ -7839,7 +7951,7 @@ function spawnWeather() {
     }
     return;
   }
-  if (s === WINTER && r < 0.75) {
+  if (s === WINTER && r < FOG + STORM + 0.33) {
     const c = {
       type: 'snow',
       x: A.x - rnd(90, 190),
@@ -8707,6 +8819,7 @@ function addCraft(typeId, pid, name, upg) {
     type: typeId,
     name: name || newName(T),
     at: pid,
+    home: pid,
     state: 'dock',
     jobs: [],
     upg: upg || {},
@@ -8932,6 +9045,54 @@ function unstoreCraft(i, pid) {
   c.liv = r.liv || 0;
   emit('yard', {});
   return c;
+}
+/* ---------- home ports ----------
+   A tag and nothing more: it changes nothing a craft earns or costs. Home is where a craft was bought, built or taken out of
+   storage, until the player makes another port its home. The fleet strip groups craft by it, and SEND HOME flies one back. */
+function setHome(c, pid) {
+  pid = pid || c.at;
+  if (!pid || !PORT_BY[pid] || !G.ports[pid].open) return 'Open the port first.';
+  if (!canBase(CRAFT_BY[c.type], PORT_BY[pid])) return "It can't operate from there.";
+  c.home = pid;
+  SIM.dirty = true;
+  return null;
+}
+// the fewest hops from where a craft sits to its home, through ports it can use; null when there is no way
+function homeRoute(c) {
+  if (!c.at || !PORT_BY[c.home] || c.at === c.home) return null;
+  const open = PORTS.filter(p => G.ports[p.id].open).map(p => p.id),
+    prev = {},
+    seen = {};
+  let front = [c.at];
+  seen[c.at] = 1;
+  for (let hop = 0; hop < 5 && front.length; hop++) {
+    const next = [];
+    for (const a of front)
+      for (const b of open) {
+        if (seen[b] || !legInfo(c, a, b).ok) continue;
+        seen[b] = 1;
+        prev[b] = a;
+        if (b === c.home) {
+          const stops = [];
+          for (let x = b; x !== c.at; x = prev[x]) stops.unshift(x);
+          return stops;
+        }
+        next.push(b);
+      }
+    front = next;
+  }
+  return null;
+}
+// Goes with whatever is aboard: a load for home or for a port on the way is delivered, anything else rides along.
+function sendHome(c) {
+  if (c.state !== 'dock') return 'Not at the dock.';
+  if (!PORT_BY[c.home]) return 'No home port.';
+  if (c.at === c.home) return 'Already home.';
+  if (c.run) return 'Stop the standing run first.';
+  const stops = homeRoute(c);
+  if (!stops) return 'No way home from here for this craft.';
+  const r = dispatch(c, stops);
+  return r.ok ? null : r.why || 'Cannot leave.';
 }
 function sellStored(i) {
   const r = G.stored[i];
@@ -14090,7 +14251,7 @@ function htmlAlmanac() {
   h +=
     '<h3>HOW IT WORKS</h3><button class="btn" data-act="tutRestart" style="margin-bottom:8px">REPLAY THE TUTORIAL</button><div class="sub"><p style="margin:4px 0"><b>The loop.</b> Open a craft to see its port. Every passenger and parcel is one slot: hit LOAD, then FLY (CAST OFF for a boat), pick the stops on the map, and hit it again. Fuel is paid when it leaves. When it shows ARRIVED, open it to collect the fare and the XP.</p><p style="margin:4px 0"><b>Time.</b> Real time, no pause. Hops take minutes; job boards refresh every four. PACE in the Almanac switches to BRISK, which runs the clock ' +
     BRISK +
-    ' times as fast. The game keeps running while it is closed or behind another window (up to twelve hours), so send everything out and check back. HURRY brings a craft in at once, and costs the fare it is carrying.</p><p style="margin:4px 0"><b>Growing.</b> XP raises your level, which unlocks bigger craft. Fleet slots and ports cost coins, and each costs more than the last. Improve a port for a bigger job board.</p><p style="margin:4px 0"><b>Hangars and boatyards.</b> Some towns have one (the map marks them H and B). Each keeps a few parts on the shelf and restocks daily. Collect an airframe, engine and controls (hull, engine and wheelhouse for a boat) and build the craft there for about two thirds of the new price. Contracts and new levels pay out a free crate. A craft tied up empty at a yard can go into storage, which gives its fleet slot back; take it out again at any yard that suits it.</p><p style="margin:4px 0"><b>Full-load bonus.</b> Fill every slot with jobs for a single destination and that delivery pays 25% more.</p><p style="margin:4px 0"><b>Boats.</b> A boat is slow, so every load it carries pays half again. With a boat open, the board shows the boat\'s price.</p><p style="margin:4px 0"><b>Layovers.</b> Put a job ashore at an in-between port and it waits there for another craft.</p><p style="margin:4px 0"><b>Who lands where.</b> Wheels need a strip (bush planes take grass and gravel; bigger ones want pavement). Floats need water. Boats need a harbor and go around the land, not over it.</p><p style="margin:4px 0"><b>Seasons.</b> Seven days each. Winter freezes the lakes (fit skis). Spring mud closes rough strips (fit tundra tires). Demand, fish and prices move with the calendar.</p><p style="margin:4px 0"><b>Riding along.</b> Watch a craft under way and coins drift past in the picture; click them.</p><p style="margin:4px 0"><b>Keys.</b> Tab next craft that needs you \u00b7 Enter GO \u00b7 Esc back \u00b7 wheel or +/- zooms.</p></div>';
+    ' times as fast. The game keeps running while it is closed or behind another window (up to twelve hours), so send everything out and check back. HURRY brings a craft in at once, and costs the fare it is carrying.</p><p style="margin:4px 0"><b>Growing.</b> XP raises your level, which unlocks bigger craft. Fleet slots and ports cost coins, and each costs more than the last. Improve a port for a bigger job board.</p><p style="margin:4px 0"><b>Hangars and boatyards.</b> Some towns have one (the map marks them H and B). Each keeps a few parts on the shelf and restocks daily. Collect an airframe, engine and controls (hull, engine and wheelhouse for a boat) and build the craft there for about two thirds of the new price. Contracts and new levels pay out a free crate. A craft tied up empty at a yard can go into storage, which gives its fleet slot back; take it out again at any yard that suits it.</p><p style="margin:4px 0"><b>Full-load bonus.</b> Fill every slot with jobs for a single destination and that delivery pays 25% more.</p><p style="margin:4px 0"><b>Boats.</b> A boat is slow, so every load it carries pays half again. With a boat open, the board shows the boat\'s price.</p><p style="margin:4px 0"><b>Home ports.</b> Every craft has a home: where it was bought, built or taken out of storage. It changes nothing it earns. The fleet strip keeps craft together by home, and on the CRAFT tab SEND HOME flies one back while HOME HERE bases it where it sits.</p><p style="margin:4px 0"><b>Layovers.</b> Put a job ashore at an in-between port and it waits there for another craft.</p><p style="margin:4px 0"><b>Who lands where.</b> Wheels need a strip (bush planes take grass and gravel; bigger ones want pavement). Floats need water. Boats need a harbor and go around the land, not over it.</p><p style="margin:4px 0"><b>Seasons.</b> Seven days each. Winter freezes the lakes (fit skis). Spring mud closes rough strips (fit tundra tires). Demand, fish and prices move with the calendar.</p><p style="margin:4px 0"><b>Riding along.</b> Watch a craft under way and coins drift past in the picture; click them.</p><p style="margin:4px 0"><b>Keys.</b> Tab next craft that needs you \u00b7 Enter GO \u00b7 Esc back \u00b7 wheel or +/- zooms.</p></div>';
   h +=
     '<h3>THE DOORYARD DISPATCH</h3>' +
     G.news
@@ -14550,7 +14711,7 @@ const TIPS = {
   ],
   'craft:run': [
     'Standing run',
-    'The nearest thing to a home port. Pick the other end and she shuttles between the two by herself, even while you are away. The crew keeps a share.'
+    'Pick the other end and she shuttles between the two by herself, loading and collecting, even while you are away. The crew keeps a share.'
   ],
   'craft:keep': [
     'Store or sell',
@@ -14984,7 +15145,7 @@ function lessonFor(id) {
             : 'The VIP is on this board, but ' +
               (c ? c.name : 'this craft') +
               ' cannot take it there, so it is folded away at the bottom. Another craft might.') +
-          ' A gold tag is a condition: NO STOPS, BY DAYLIGHT or SOUND CRAFT. Keep to it for the full reward.',
+          ' A gold tag (NO STOPS, BY DAYLIGHT, SOUND CRAFT) is a condition for the full reward.',
         target: row || q('#sbody .farbtn'),
         soft: true,
         next: 'GOT IT'
@@ -16045,6 +16206,31 @@ function fitFilters() {
     more.textContent = '+' + chips.filter(ch => ch.style.display === 'none').length + ' MORE \u25be';
   }
 }
+// Home port: a tag, no rules. Shown on the CRAFT tab with the two things you can do about it.
+const portCode = pid =>
+  PORT_BY[pid].name
+    .replace(/[^A-Za-z]/g, '')
+    .slice(0, 3)
+    .toUpperCase();
+function homeRowHTML(c) {
+  if (!PORT_BY[c.home]) return '';
+  const home = c.at === c.home,
+    nm = esc(portName(c.home));
+  return (
+    '<div class="homerow"><span class="hl" data-tip="Where she is based. It changes nothing she earns: the fleet strip groups craft by home, and SEND HOME flies her back."><b>HOME</b> ' +
+    nm +
+    (home ? ' <i>\u00b7 here</i>' : '') +
+    '</span>' +
+    (home
+      ? ''
+      : '<button class="btn sm go" data-act="sendHome" data-tip="Fly her back to ' +
+        nm +
+        ' by the shortest way she can go">SEND HOME \u25b8</button><button class="btn sm plain" data-act="setHome" data-tip="Base her at ' +
+        esc(portName(c.at)) +
+        ' instead">HOME HERE</button>') +
+    '</div>'
+  );
+}
 function craftBarHTML(pid, c) {
   const here = craftsAt(pid);
   if (!here.length) return '';
@@ -16780,6 +16966,7 @@ function tabCraft(c) {
     ' · fuel $' +
     T.fuel.toFixed(2) +
     '/km</small></div></div>';
+  h += homeRowHTML(c);
   h +=
     '<div class="segs" style="margin-top:10px">' +
     segs
@@ -17609,6 +17796,7 @@ function renderFleet() {
             c.id +
             c.state +
             (c.at || '') +
+            (c.home || '') +
             (c.holdWhy || '') +
             (UI.selCraftId === c.id) +
             (c.jobs.length ? 'j' : '') +
@@ -17634,7 +17822,24 @@ function renderFleet() {
   UI.fleetKey = key;
   const sl = el.scrollLeft;
   let h = '';
+  // Craft stand together by home port, in the order the homes were first used. Once the fleet is past the four you start with,
+  // each group gets a small marker so a scattered fleet can be read at a glance.
+  const homes = [];
   G.crafts.forEach(c => {
+    if (homes.indexOf(c.home) < 0) homes.push(c.home);
+  });
+  const byHome = G.crafts.slice().sort((a, b) => homes.indexOf(a.home) - homes.indexOf(b.home)),
+    marks = G.crafts.length > 4 && homes.length > 1;
+  let lastHome = null;
+  byHome.forEach(c => {
+    if (marks && c.home !== lastHome && PORT_BY[c.home])
+      h +=
+        '<span class="fgrp" data-tip="Based at ' +
+        esc(portName(c.home)) +
+        '"><i>HOME</i><b>' +
+        portCode(c.home) +
+        '</b></span>';
+    lastHome = c.home;
     const T = CRAFT_BY[c.type],
       landed = c.state === 'landed',
       idle = c.state === 'dock' && !c.jobs.length,
@@ -17692,6 +17897,7 @@ function renderFleet() {
     '</span></span></button>';
   el.innerHTML = h;
   el.scrollLeft = sl;
+  fleetNav();
   const n = G.offers.length;
   $('mk').innerHTML = 'CONTRACTS' + (n && G.active.length < 2 ? '<span class="n">' + n + '</span>' : '');
   const nr = readyToBuild();
@@ -17699,6 +17905,19 @@ function renderFleet() {
   document
     .querySelectorAll('.mbtn')
     .forEach(b => b.classList.toggle('on', UI.screen === 'sheet' && UI.sheet === b.dataset.arg));
+}
+// The arrows at the ends of the fleet strip: each shows only while there is more that way.
+function fleetNav(dir) {
+  const el = $('fleet'),
+    L = $('fleetL'),
+    R = $('fleetR');
+  // a jump, not a glide: the strip is redrawn whenever a craft changes state, and a redraw would stop a glide half way
+  if (dir) el.scrollLeft += dir * Math.max(180, el.clientWidth * 0.7);
+  const max = el.scrollWidth - el.clientWidth,
+    l = el.scrollLeft > 4,
+    r = el.scrollLeft < max - 4;
+  if (L.hidden === l) L.hidden = !l;
+  if (R.hidden === r) R.hidden = !r;
 }
 function updateLive(now) {
   UI.shownMoney += (G.money - UI.shownMoney) * 0.2;
@@ -18279,6 +18498,24 @@ function act(a, arg, el) {
     case 'paint':
       if (c) err = paintCraft(c, +arg);
       break;
+    case 'sendHome':
+      if (c) {
+        err = sendHome(c);
+        if (!err) {
+          toast(c.name + ' is headed home to ' + portName(c.home) + '.', 'good');
+          UI.fleetKey = '';
+        }
+      }
+      break;
+    case 'setHome':
+      if (c) {
+        err = setHome(c);
+        if (!err) {
+          toast(c.name + ' is based at ' + portName(c.home) + ' now.', 'good');
+          UI.fleetKey = '';
+        }
+      }
+      break;
     case 'overhaul':
       if (c) {
         err = overhaul(c, false);
@@ -18483,6 +18720,9 @@ function act(a, arg, el) {
       UI.yseg = readyToBuild() ? 'build' : 'parts';
       centerOn(PORT_BY[arg].x, PORT_BY[arg].y);
       break;
+    case 'fleetNav':
+      fleetNav(+arg);
+      return;
     case 'buySlot':
       err = buySlot();
       if (!err) toast('Fleet slot added. Fill it at a hangar or boatyard.', 'good');
@@ -18953,6 +19193,23 @@ function initInput() {
   });
   $('scene').addEventListener('click', sceneClick);
   window.addEventListener('resize', layout);
+  window.addEventListener('resize', () => fleetNav());
+  {
+    const fl = $('fleet');
+    fl.addEventListener('scroll', () => fleetNav(), { passive: true });
+    // the strip is hidden while a port screen covers it on a phone; when it comes back its arrows have to be worked out again
+    if (window.ResizeObserver) new ResizeObserver(() => fleetNav()).observe(fl);
+    // a mouse wheel turns the strip sideways (a trackpad's own sideways scroll is left alone)
+    fl.addEventListener(
+      'wheel',
+      e => {
+        if (fl.scrollWidth <= fl.clientWidth || Math.abs(e.deltaY) <= Math.abs(e.deltaX)) return;
+        fl.scrollLeft += e.deltaY;
+        e.preventDefault();
+      },
+      { passive: false }
+    );
+  }
 }
 
 // the fits a craft can take, on its GEAR page

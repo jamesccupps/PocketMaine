@@ -1,5 +1,5 @@
 const fs=require('fs'),vm=require('vm');
-const src=['01_data','02_map','03_sim','03x_more','03y_vip','03z_depth'].map(f=>fs.readFileSync('src/'+f+'.js','utf8')).join('\n')+`;globalThis.X={get G(){return G},XP_EARLY,BRISK,rand,xpNeedOf:l=>xpNeed(l),cleanSave:g=>sanitizeSave(g),initWorld,newGame,tick,dispatch,loadJob,unloadJob,bonusDest,legInfo,routeInfo,landWhy,CRAFT_BY,PORT_BY,addCraft,goFish,fishOptions,collect,buyCraft,buySlot,slotCost,portCost,unlockPort,xpNeed,hurry,hurryCost,fastForward,saveGame,loadGame,SPRING,WINTER,SUMMER,JOB_REFRESH,unstoreCraft,storeCraft,assemble,buyPart,givePart,partsHeld,partsCount,awardPart,sellStored,hasYard,yardFits,STORE_CAP,stockShelf,partPrice,netWorth,feat,FEATURES,bonusXp,renameCraft,paintCraft,condOf,wearCraft,overhaul,overhaulCost,cstat,startEvent,EVENTS,evActive,eventMult,urgentRun,expireUrgent,payFor,PORT_BY,sellCatch,catchMarkets,goFish,fishOptions,trapCount,trapMax,refreshHall,hireCrew,dismissCrew,PERKS,buildWork,hasWork,workCost,boardCap,fishPrice,legInfo,setRun,stopRun,runMax,updateRuns,exportSave,importSave,xpNeed,logCount,fastForward,addCraft,roomFor,TRAP_SOAK,rollEvent,season,spawnVip,vipJobs,vipDeliver,updateVips,refreshBoard,genParty,partsCount,holidayOn,holidayNow,thanksgivingDay,eventChoices,shelfPrice,evText,gainXp,cycleHoliday,HOLIDAYS,VIPS,setHolidayForce:v=>{HOLIDAY_FORCE=v;},GEO,KM_LON,GEO_OLD_LONMIN,PORTS,seaRoute,NAV,tourPay,loadOf,has,vipMet,CHAINS,LIVERIES,hasPaint,paintCraft,awardPart,partPool,planSeason,moveCircuit,reliefRun,spawnWeather,nthDay,lastDay,condOf,GOODS,GOOD_BY,goodPrice,goodBuyPrice,goodsFor,buyGood,sellGood,goodsCount,bestMarket,spawnRequest,updateRequests,reqFor,portFavor,updateRival,RIVAL_WAIT,FITS,setFit,fitCost,fitsFor,crewRank,crewFare,runStops,runLabel,fleetCanReach,standingLevel,storeCraft,updateDepth,fareMult,hurryFare,SIM,goodQuote,RUN_PATIENCE,awayTick,keepUnreadable,SAVE_KEY,MIGRATE,sanitizeSave:typeof sanitizeSave==='function'?sanitizeSave:null};HOLIDAY_FORCE='off';`;
+const src=['01_data','02_map','03_sim','03x_more','03y_vip','03z_depth'].map(f=>fs.readFileSync('src/'+f+'.js','utf8')).join('\n')+`;globalThis.X={get G(){return G},setHome,sendHome,homeRoute,spawnWeather,SUMMER,SEASON_LEN:typeof SEASON_LEN==='undefined'?0:SEASON_LEN,seasonNow:()=>season(),XP_EARLY,BRISK,rand,xpNeedOf:l=>xpNeed(l),cleanSave:g=>sanitizeSave(g),initWorld,newGame,tick,dispatch,loadJob,unloadJob,bonusDest,legInfo,routeInfo,landWhy,CRAFT_BY,PORT_BY,addCraft,goFish,fishOptions,collect,buyCraft,buySlot,slotCost,portCost,unlockPort,xpNeed,hurry,hurryCost,fastForward,saveGame,loadGame,SPRING,WINTER,SUMMER,JOB_REFRESH,unstoreCraft,storeCraft,assemble,buyPart,givePart,partsHeld,partsCount,awardPart,sellStored,hasYard,yardFits,STORE_CAP,stockShelf,partPrice,netWorth,feat,FEATURES,bonusXp,renameCraft,paintCraft,condOf,wearCraft,overhaul,overhaulCost,cstat,startEvent,EVENTS,evActive,eventMult,urgentRun,expireUrgent,payFor,PORT_BY,sellCatch,catchMarkets,goFish,fishOptions,trapCount,trapMax,refreshHall,hireCrew,dismissCrew,PERKS,buildWork,hasWork,workCost,boardCap,fishPrice,legInfo,setRun,stopRun,runMax,updateRuns,exportSave,importSave,xpNeed,logCount,fastForward,addCraft,roomFor,TRAP_SOAK,rollEvent,season,spawnVip,vipJobs,vipDeliver,updateVips,refreshBoard,genParty,partsCount,holidayOn,holidayNow,thanksgivingDay,eventChoices,shelfPrice,evText,gainXp,cycleHoliday,HOLIDAYS,VIPS,setHolidayForce:v=>{HOLIDAY_FORCE=v;},GEO,KM_LON,GEO_OLD_LONMIN,PORTS,seaRoute,NAV,tourPay,loadOf,has,vipMet,CHAINS,LIVERIES,hasPaint,paintCraft,awardPart,partPool,planSeason,moveCircuit,reliefRun,spawnWeather,nthDay,lastDay,condOf,GOODS,GOOD_BY,goodPrice,goodBuyPrice,goodsFor,buyGood,sellGood,goodsCount,bestMarket,spawnRequest,updateRequests,reqFor,portFavor,updateRival,RIVAL_WAIT,FITS,setFit,fitCost,fitsFor,crewRank,crewFare,runStops,runLabel,fleetCanReach,standingLevel,storeCraft,updateDepth,fareMult,hurryFare,SIM,goodQuote,RUN_PATIENCE,awayTick,keepUnreadable,SAVE_KEY,MIGRATE,sanitizeSave:typeof sanitizeSave==='function'?sanitizeSave:null};HOLIDAY_FORCE='off';`;
 vm.runInThisContext(src); const X=globalThis.X; X.initWorld(); X.newGame('casco', process.env.SEED?+process.env.SEED:undefined); const G=X.G; G.wxNext=1e12; let ok=0,bad=0;      // SEED=n pins the luck; without it every run rolls its own
 const T=(name,cond)=>{ if(cond) ok++; else { bad++; console.log('FAIL',name); } };
 const run=(c,max)=>{ let n=0; while(c.state!=='landed'&&c.state!=='dock'&&n++<(max||3000)) X.tick(1); return n; };
@@ -307,5 +307,32 @@ G=X.G; T('new fields survive',G.ports.lew.works.inn===1&&X.trapCount()===1&&X.lo
   T('the same seed plays out the same way',a1===a2);
   T('a different seed does not',a1!==b1);
   X.newGame('casco',42); const s0=X.G.seed; X.rand(); T('the dice keep their place in the save',X.G.seed!==s0&&Number.isInteger(X.G.seed));
+}
+// home ports: a tag, a way back, and nothing else
+{ X.initWorld(); X.newGame('casco',42); const G=X.G; G.wx=[]; G.wxNext=1e12; G.money=50000;
+  T('every craft starts with a home, and it is where it sits',G.crafts.every(c=>c.home===c.at&&X.PORT_BY[c.home]));
+  const c=G.crafts.find(c=>X.CRAFT_BY[c.type].cls==='plane'), home=c.home, other=Object.keys(G.ports).find(k=>G.ports[k].open&&k!==home&&X.legInfo(c,home,k).ok);
+  T('already home: nothing to send',X.sendHome(c)==='Already home.');
+  const pay0=G.money; c.at=other; c.x=X.PORT_BY[other].x; c.y=X.PORT_BY[other].y;
+  T('away from home, the way back is one hop when it is in reach',JSON.stringify(X.homeRoute(c))===JSON.stringify([home]));
+  T('SEND HOME sends it, with the fuel paid like any trip',X.sendHome(c)===null&&(c.state==='move'||c.state==='hold')&&c.plan.stops[c.plan.stops.length-1]===home&&G.money<=pay0);
+  for(let i=0;i<3000&&c.state!=='landed'&&c.state!=='dock';i++) X.tick(1);
+  T('and it gets there',c.at===home);
+  if(c.state==='landed') X.collect(c);
+  c.at=other; T('HOME HERE bases it where it sits',X.setHome(c)===null&&c.home===other);
+  const shut=Object.keys(G.ports).find(k=>!G.ports[k].open); T('a port that is not open cannot be home',typeof X.setHome(c,shut)==='string'&&c.home===other);
+  // a home out of reach in one hop is reached in two, through a port in between
+  const P=X.PORT_BY, far=Object.keys(G.ports).filter(k=>!G.ports[k].open&&!X.landWhy(X.CRAFT_BY[c.type],c.upg,P[k],0)).map(k=>{ const mid=Object.keys(G.ports).filter(m=>G.ports[m].open); return {k,mid}; });
+  let two=null; for(const f of far){ G.ports[f.k].open=true; c.at=f.k; c.home=home; const r=X.homeRoute(c); if(r&&r.length===2){ two=r; break; } G.ports[f.k].open=false; }
+  T('a home too far for one hop is reached through a port on the way'+(two?' ('+two.join(' then ')+')':''),!two||two[1]===home);
+  const g2=JSON.parse(JSON.stringify(G)); g2.crafts.forEach(q=>{ delete q.home; }); X.cleanSave(g2); T('a save from before home ports gets one for every craft',g2.crafts.every(q=>X.PORT_BY[q.home]));
+  const b=X.addCraft(G.crafts[0].type,home); T('a craft bought, built or taken out of storage is based where it appears',b.home===home);
+}
+// weather: fog and thunderheads are the exception in summer now, not the rule
+{ X.initWorld(); X.newGame('casco',7); const G=X.G; T('a new game has ten clear minutes before the first weather roll',G.wxNext>=600);
+  let fog=0, storm=0, N=4000; if(X.seasonNow()===X.SUMMER){ for(let i=0;i<N;i++){ G.wx=[]; X.spawnWeather(); if(G.wx[0]){ if(G.wx[0].type==='fog') fog++; else if(G.wx[0].type==='storm') storm++; } }
+    T('summer fog comes on about a fifth of the rolls (was over half): '+(fog/N).toFixed(2),fog/N>0.15&&fog/N<0.25);
+    T('summer thunderheads on about an eighth (was over a quarter): '+(storm/N).toFixed(2),storm/N>0.08&&storm/N<0.16); }
+  else T('the game starts in summer',false);
 }
 console.log('rules ok',ok,'failed',bad); process.exit(bad?1:0);

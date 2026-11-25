@@ -66,7 +66,7 @@ with sync_playwright() as p:
         check('map at start', shot=True)
         n=ev("()=>G.crafts.length"); fished=False
         for i in range(n):
-            tap('#fleet .fc', i)
+            tap('#fleet .fc[data-arg="%d"]'%ev("()=>G.crafts[%d].id"%i))   # by id: the strip is grouped by home port, not in the order craft were bought
             info=ev("()=>{ const c=UI.selCraft; return c?{cls:CRAFT_BY[c.type].cls, fish:!!CRAFT_BY[c.type].fish, name:c.name, at:c.at}:null; }")
             expect(info is not None, 'tapping fleet card %d opens a craft'%i)
             if not info: continue
@@ -93,7 +93,7 @@ with sync_playwright() as p:
             tap('#routebar .btn.go'); d=check('sent'); expect(ev("()=>G.crafts[%d].state"%i) in ('move','hold'), 'craft %d departed'%i)
         # ---- watch one under way ----
         for idx in ev("()=>G.crafts.map((c,i)=>c.state==='move'||c.state==='fish'?i:-1).filter(i=>i>=0)"):
-            tap('#fleet .fc', idx); check('craft %d under way'%idx, shot=True)
+            tap('#fleet .fc[data-arg="%d"]'%ev("()=>G.crafts[%d].id"%idx)); check('craft %d under way'%idx, shot=True)
             # a coin drifts past: tap it where it is actually drawn on screen
             ev("()=>{ UI.coins.length=0; UI.coinNext=0; }"); pg.wait_for_timeout(2600)
             q=ev("()=>{ const q=UI.coins[0]; if(!q) return null; const v=sceneView(); return {x:v.r.left+(q.x-v.ox)*v.sc, y:v.r.top+(q.y-v.oy)*v.sc, l:v.r.left, t:v.r.top, r:v.r.right, b:v.r.bottom, m:G.money}; }")

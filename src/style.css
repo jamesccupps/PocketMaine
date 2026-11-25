@@ -4344,3 +4344,109 @@ h3 {
     height: 74px;
   }
 }
+
+/* home ports: the row on the CRAFT tab, and the group markers in the fleet strip */
+.homerow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  padding: 6px 10px;
+  background: var(--paper2);
+  border: 3px solid var(--paper3);
+}
+.homerow .hl {
+  flex: 1 1 auto;
+  font-size: 20px;
+  color: var(--ink);
+}
+.homerow .hl b {
+  font-family: 'VT323', monospace;
+  font-size: 18px;
+  font-weight: 400;
+  letter-spacing: 0.5px;
+  color: var(--redd);
+  margin-right: 4px;
+}
+.homerow .hl i {
+  font-style: normal;
+  opacity: 0.7;
+}
+.fgrp {
+  flex: 0 0 auto;
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 0 2px 0 6px;
+  font-family: 'VT323', monospace;
+  line-height: 1;
+  color: #9fb3c8;
+}
+.fgrp i {
+  font-style: normal;
+  font-size: 16px;
+  letter-spacing: 0.5px;
+}
+.fgrp b {
+  font-weight: 400;
+  font-size: 20px;
+  color: var(--yellow);
+  margin-top: 3px;
+}
+
+/* The fleet strip scrolls sideways. With a mouse there was no way to do it (a wheel only scrolls up and down), so once the fleet
+   outgrew the strip the craft at the far end, and the + FLEET SLOT button after them, could not be reached. The wheel moves it now,
+   and an arrow stands at whichever end has more to show. */
+#fleetwrap {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  position: relative;
+}
+#fleetwrap #fleet {
+  flex: 1;
+  min-width: 0;
+}
+#dock.routing #fleetwrap {
+  display: none;
+}
+.fnav {
+  position: absolute;
+  top: 8px;
+  bottom: 2px;
+  width: 30px;
+  z-index: 3;
+  padding: 0;
+  background: var(--navy2);
+  border: 3px solid var(--deep);
+  box-shadow: inset -2px -2px 0 var(--navy);
+  color: var(--yellow);
+  font-family: 'Silkscreen', monospace;
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+}
+.fnav:hover {
+  background: var(--navy3);
+}
+.fnav[hidden] {
+  display: none;
+}
+#fleetL {
+  left: 0;
+}
+#fleetR {
+  right: 0;
+}
+@media (max-width: 700px) {
+  #fleetwrap {
+    flex: none;
+  }
+  .fnav {
+    top: 2px;
+    width: 26px;
+  }
+}

@@ -70,7 +70,7 @@ function newGame(startId, seed) {
     crafts: [],
     nextId: 1,
     wx: [],
-    wxNext: 200,
+    wxNext: 600, // the first ten minutes of a new game are clear
     offers: [],
     active: [],
     glut: {},
@@ -294,6 +294,8 @@ function sanitizeSave(g) {
       c.plan = null;
       c.route = null;
     }
+    // a craft from before home ports is at home wherever it is now
+    if (!PORT_BY[c.home]) c.home = PORT_BY[c.at] ? c.at : PORT_BY[c.from] ? c.from : home;
   });
   g.stored = arr(g.stored).filter(c => obj(c) && CRAFT_BY[c.type]);
   g.stored.forEach(craft);
@@ -567,8 +569,12 @@ function spawnWeather() {
       return a.length ? a : PORTS.filter(f);
     },
     A = pick(wxPorts(() => true));
-  const r = rand();
-  if (r < [0.4, 0.55, 0.3, 0.12][s]) {
+  // How often a roll brings fog, and how often a storm (thunderheads in summer; gales and nor'easters the rest of the year), by season.
+  // Fog used to come on 55% of summer rolls and sat over the coast most of the time; thunderheads on 28%. Both are well under half that now.
+  const r = rand(),
+    FOG = [0.16, 0.2, 0.14, 0.08][s],
+    STORM = [0.2, 0.12, 0.34, 0.3][s];
+  if (r < FOG) {
     const sp = pick(wxPorts(p => p.water === 'sea'));
     const c = {
       type: 'fog',
@@ -589,7 +595,7 @@ function spawnWeather() {
     );
     return;
   }
-  if (r < [0.4, 0.55, 0.3, 0.12][s] + [0.2, 0.28, 0.34, 0.3][s]) {
+  if (r < FOG + STORM) {
     if (s === SUMMER) {
       const c = {
         type: 'storm',
@@ -626,7 +632,7 @@ function spawnWeather() {
     }
     return;
   }
-  if (s === WINTER && r < 0.75) {
+  if (s === WINTER && r < FOG + STORM + 0.33) {
     const c = {
       type: 'snow',
       x: A.x - rnd(90, 190),
@@ -1494,6 +1500,7 @@ function addCraft(typeId, pid, name, upg) {
     type: typeId,
     name: name || newName(T),
     at: pid,
+    home: pid,
     state: 'dock',
     jobs: [],
     upg: upg || {},
@@ -1719,6 +1726,54 @@ function unstoreCraft(i, pid) {
   c.liv = r.liv || 0;
   emit('yard', {});
   return c;
+}
+/* ---------- home ports ----------
+   A tag and nothing more: it changes nothing a craft earns or costs. Home is where a craft was bought, built or taken out of
+   storage, until the player makes another port its home. The fleet strip groups craft by it, and SEND HOME flies one back. */
+function setHome(c, pid) {
+  pid = pid || c.at;
+  if (!pid || !PORT_BY[pid] || !G.ports[pid].open) return 'Open the port first.';
+  if (!canBase(CRAFT_BY[c.type], PORT_BY[pid])) return "It can't operate from there.";
+  c.home = pid;
+  SIM.dirty = true;
+  return null;
+}
+// the fewest hops from where a craft sits to its home, through ports it can use; null when there is no way
+function homeRoute(c) {
+  if (!c.at || !PORT_BY[c.home] || c.at === c.home) return null;
+  const open = PORTS.filter(p => G.ports[p.id].open).map(p => p.id),
+    prev = {},
+    seen = {};
+  let front = [c.at];
+  seen[c.at] = 1;
+  for (let hop = 0; hop < 5 && front.length; hop++) {
+    const next = [];
+    for (const a of front)
+      for (const b of open) {
+        if (seen[b] || !legInfo(c, a, b).ok) continue;
+        seen[b] = 1;
+        prev[b] = a;
+        if (b === c.home) {
+          const stops = [];
+          for (let x = b; x !== c.at; x = prev[x]) stops.unshift(x);
+          return stops;
+        }
+        next.push(b);
+      }
+    front = next;
+  }
+  return null;
+}
+// Goes with whatever is aboard: a load for home or for a port on the way is delivered, anything else rides along.
+function sendHome(c) {
+  if (c.state !== 'dock') return 'Not at the dock.';
+  if (!PORT_BY[c.home]) return 'No home port.';
+  if (c.at === c.home) return 'Already home.';
+  if (c.run) return 'Stop the standing run first.';
+  const stops = homeRoute(c);
+  if (!stops) return 'No way home from here for this craft.';
+  const r = dispatch(c, stops);
+  return r.ok ? null : r.why || 'Cannot leave.';
 }
 function sellStored(i) {
   const r = G.stored[i];

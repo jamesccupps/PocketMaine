@@ -108,6 +108,9 @@ It needs only Python 3. The three fonts in `fonts/` are inlined into the page.
 
 ## Testing
 
+- **Home ports are a tag, not a rule.** Every craft has a home: where it was bought, built or taken out of storage. It changes nothing a craft earns or costs. The fleet strip keeps craft together by home (with a marker per group once the fleet is past the four you start with), and the CRAFT tab has SEND HOME, which flies her back by the fewest hops with whatever is aboard, and HOME HERE, which bases her where she sits.
+- **A long fleet can be reached with a mouse.** The fleet strip scrolls sideways; the wheel turns it, and an arrow stands at whichever end has more to show, so the craft at the far end and + FLEET SLOT after them are never out of reach.
+- **Fog and thunderstorms are the exception.** Summer fog comes on about a fifth of the weather rolls (it was over half, and sat on the coast most of the season) and thunderheads on about an eighth (was over a quarter). Gales, nor'easters and snow squalls are as they were. A new game has ten clear minutes first.
 - **Every screen says what it is for, once.** The first time a tab or section is opened (the craft's gear, looks, crew, standing run and storage; a yard's parts, build, storage, new craft and town; the fishing tab; a port not yet opened; the Almanac) Aunt Bev puts a short card at its top. GOT IT puts it away for good, and so does leaving after it has been up long enough to read; a quick look does not use it up. LESSONS: OFF silences them.
 - **Nothing under 12 px, and one thing over the game at a time.** On a phone wider than 360 px the labels are a size or two bigger again: headings, tabs, item titles and small buttons, tags and counters. Small labels are set in the taller body face at 16 px; buttons, tabs and headings keep the pixel face at 12 px or more. A banner has the screen to itself, lesson bubbles step back for it, and notes take turns under the top bar (one on a phone, two at a desk) and move clear of a lesson.
 - **The dice are seeded.** Every roll in the rules comes from one generator whose state is kept in the save, so a game can be replayed from its seed: `SEED=7 node test/rules.js`, `SEED=7 node test/pace.js 4 casco 8`.
@@ -133,6 +136,8 @@ python3 test/depth.py 386x630x3                # goods, a request, a fit, a thre
 node test/pace.js 8 casco 8                    # a simulated player for eight hours: levels, money, ports and fleet over time; fails if a level arrives outside its bounds
 python3 test/overlays.py 386x630x3             # a banner, three notes and a lesson at once: who shows, where, and in what order
 python3 test/tips.py 386x630x3                 # the card that says what a screen is for: shown once, kept away once read, off with the lessons
+python3 test/home.py 386x630x3                 # home ports: the row on the CRAFT tab, SEND HOME, HOME HERE, the strip grouped by home
+python3 test/fleet.py 1280x720x1               # thirteen craft: the wheel and the arrows reach the far end and + FLEET SLOT
 python3 test/away.py 386x630x3                 # hides the page mid-trip, then closes and reopens it: a real wait, two hours, twenty hours; then the BRISK pace
 python3 test/offline.py                        # serves the game on localhost, cuts the network, and reloads it from the service worker's copy
 python3 test/shot.py 1440 900 stress           # 3,000 random steps through every system
