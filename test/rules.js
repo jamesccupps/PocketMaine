@@ -299,6 +299,8 @@ G=X.G; T('new fields survive',G.ports.lew.works.inn===1&&X.trapCount()===1&&X.lo
   X.initWorld(); X.newGame('casco',42); const G=X.G;
   T('a new game starts at the pocket pace',G.pace===1);
   G.pace=7; X.cleanSave(G); T('a pace that is neither pocket nor brisk is put back to pocket',G.pace===1);
+  G.seen={'craft:gear':1,'<img onerror=x>':1,almanac:'yes'}; X.cleanSave(G); T('the list of explained screens keeps plain names only',JSON.stringify(G.seen)==='{"craft:gear":1,"almanac":1}');
+  delete G.seen; X.cleanSave(G); T('a save from before the cards gets an empty list',JSON.stringify(G.seen)==='{}');
   G.pace=X.BRISK; X.cleanSave(G); T('the brisk pace survives a save',G.pace===X.BRISK);
   const run=seed=>{ X.newGame('casco',seed); const r=[]; for(let i=0;i<600;i++) X.tick(1); const g=X.G; return JSON.stringify([g.money,g.xp,g.seed,Object.keys(g.ports).map(k=>g.ports[k].jobs.map(j=>j.to+j.pay).join(','))]); };
   const a1=run(42), a2=run(42), b1=run(43);

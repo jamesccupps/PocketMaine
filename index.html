@@ -4288,6 +4288,131 @@ h3 {
   }
 }
 
+/* what a screen is for, said once: a card at the top of a tab the first time it is opened */
+.scrtip {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 0 0 12px;
+  padding: 10px 12px;
+  background: #fff8e4;
+  border: 3px solid var(--navy);
+  box-shadow: 4px 4px 0 rgba(20, 39, 61, 0.25);
+}
+.scrtip img {
+  width: 44px;
+  height: 44px;
+  flex: none;
+  image-rendering: pixelated;
+  border: 3px solid var(--navy);
+  background: #8fc7e8;
+}
+.scrtip .tb {
+  flex: 1;
+  min-width: 0;
+}
+.scrtip .tb b {
+  display: block;
+  font-family: 'VT323', monospace;
+  font-size: 18px;
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--redd);
+  margin-bottom: 2px;
+}
+.scrtip .tb p {
+  margin: 0;
+  font-size: 20px;
+  line-height: 1.25;
+  color: var(--ink);
+}
+.scrtip .btn {
+  flex: none;
+  align-self: flex-end;
+}
+@media (max-width: 700px) {
+  .scrtip {
+    flex-wrap: wrap;
+    gap: 8px 10px;
+    padding: 9px 10px;
+  }
+  .scrtip img {
+    width: 36px;
+    height: 36px;
+  }
+  .scrtip .tb {
+    flex: 1 1 calc(100% - 60px);
+  }
+  .scrtip .tb p {
+    font-size: 19px;
+    line-height: 1.2;
+  }
+  .scrtip .btn {
+    margin: 0 0 0 auto;
+  }
+}
+
+/* On a phone the labels were cut down from their desktop size and read small next to the body text.
+   Where the screen is wide enough (anything over 360 px) they are a size or two bigger: headings, tabs, item titles,
+   small buttons in the pixel face; tags, names and counters in the body face. */
+@media (max-width: 700px) and (min-width: 361px) {
+  h3 {
+    font-size: 14px;
+  }
+  .stab,
+  .seg,
+  .farbtn,
+  .sw,
+  #mbox h1 small {
+    font-size: 13px;
+  }
+  .btn,
+  .btn.sm,
+  .dh .btn.sm,
+  .jrow .btn,
+  .cskip,
+  .hbtn.big {
+    font-size: 13px;
+  }
+  .dh b,
+  .item .tx b {
+    font-size: 15px;
+  }
+  #shead .reft,
+  #shead .reft b,
+  .tag,
+  .ftag,
+  .fc .nm,
+  .startc small,
+  table.mk th,
+  .mk th i,
+  #coachbub .cbh b,
+  .scrtip .tb b,
+  .dh .dk i {
+    font-size: 18px;
+  }
+  .mbtn span {
+    font-size: 17px;
+  }
+  #mbox h2 {
+    letter-spacing: 1px;
+    line-height: 1.3;
+  }
+  #mbox h1 small {
+    letter-spacing: 1px;
+    line-height: 1.35;
+    font-weight: 400;
+  }
+}
+
+/* A short phone screen (browser bars showing): the bigger labels cost the job list a few pixels, so the picture of the port gives them back. */
+@media (max-width: 700px) and (min-width: 361px) and (max-height: 700px) {
+  #scenebox {
+    height: 74px;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -7169,6 +7294,7 @@ function newGame(startId, seed) {
     newsNext: 90,
     lastDay: 0,
     sound: true,
+    seen: {},
     pace: 1,
     usedNames: [],
     parts: {},
@@ -7281,6 +7407,17 @@ function loadGame(store) {
 // at a port, craft or good that does not exist is dropped. Text is cut to length here and escaped where it is shown.
 function sanitizeSave(g) {
   g.pace = g.pace === BRISK ? BRISK : 1;
+  {
+    // which screens have been explained: a plain set of short names
+    const o = {};
+    if (g.seen && typeof g.seen === 'object')
+      Object.keys(g.seen)
+        .slice(0, 60)
+        .forEach(k => {
+          if (/^[a-z:]{1,24}$/.test(k)) o[k] = 1;
+        });
+    g.seen = o;
+  }
   const num = (v, d) => (typeof v === 'number' && isFinite(v) ? v : d),
     int = (v, d) => Math.round(num(v, d)),
     str = (v, n) => String(v == null ? '' : v).slice(0, n),
@@ -13990,7 +14127,7 @@ function htmlAlmanac() {
     (G.lesOff ? 'OFF' : 'ON') +
     '</button><button class="btn sm plain" data-act="help">ABOUT</button><button class="btn sm red" data-act="askNew">NEW GAME</button></div><div class="sub" style="margin-top:6px">Pace: POCKET runs on your watch, made to be checked on through the day. BRISK runs the game\'s clock ' +
     BRISK +
-    ' times as fast, here and while you are away, for sitting down with it. Every time the game shows is game time. Switch whenever you like.</div><div class="sub" style="margin-top:6px">Lessons: Aunt Bev shows each new thing once, when its level opens it. REPLAY THE TUTORIAL brings them all back.</div><div class="sub" style="margin-top:6px">Holidays follow the real calendar: decorations, holiday jobs and VIPs. Tap HOLIDAYS to switch them off or preview one.</div><div class="sub" style="margin-top:6px">Saves to this browser automatically.</div></div>';
+    ' times as fast, here and while you are away, for sitting down with it. Every time the game shows is game time. Switch whenever you like.</div><div class="sub" style="margin-top:6px">Lessons: Aunt Bev shows each new thing once, when its level opens it, and says what a screen is for the first time you open it. REPLAY THE TUTORIAL brings them all back.</div><div class="sub" style="margin-top:6px">Holidays follow the real calendar: decorations, holiday jobs and VIPs. Tap HOLIDAYS to switch them off or preview one.</div><div class="sub" style="margin-top:6px">Saves to this browser automatically.</div></div>';
   return h;
 }
 function craftProgress(c) {
@@ -14366,7 +14503,111 @@ function openMenu(kind) {
   forcePanel();
   sfx.click();
 }
+// What a screen is for, said once: the first time a tab or section is opened Aunt Bev puts a short card at its top.
+// GOT IT puts it away for good; so does leaving the screen after it has been up long enough to read. A quick look does not use it up.
+// The Almanac's LESSONS switch turns these off with the rest. Contracts, the fish market and the hangar list say what they are in their first line already.
+const TIP_READ = 4000;
+const TIPS = {
+  fish: [
+    'Fishing',
+    'A boat can skip the jobs and fish. Pick a ground and send her out; she comes home with the catch. What bites changes with the season.'
+  ],
+  locked: [
+    'Not yours yet',
+    'Nothing of yours lands here until you open the port, and each port costs more than the last. Check who can get here first.'
+  ],
+  'yard:parts': [
+    'Parts',
+    'What this yard has on the shelf today. Three parts of one type (airframe or hull, engine, controls or wheelhouse) build that craft for about two thirds of new.'
+  ],
+  'yard:build': [
+    'Build',
+    'Your parts, sorted by craft. With all three of one type, build her here. No fleet slot free? She goes into storage.'
+  ],
+  'yard:store': [
+    'Storage',
+    'Craft you own but are not using. Storage is free and gives the fleet slot back. Take her out at any yard that suits her.'
+  ],
+  'yard:new': [
+    'New craft',
+    'Buy a craft outright: dearer than building from parts, but yours today. Bigger types open as you level up.'
+  ],
+  'yard:town': [
+    'The town',
+    'The port itself. Improve the terminal for a bigger job board. Port works are built here once they unlock.'
+  ],
+  'craft:gear': [
+    'Gear',
+    'How she is set up. A fit trades one thing for another: range for a cargo slot, speed for fuel. One at a time.'
+  ],
+  'craft:looks': [
+    'Looks',
+    'A name and a coat of paint. It changes nothing but how she looks. Some paints have to be earned.'
+  ],
+  'craft:crew': [
+    'Crew',
+    'One hand per craft. Each is good at one thing and gets better with every trip. New faces turn up daily.'
+  ],
+  'craft:run': [
+    'Standing run',
+    'The nearest thing to a home port. Pick the other end and she shuttles between the two by herself, even while you are away. The crew keeps a share.'
+  ],
+  'craft:keep': [
+    'Store or sell',
+    'Put her in storage to get the fleet slot back (empty, and at a yard that suits her), or sell her.'
+  ],
+  almanac: [
+    'Almanac',
+    'The season, the weather, your books and the logbook. Settings are near the bottom: pace, sound, lessons, your save. HOW IT WORKS explains it all again.'
+  ]
+};
+function tipId(c) {
+  if (UI.sheet === 'almanac') return 'almanac';
+  if (UI.sheet !== 'craft' && UI.sheet !== 'port') return '';
+  if (c && c.state !== 'dock') return '';
+  const pid = UI.selPort;
+  if (!pid || !G.ports[pid]) return '';
+  if (!G.ports[pid].open) return 'locked';
+  if (UI.stab === 'port') return PORT_BY[pid].yard ? 'yard:' + yardSeg(pid) : 'yard:town';
+  if (UI.stab === 'craft') return 'craft:' + UI.cseg;
+  return UI.stab === 'fish' ? 'fish' : '';
+}
+function tipSeen(id) {
+  if (!G.seen) G.seen = {};
+  if (!G.seen[id]) {
+    G.seen[id] = 1;
+    SIM.dirty = true;
+  }
+}
+// which card is up, and since when; called with '' when no card is showing (another screen, or the sheet closed)
+function tipTrack(id) {
+  const now = performance.now(),
+    cur = UI.tipCur;
+  if (cur && cur.id !== id) {
+    if (now - cur.t >= TIP_READ) tipSeen(cur.id);
+    UI.tipCur = null;
+  }
+  if (id && !UI.tipCur) UI.tipCur = { id, t: now };
+}
+function tipHTML(id) {
+  const T = TIPS[id],
+    show = !!T && G.tutDone && !G.lesOff && !UI.lesCur && !(G.seen && G.seen[id]);
+  tipTrack(show ? id : '');
+  if (!show) return '';
+  return (
+    '<div class="scrtip" role="note"><img src="' +
+    portraitURL(4242, 'elder') +
+    '" alt=""><div class="tb"><b>AUNT BEV \u00b7 ' +
+    esc(T[0]) +
+    '</b><p>' +
+    esc(T[1]) +
+    '</p></div><button class="btn sm go" data-act="tipOk" data-arg="' +
+    id +
+    '">GOT IT</button></div>'
+  );
+}
 function deselect() {
+  tipTrack('');
   UI.screen = 'map';
   UI.sheet = null;
   UI.selCraftId = null;
@@ -15062,6 +15303,8 @@ function tutSkip() {
 }
 function tutRestart() {
   G.tut = {};
+  G.seen = {};
+  UI.tipCur = null;
   G.tutDone = false;
   G.les = {};
   G.lesOff = false;
@@ -17086,6 +17329,7 @@ function renderPanel(now) {
   }
   if (!show) {
     UI.sig = '';
+    tipTrack('');
     return;
   }
   const ae = document.activeElement;
@@ -17244,7 +17488,7 @@ function renderPanel(now) {
   $('stabs').innerHTML = tabs;
   $('stabs').style.display = tabs ? 'flex' : 'none';
   $('lbody').innerHTML = left || '';
-  body.innerHTML = h;
+  body.innerHTML = tipHTML(tipId(c)) + h;
   fitFilters();
   body.scrollTop = sc;
   cols.scrollTop = sc2;
@@ -18012,6 +18256,12 @@ function act(a, arg, el) {
       openMenu('almanac');
       UI.wantLv = true;
       forcePanel();
+      break;
+    case 'tipOk':
+      tipSeen(arg);
+      UI.tipCur = null;
+      forcePanel();
+      sfx.click();
       break;
     case 'cseg':
       UI.cseg = arg;

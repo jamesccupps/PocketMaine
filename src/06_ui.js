@@ -623,7 +623,7 @@ function htmlAlmanac() {
     (G.lesOff ? 'OFF' : 'ON') +
     '</button><button class="btn sm plain" data-act="help">ABOUT</button><button class="btn sm red" data-act="askNew">NEW GAME</button></div><div class="sub" style="margin-top:6px">Pace: POCKET runs on your watch, made to be checked on through the day. BRISK runs the game\'s clock ' +
     BRISK +
-    ' times as fast, here and while you are away, for sitting down with it. Every time the game shows is game time. Switch whenever you like.</div><div class="sub" style="margin-top:6px">Lessons: Aunt Bev shows each new thing once, when its level opens it. REPLAY THE TUTORIAL brings them all back.</div><div class="sub" style="margin-top:6px">Holidays follow the real calendar: decorations, holiday jobs and VIPs. Tap HOLIDAYS to switch them off or preview one.</div><div class="sub" style="margin-top:6px">Saves to this browser automatically.</div></div>';
+    ' times as fast, here and while you are away, for sitting down with it. Every time the game shows is game time. Switch whenever you like.</div><div class="sub" style="margin-top:6px">Lessons: Aunt Bev shows each new thing once, when its level opens it, and says what a screen is for the first time you open it. REPLAY THE TUTORIAL brings them all back.</div><div class="sub" style="margin-top:6px">Holidays follow the real calendar: decorations, holiday jobs and VIPs. Tap HOLIDAYS to switch them off or preview one.</div><div class="sub" style="margin-top:6px">Saves to this browser automatically.</div></div>';
   return h;
 }
 function craftProgress(c) {
@@ -999,7 +999,111 @@ function openMenu(kind) {
   forcePanel();
   sfx.click();
 }
+// What a screen is for, said once: the first time a tab or section is opened Aunt Bev puts a short card at its top.
+// GOT IT puts it away for good; so does leaving the screen after it has been up long enough to read. A quick look does not use it up.
+// The Almanac's LESSONS switch turns these off with the rest. Contracts, the fish market and the hangar list say what they are in their first line already.
+const TIP_READ = 4000;
+const TIPS = {
+  fish: [
+    'Fishing',
+    'A boat can skip the jobs and fish. Pick a ground and send her out; she comes home with the catch. What bites changes with the season.'
+  ],
+  locked: [
+    'Not yours yet',
+    'Nothing of yours lands here until you open the port, and each port costs more than the last. Check who can get here first.'
+  ],
+  'yard:parts': [
+    'Parts',
+    'What this yard has on the shelf today. Three parts of one type (airframe or hull, engine, controls or wheelhouse) build that craft for about two thirds of new.'
+  ],
+  'yard:build': [
+    'Build',
+    'Your parts, sorted by craft. With all three of one type, build her here. No fleet slot free? She goes into storage.'
+  ],
+  'yard:store': [
+    'Storage',
+    'Craft you own but are not using. Storage is free and gives the fleet slot back. Take her out at any yard that suits her.'
+  ],
+  'yard:new': [
+    'New craft',
+    'Buy a craft outright: dearer than building from parts, but yours today. Bigger types open as you level up.'
+  ],
+  'yard:town': [
+    'The town',
+    'The port itself. Improve the terminal for a bigger job board. Port works are built here once they unlock.'
+  ],
+  'craft:gear': [
+    'Gear',
+    'How she is set up. A fit trades one thing for another: range for a cargo slot, speed for fuel. One at a time.'
+  ],
+  'craft:looks': [
+    'Looks',
+    'A name and a coat of paint. It changes nothing but how she looks. Some paints have to be earned.'
+  ],
+  'craft:crew': [
+    'Crew',
+    'One hand per craft. Each is good at one thing and gets better with every trip. New faces turn up daily.'
+  ],
+  'craft:run': [
+    'Standing run',
+    'The nearest thing to a home port. Pick the other end and she shuttles between the two by herself, even while you are away. The crew keeps a share.'
+  ],
+  'craft:keep': [
+    'Store or sell',
+    'Put her in storage to get the fleet slot back (empty, and at a yard that suits her), or sell her.'
+  ],
+  almanac: [
+    'Almanac',
+    'The season, the weather, your books and the logbook. Settings are near the bottom: pace, sound, lessons, your save. HOW IT WORKS explains it all again.'
+  ]
+};
+function tipId(c) {
+  if (UI.sheet === 'almanac') return 'almanac';
+  if (UI.sheet !== 'craft' && UI.sheet !== 'port') return '';
+  if (c && c.state !== 'dock') return '';
+  const pid = UI.selPort;
+  if (!pid || !G.ports[pid]) return '';
+  if (!G.ports[pid].open) return 'locked';
+  if (UI.stab === 'port') return PORT_BY[pid].yard ? 'yard:' + yardSeg(pid) : 'yard:town';
+  if (UI.stab === 'craft') return 'craft:' + UI.cseg;
+  return UI.stab === 'fish' ? 'fish' : '';
+}
+function tipSeen(id) {
+  if (!G.seen) G.seen = {};
+  if (!G.seen[id]) {
+    G.seen[id] = 1;
+    SIM.dirty = true;
+  }
+}
+// which card is up, and since when; called with '' when no card is showing (another screen, or the sheet closed)
+function tipTrack(id) {
+  const now = performance.now(),
+    cur = UI.tipCur;
+  if (cur && cur.id !== id) {
+    if (now - cur.t >= TIP_READ) tipSeen(cur.id);
+    UI.tipCur = null;
+  }
+  if (id && !UI.tipCur) UI.tipCur = { id, t: now };
+}
+function tipHTML(id) {
+  const T = TIPS[id],
+    show = !!T && G.tutDone && !G.lesOff && !UI.lesCur && !(G.seen && G.seen[id]);
+  tipTrack(show ? id : '');
+  if (!show) return '';
+  return (
+    '<div class="scrtip" role="note"><img src="' +
+    portraitURL(4242, 'elder') +
+    '" alt=""><div class="tb"><b>AUNT BEV \u00b7 ' +
+    esc(T[0]) +
+    '</b><p>' +
+    esc(T[1]) +
+    '</p></div><button class="btn sm go" data-act="tipOk" data-arg="' +
+    id +
+    '">GOT IT</button></div>'
+  );
+}
 function deselect() {
+  tipTrack('');
   UI.screen = 'map';
   UI.sheet = null;
   UI.selCraftId = null;
@@ -1695,6 +1799,8 @@ function tutSkip() {
 }
 function tutRestart() {
   G.tut = {};
+  G.seen = {};
+  UI.tipCur = null;
   G.tutDone = false;
   G.les = {};
   G.lesOff = false;
@@ -3719,6 +3825,7 @@ function renderPanel(now) {
   }
   if (!show) {
     UI.sig = '';
+    tipTrack('');
     return;
   }
   const ae = document.activeElement;
@@ -3877,7 +3984,7 @@ function renderPanel(now) {
   $('stabs').innerHTML = tabs;
   $('stabs').style.display = tabs ? 'flex' : 'none';
   $('lbody').innerHTML = left || '';
-  body.innerHTML = h;
+  body.innerHTML = tipHTML(tipId(c)) + h;
   fitFilters();
   body.scrollTop = sc;
   cols.scrollTop = sc2;
@@ -4645,6 +4752,12 @@ function act(a, arg, el) {
       openMenu('almanac');
       UI.wantLv = true;
       forcePanel();
+      break;
+    case 'tipOk':
+      tipSeen(arg);
+      UI.tipCur = null;
+      forcePanel();
+      sfx.click();
       break;
     case 'cseg':
       UI.cseg = arg;

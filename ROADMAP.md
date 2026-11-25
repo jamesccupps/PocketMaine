@@ -15,6 +15,7 @@ Everything on the first version of this roadmap is in the game.
 - **Depth.** Goods with prices that move, port requests, connection jobs, standing runs of up to four stops that hand loads to each other, a rival, fits with a trade-off, crew that improve.
 - **An app.** Installed from Chrome it has its own icon, runs full screen and opens with no connection.
 - **Lessons.** Aunt Bev comes back once for each thing a level opens and points at it on screen, so the tutorial keeps up with the game.
+- **Screens that introduce themselves.** The first time a tab or section is opened, a card at its top says what it is for.
 - **Two paces.** POCKET is real time; BRISK runs the clock three times as fast for a sitting at a desk. Chosen on the start screen, switched in the Almanac.
 - **A clock that does not stop.** Time passes while the page is closed, hidden behind another window, or on a phone with its screen off.
 

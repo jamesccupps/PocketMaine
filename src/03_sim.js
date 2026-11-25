@@ -81,6 +81,7 @@ function newGame(startId, seed) {
     newsNext: 90,
     lastDay: 0,
     sound: true,
+    seen: {},
     pace: 1,
     usedNames: [],
     parts: {},
@@ -193,6 +194,17 @@ function loadGame(store) {
 // at a port, craft or good that does not exist is dropped. Text is cut to length here and escaped where it is shown.
 function sanitizeSave(g) {
   g.pace = g.pace === BRISK ? BRISK : 1;
+  {
+    // which screens have been explained: a plain set of short names
+    const o = {};
+    if (g.seen && typeof g.seen === 'object')
+      Object.keys(g.seen)
+        .slice(0, 60)
+        .forEach(k => {
+          if (/^[a-z:]{1,24}$/.test(k)) o[k] = 1;
+        });
+    g.seen = o;
+  }
   const num = (v, d) => (typeof v === 'number' && isFinite(v) ? v : d),
     int = (v, d) => Math.round(num(v, d)),
     str = (v, n) => String(v == null ? '' : v).slice(0, n),
