@@ -19,10 +19,18 @@ with sync_playwright() as p:
     ev("()=>document.querySelector('[data-act=tutSkip]').click()"); pg.wait_for_timeout(3200)
     ev("()=>{ G.hol='off'; hideBanner(); G.wxNext=1e12; G.wx=[]; G.vipNext=1e12; G.lesOff=true; G.money=5; deselect(); }"); pg.wait_for_timeout(400)
     s=ev(S)
-    if s['max']<=4: expect(not s['L'] and not s['R'], 'a fleet that fits shows no arrows')
+    if s['max']<=4 or touch: expect(not s['L'] and not s['R'], 'no arrows: the fleet fits, or this is a touch screen')
     else: expect(s['R'] and not s['L'], 'the starting fleet already runs past the strip here, and the right arrow says so')
     ev("()=>{ G.slots=13; G.money=1e6; const pid=G.crafts[0].home; while(G.crafts.length<13) addCraft(G.crafts[0].type,pid); UI.fleetKey=''; }"); pg.wait_for_timeout(600); s=ev(S)
     expect(s['max']>200 and not s['buyIn'], 'thirteen craft: the strip overflows and + FLEET SLOT is out of sight (%d px to scroll)'%s['max'])
+    if touch:
+        # a touch screen swipes the strip; the arrows would only cover the two cards there is room for
+        expect(not s['R'] and not s['L'], 'on a touch screen there are no arrows over the cards')
+        ev("()=>{ const f=document.getElementById('fleet'); f.scrollLeft=f.scrollWidth; }"); pg.wait_for_timeout(300); s=ev(S)
+        expect(s['buyIn'] and s['sl']>200, 'and the strip scrolls to the end, where + FLEET SLOT is (%d px)'%s['sl'])
+        slots=ev("()=>G.slots"); tap('#fleet [data-act=buySlot]'); expect(ev("()=>G.slots")==slots+1, 'and the button works from there')
+        if errs: probs.append('page errors: '+' | '.join(errs[:3]))
+        b.close(); print('PROBLEMS:',len(probs)); [print('  ',x) for x in probs]; sys.exit(1 if probs else 0)
     expect(s['R'] and not s['L'] and s['Rw']>=24 and s['Rh']>=40, 'an arrow at the right end says there is more, big enough to hit (%dx%d)'%(s['Rw'],s['Rh']))
     if not touch:
         box=pg.locator('#fleet').bounding_box(); pg.mouse.move(box['x']+box['width']/2, box['y']+box['height']/2); pg.mouse.wheel(0, 300); pg.wait_for_timeout(300); s2=ev(S)

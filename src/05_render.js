@@ -620,8 +620,9 @@ function drawMap(now, ui) {
         x.fillRect(c.hx, c.hy - 2, 1, 1);
       }
     });
-  relabel.forEach(l => drawText(x, l[0], l[1], l[2], l[3], '#14273d'));
   drawWeather(x, t);
+  // names go on last, over the weather as well as the craft: a fog bank over Portland used to wash its name out
+  relabel.forEach(l => drawText(x, l[0], l[1], l[2], l[3], '#14273d'));
   {
     const hd = holidayNow();
     if (hd) drawHolidayFx(x, bw, bh, t, hd.fx, night, 18);

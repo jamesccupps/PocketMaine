@@ -27,7 +27,7 @@ with sync_playwright() as p:
     ev("()=>{ dispatch(UI.selCraft,['vin']); }"); pg.wait_for_timeout(300); ev("()=>{ G.wall-=1800*1000; }"); pg.wait_for_timeout(1800); ev("()=>{ selectCraft(window.BID,true); }"); pg.wait_for_timeout(900)
     txt=ev("()=>document.getElementById('sbody').innerText"); expect('asking for 3 city wares' in txt and 'GOODS ABOARD' in txt, 'at the other end: the request and the goods aboard are shown'); look('sell_here')
     m0=ev("()=>G.money"); tap('[data-act=sellGood]'); pg.wait_for_timeout(500); expect(ev("()=>G.money")>m0 and ev("()=>goodsCount(UI.selCraft)")==0 and ev("()=>G.ports.vin.favor")==1, 'SELL pays, empties the hold and fills the request'); look('sold')
-    ev("()=>{ G.level=8; G.money=90000; deselect(); const c=G.crafts.find(c=>c.at==='pwm'&&CRAFT_BY[c.type].wheels); window.PID=c.id; G.ports.pwm.jobs.slice(0,3).forEach(j=>{ j.rv=G.t+80; }); G.ports.pwm.jobs[4].conn=1; selectCraft(c.id,true); }"); look('rival_tags')
+    ev("()=>{ G.level=8; G.money=90000; deselect(); const c=G.crafts.find(c=>c.at==='pwm'&&CRAFT_BY[c.type].wheels); window.PID=c.id; G.ports.pwm.jobs.filter(j=>legInfo(c,'pwm',j.to).ok).slice(0,3).forEach(j=>{ j.rv=G.t+80; }); G.ports.pwm.jobs[4].conn=1; selectCraft(c.id,true); }"); look('rival_tags')
     expect('RIVAL WANTS IT' in ev("()=>document.getElementById('sbody').innerText"), 'a claimed load is tagged')
     ev("()=>{ UI.stab='craft'; UI.cseg='gear'; forcePanel(); }"); pg.wait_for_timeout(500); look('fits'); tap('[data-act=fit][data-arg=range]'); expect(ev("()=>UI.selCraft.fit")=='range', 'a fit is bought on the GEAR page at a yard'); look('fitted')
     ev("()=>{ UI.cseg='run'; forcePanel(); }"); pg.wait_for_timeout(400); tap('[data-act=pickRun]'); ev("()=>{ setRun(UI.selCraft,'lew'); cancelRoute(); UI.stab='craft'; UI.cseg='run'; forcePanel(); }"); pg.wait_for_timeout(500)
@@ -37,8 +37,8 @@ with sync_playwright() as p:
     # HURRY costs the fare, so the first tap only asks; the second does it. And the board tells people from cargo.
     ev("""()=>{ deselect(); G.money=5000; G.ports.pwm.next=1e12; G.rivalNext=1e12; G.crafts.forEach(x=>{ x.run=null; }); const c=addCraft('wagon','pwm','Hurry Test'); G.ports.pwm.jobs.unshift({id:G.nextId++,from:'pwm',to:'lew',kind:'p',pay:200,label:'A hurry test',ic:'any'}); G.ports.pwm.jobs.unshift({id:G.nextId++,from:'pwm',to:'lew',kind:'c',pay:100,label:'A crate',ic:'box'});
         window.HT=c.id; selectCraft(c.id,true); }"""); pg.wait_for_timeout(500)
-    rows=ev("""()=>{ const r=[...document.querySelectorAll('#sbody .dg[data-to=lew] .jrow')].filter(e=>e.querySelector('[data-act=load],[data-act=loadIds]')); return r.map(e=>({p:e.classList.contains('p'),c:e.classList.contains('c'),badge:(e.querySelector('.jk')||{}).alt||''})); }""")
-    kinds=[('p' if r['p'] else 'c') for r in rows]
+    rows=ev("""()=>{ const r=[...document.querySelectorAll('#sbody .dg[data-to=lew] .jrow')].filter(e=>e.querySelector('[data-act=load],[data-act=loadIds]')); return r.map(e=>({p:e.classList.contains('p'),c:e.classList.contains('c'),badge:(e.querySelector('.jk')||{}).alt||'',first:/VIP|CONNECT|LAYOVER|CONTRACT/.test(e.textContent)||e.classList.contains('vip')||e.classList.contains('lay')})); }""")
+    kinds=[('p' if r['p'] else 'c') for r in rows if not r['first']]   # VIPs and connecting loads head the list whatever they are; the rest is people, then cargo
     expect(len(rows)>=2 and all((r['p'] and r['badge']=='Passenger') or (r['c'] and r['badge']=='Cargo') for r in rows), 'every job row is marked as a passenger or as cargo')
     expect(kinds==sorted(kinds,key=lambda k:k!='p'), 'people are listed before cargo under each destination'); look('people_and_cargo')
     hd=ev("()=>{ const d=document.querySelector('#sbody .dg[data-to=lew] .dk'); return d?d.innerText.replace(/\\s+/g,' ').trim():''; }"); expect(hd!='', 'the destination heading counts people and cargo: '+hd)
