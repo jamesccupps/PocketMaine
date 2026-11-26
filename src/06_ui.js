@@ -914,9 +914,17 @@ function startView() {
   const ids = PORTS.filter(p => G.ports[p.id].open).map(p => p.id);
   fitTo(ids, SMALL() ? 2 : 3, bevPad());
 }
+// The map canvas is sized to its frame. The frame changes after boot (the fleet strip fills in under it and takes its height
+// from the map), so this runs whenever the frame's size does, not only when the window's does: sized once at boot, the canvas
+// was some 60 px taller than its frame on a phone and the bottom of the map sat hidden behind the fleet strip.
 function layout() {
-  const w = $('mapwrap');
-  resizeView(w.clientWidth, w.clientHeight);
+  const w = $('mapwrap'),
+    cw = w.clientWidth,
+    ch = w.clientHeight;
+  if (!cw || !ch || (w._lw === cw && w._lh === ch)) return;
+  w._lw = cw;
+  w._lh = ch;
+  resizeView(cw, ch);
 }
 /* ---------- screens ----------
    map   : the full map, fleet bar along the bottom

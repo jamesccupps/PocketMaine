@@ -6,6 +6,9 @@ AUDIT = """() => { const out=[]; const vw=innerWidth, vh=innerHeight, FONT_MIN=1
   const scrollers=new Set(['fleet','sbody','scols','sleft','mbox','sheetwrap','tmsg']);
   const ignoreIds=new Set(['mapwrap','scenebox','app','stage','daybar','xpbar','splash','modal','sheet','scene','map','dock','main']);
   const desc=el=>{ let s=el.tagName.toLowerCase()+(el.id?'#'+el.id:'')+(el.className&&typeof el.className==='string'?'.'+el.className.trim().split(/\\s+/).join('.'):''); const t=(el.textContent||'').trim().replace(/\\s+/g,' ').slice(0,28); return s+(t?' "'+t+'"':''); };
+  // the map canvas fits its frame: it may run a pixel or two over (it is cut to whole map pixels), never a strip of the map hidden.
+  // (The map and its frame are skipped by the checks below, which is how a canvas 60 px too tall went unnoticed.)
+  { const fr=document.getElementById('mapwrap').getBoundingClientRect(), r=document.getElementById('map').getBoundingClientRect(); if(fr.width>1&&fr.height>1&&(r.bottom-fr.bottom>4||r.right-fr.right>4||fr.bottom-r.bottom>1||fr.right-r.right>1)) out.push('MAP DOES NOT FIT ITS FRAME by '+Math.round(r.right-fr.right)+','+Math.round(r.bottom-fr.bottom)+' px'); }
   const root=document.querySelector('#modal.show')||document.getElementById('app');
   root.querySelectorAll('*').forEach(el=>{ const cs=getComputedStyle(el); if(cs.display==='none'||cs.visibility==='hidden') return; const r=el.getBoundingClientRect(); if(r.width<1||r.height<1) return;
     if(el.closest('#sheetwrap:not(.show)')||el.closest('#tip')||el.closest('#toasts')||el.closest('#banner')||el.closest('#splash')) return;
@@ -25,7 +28,7 @@ LOADVIS = """() => { const b=document.querySelector('#sbody .jrow .btn.load'); i
 ROWVIS = """() => { const f=document.getElementById('sfoot').getBoundingClientRect(), h=document.getElementById('shead').getBoundingClientRect(); const note=document.querySelector('#sbody .note'); if(note){ const q=note.getBoundingClientRect(); if(q.top>=h.bottom-1 && q.bottom<=f.top+1) return 'ok the board says why it is empty'; }
   const rows=[...document.querySelectorAll('#sbody .jrow')]; if(!rows.length) return 'no rows';
   const vis=rows.filter(x=>{const q=x.getBoundingClientRect(); return q.top>=h.bottom-1 && q.bottom<=f.top+1;}).length; return vis ? 'ok '+vis+' rows visible' : 'NO JOB ROW VISIBLE (first row at y='+Math.round(rows[0].getBoundingClientRect().top)+', footer starts '+Math.round(f.top)+')'; }"""
-sizes=[(386,630,3),(360,640,3),(393,759,3),(390,844,3),(412,915,2.6),(768,1024,2),(1024,768,1),(1280,720,1),(1440,900,1),(1920,1080,1)]
+sizes=[(386,630,3),(360,640,3),(393,759,3),(390,844,3),(462,904,3),(412,915,2.6),(768,1024,2),(1024,768,1),(1280,720,1),(1440,900,1),(1920,1080,1)]
 if len(sys.argv)>1: sizes=[tuple(float(v) if '.' in v else int(v) for v in a.split('x')) for a in sys.argv[1:]]
 total=0
 with sync_playwright() as p:

@@ -124,6 +124,8 @@ function boot() {
   initWorld();
   VIEW.canvas = $('map');
   layout();
+  requestAnimationFrame(layout);
+  if (window.ResizeObserver) new ResizeObserver(() => layout()).observe($('mapwrap'));
   UI.hasSave = loadGame(STORE);
   if (!UI.hasSave) {
     UI.badSave = keepUnreadable(STORE);

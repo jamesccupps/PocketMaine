@@ -3,6 +3,27 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<script>
+// A big phone. The phone layout is drawn for a screen about 400 CSS pixels across; on one that is 450 or more (the large Android
+// phones, at a small display size) it came out with the same small type and more empty space around it. There the page is laid
+// out 412 wide and the browser scales it up to fill the screen, so everything is bigger in proportion. Portrait only; a tablet,
+// a desktop window and an ordinary phone are left exactly as they were. screen.width is used, not the window's width, because
+// the window's width is what this changes.
+(function () {
+  try {
+    var m = document.querySelector('meta[name=viewport]');
+    var fit = function () {
+      var s = Math.min(screen.width, screen.height),
+        big = matchMedia('(pointer:coarse)').matches && matchMedia('(orientation:portrait)').matches && s > 430 && s <= 540,
+        want = big ? 'width=412' : 'width=device-width, initial-scale=1';
+      if (m.getAttribute('content') !== want) m.setAttribute('content', want);
+    };
+    fit();
+    window.addEventListener('orientationchange', fit);
+    matchMedia('(orientation:portrait)').addEventListener('change', fit);
+  } catch (e) {}
+})();
+</script>
 <title>Pocket Maine - Air and Sea</title>
 <meta name="description" content="A cozy pixel-art transport tycoon in the browser. Fly bush planes, run ferries and lobster boats, and open 54 ports from Maine across New England. Free.">
 <meta name="author" content="James Cupps">

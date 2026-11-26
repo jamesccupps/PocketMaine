@@ -3,6 +3,27 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<script>
+// A big phone. The phone layout is drawn for a screen about 400 CSS pixels across; on one that is 450 or more (the large Android
+// phones, at a small display size) it came out with the same small type and more empty space around it. There the page is laid
+// out 412 wide and the browser scales it up to fill the screen, so everything is bigger in proportion. Portrait only; a tablet,
+// a desktop window and an ordinary phone are left exactly as they were. screen.width is used, not the window's width, because
+// the window's width is what this changes.
+(function () {
+  try {
+    var m = document.querySelector('meta[name=viewport]');
+    var fit = function () {
+      var s = Math.min(screen.width, screen.height),
+        big = matchMedia('(pointer:coarse)').matches && matchMedia('(orientation:portrait)').matches && s > 430 && s <= 540,
+        want = big ? 'width=412' : 'width=device-width, initial-scale=1';
+      if (m.getAttribute('content') !== want) m.setAttribute('content', want);
+    };
+    fit();
+    window.addEventListener('orientationchange', fit);
+    matchMedia('(orientation:portrait)').addEventListener('change', fit);
+  } catch (e) {}
+})();
+</script>
 <title>Pocket Maine - Air and Sea</title>
 <meta name="description" content="A cozy pixel-art transport tycoon in the browser. Fly bush planes, run ferries and lobster boats, and open 54 ports from Maine across New England. Free.">
 <meta name="author" content="James Cupps">
@@ -93,6 +114,8 @@
 }
 html,
 body {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
   touch-action: manipulation;
   margin: 0;
   height: 100%;
@@ -14650,9 +14673,17 @@ function startView() {
   const ids = PORTS.filter(p => G.ports[p.id].open).map(p => p.id);
   fitTo(ids, SMALL() ? 2 : 3, bevPad());
 }
+// The map canvas is sized to its frame. The frame changes after boot (the fleet strip fills in under it and takes its height
+// from the map), so this runs whenever the frame's size does, not only when the window's does: sized once at boot, the canvas
+// was some 60 px taller than its frame on a phone and the bottom of the map sat hidden behind the fleet strip.
 function layout() {
-  const w = $('mapwrap');
-  resizeView(w.clientWidth, w.clientHeight);
+  const w = $('mapwrap'),
+    cw = w.clientWidth,
+    ch = w.clientHeight;
+  if (!cw || !ch || (w._lw === cw && w._lh === ch)) return;
+  w._lw = cw;
+  w._lh = ch;
+  resizeView(cw, ch);
 }
 /* ---------- screens ----------
    map   : the full map, fleet bar along the bottom
@@ -19475,6 +19506,8 @@ function boot() {
   initWorld();
   VIEW.canvas = $('map');
   layout();
+  requestAnimationFrame(layout);
+  if (window.ResizeObserver) new ResizeObserver(() => layout()).observe($('mapwrap'));
   UI.hasSave = loadGame(STORE);
   if (!UI.hasSave) {
     UI.badSave = keepUnreadable(STORE);
