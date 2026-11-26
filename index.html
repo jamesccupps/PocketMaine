@@ -4519,6 +4519,77 @@ h3 {
   }
 }
 
+/* The title and start screens on a phone. They ran to a screen and a half, with START below the fold, so on a phone the title keeps
+   its first four points and the rest is left to the lessons; and whatever a dialog holds, its buttons stay in view at the bottom. */
+#mbox h1 small br,
+#mbox .less {
+  display: none;
+}
+#mbox h1 small i {
+  font-style: normal;
+}
+#mbox .keeps {
+  margin-top: 12px;
+}
+#mbox .acts {
+  position: sticky;
+  bottom: -22px;
+  margin: 12px -26px -22px;
+  padding: 12px 26px 18px;
+  background: var(--paper);
+  border-top: 3px solid var(--paper3);
+}
+@media (max-width: 700px) {
+  #mbox {
+    max-height: 100%;
+  }
+  #mbox .more {
+    display: none;
+  }
+  #mbox .less {
+    display: list-item;
+  }
+  #mbox h1 small br {
+    display: inline;
+  }
+  #mbox h1 small i {
+    display: none;
+  }
+  #mbox .titlefleet {
+    margin: 8px 0;
+  }
+  #mbox ul {
+    margin: 8px 0;
+  }
+  /* start cards: the craft sit above the words instead of beside them, so the words get the whole width and three cards fit */
+  .startc {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 4px;
+    padding: 8px 10px;
+  }
+  .startc .sf {
+    flex: none;
+    justify-content: flex-start;
+    order: 2;
+  }
+  .starts {
+    gap: 8px;
+  }
+  .pacepick {
+    margin: 6px 0 8px;
+  }
+}
+
+/* the dialog's padding is smaller from 900 px down, and its footer has to match it */
+@media (max-width: 900px) {
+  #mbox .acts {
+    bottom: -14px;
+    margin: 10px -16px -14px;
+    padding: 10px 16px 14px;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -14372,22 +14443,22 @@ function showTitle(about) {
       .map(k => '<img src="' + SPR[k].url + '" style="width:' + SPR[k].w * 3 + 'px" alt="">')
       .join('');
   $('mbox').innerHTML =
-    '<h1>POCKET MAINE<small>AIR AND SEA \u00b7 A MAINE TRANSPORT COMPANY</small></h1><div class="titlefleet">' +
+    '<h1>POCKET MAINE<small>AIR AND SEA<i> \u00b7 </i><br>A MAINE TRANSPORT COMPANY</small></h1><div class="titlefleet">' +
     fleet +
     '</div>' +
-    '<p>You run a small, scrappy outfit moving people and freight by bush plane, floatplane, ferry and lobster boat. It starts on the Maine coast and grows across New England. Islands that need their groceries. Sports headed upta camp. Potatoes, wreaths, and more lobster than you can lift.</p>' +
-    '<ul><li>Open a craft, hit <b>LOAD</b> on the jobs you want, then <b>FLY</b> (or <b>CAST OFF</b> for a boat) and pick where on the map.</li><li>Trips take a few minutes of real time (a third of that at the BRISK pace). When a craft shows <b>ARRIVED</b>, open it to <b>collect</b> the fare and earn XP.</li><li>Fill a craft with jobs for <b>one destination</b> for a 25% bonus. Job boards refresh every four minutes.</li><li><b>Level up</b> to unlock bigger craft. Buy <b>fleet slots</b> and <b>new ports</b> as you earn.</li><li>Towns with a <b>hangar</b> or <b>boatyard</b> sell parts: three parts build a craft for less than a new one. Spare craft wait in <b>storage</b>.</li><li>Boats can skip the jobs and <b>go fishing</b>. Fog, gales, frozen lakes and mud season change what can go where.</li><li>Levels 2 to 8 each open something new: <b>VIPs</b>, <b>events</b>, <b>goods</b> to trade, the rest of <b>New England</b>, crew, a rival, standing runs. Aunt Bev shows you each one when it arrives.</li></ul>' +
+    '<p>You run a small, scrappy outfit moving people and freight by bush plane, floatplane, ferry and lobster boat. It starts on the Maine coast and grows across New England.<span class="more"> Islands that need their groceries. Sports headed upta camp. Potatoes, wreaths, and more lobster than you can lift.</span></p>' +
+    '<ul><li>Open a craft, hit <b>LOAD</b> on the jobs you want, then <b>FLY</b> (or <b>CAST OFF</b> for a boat) and pick where on the map.</li><li>Trips take a few minutes of real time<span class="more"> (a third of that at the BRISK pace)</span>. When a craft shows <b>ARRIVED</b>, open it to <b>collect</b> the fare and earn XP.</li><li>Fill a craft with jobs for <b>one destination</b> for a 25% bonus.<span class="more"> Job boards refresh every four minutes.</span></li><li><b>Level up</b> to unlock bigger craft. Buy <b>fleet slots</b> and <b>new ports</b> as you earn.</li><li class="less">Parts, fishing, weather, VIPs, trading, a rival: Aunt Bev shows you each as it comes up.</li><li class="more">Towns with a <b>hangar</b> or <b>boatyard</b> sell parts: three parts build a craft for less than a new one. Spare craft wait in <b>storage</b>.</li><li class="more">Boats can skip the jobs and <b>go fishing</b>. Fog, gales, frozen lakes and mud season change what can go where.</li><li class="more">Levels 2 to 8 each open something new: <b>VIPs</b>, <b>events</b>, <b>goods</b> to trade, the rest of <b>New England</b>, crew, a rival, standing runs. Aunt Bev shows you each one when it arrives.</li></ul>' +
     (!about && UI.badSave
       ? '<div class="note" style="margin-top:10px"><b>Your saved game could not be read.</b> It has not been thrown away: a copy is kept in this browser, and starting a new game will not touch it. <button class="btn sm plain" data-act="badSave" style="margin-top:6px">SAVE THE COPY TO A FILE</button></div>'
       : '') +
+    '<p class="sub keeps">It keeps running while it is closed<span class="more"> or behind another window, so check back in</span>. Nothing to buy. Saves in this browser.</p>' +
     '<div class="acts">' +
     (about
       ? '<button class="btn go" data-act="closeModal">BACK TO WORK</button><button class="btn plain" data-act="tutRestart">REPLAY TUTORIAL</button>'
       : hasSave
         ? '<button class="btn go" data-act="continue">CONTINUE</button><button class="btn plain" data-act="askNew">NEW GAME</button>'
         : '<button class="btn go" data-act="chooseStart">START \u25b8</button>') +
-    '</div>' +
-    '<p class="sub" style="margin-top:14px">It keeps running while it is closed or behind another window, so check back in. Nothing to buy. Saves in this browser.</p>';
+    '</div>';
   modalShow();
 }
 // Every dialog opens at its top: the box keeps its scroll from the one before, which put the start screen's heading out of sight on a phone.
@@ -14412,8 +14483,10 @@ function showStart(keep) {
     (pk > 1) +
     '">BRISK</button><span class="sub">' +
     (pk > 1
-      ? 'The clock runs ' + BRISK + ' times as fast: a trip is a minute or less. For sitting down with it.'
-      : 'Real time: a trip is a few minutes. Made to be checked on through the day.') +
+      ? 'The clock runs ' +
+        BRISK +
+        ' times as fast: a trip is a minute or less.<span class="more"> For sitting down with it.</span>'
+      : 'Real time: a trip is a few minutes.<span class="more"> Made to be checked on through the day.</span>') +
     ' You can change it later in the Almanac.</span></div><div class="starts">' +
     STARTS.map(
       S =>
@@ -15581,12 +15654,21 @@ function renderCoach() {
     let above = A.t - h - 20,
       below = A.b + 20;
     left = clamp(cx - w / 2, 8, vw - w - 8);
-    if (above < 52 && below + h > vh - 8) {
+    // a tall bubble on a short screen: stand closer, then right up against the target and the top bar, before giving up and covering it
+    let minTop = 52,
+      room = 8;
+    if (above < minTop && below + h > vh - room) {
       above = A.t - h - 10;
       below = A.b + 10;
-    } // a tall bubble on a short screen: stand closer before giving up and covering the target
-    const useAbove = above >= 52 && ((A.t + A.b) / 2 > vh / 2 || below + h > vh - 8);
-    top = useAbove ? above : below + h <= vh - 8 ? below : 58;
+    }
+    if (above < minTop && below + h > vh - room) {
+      above = A.t - h - 3;
+      below = A.b + 3;
+      minTop = 46;
+      room = 3;
+    }
+    const useAbove = above >= minTop && ((A.t + A.b) / 2 > vh / 2 || below + h > vh - room);
+    top = useAbove ? above : below + h <= vh - room ? below : 58;
     tip.className = 'tip ' + (st.avoid ? 'off' : useAbove ? 'dn' : top === below ? 'up' : 'off');
     tip.style.left = clamp(cx - left - 12, 14, w - 38) + 'px';
   } else {

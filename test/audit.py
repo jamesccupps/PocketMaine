@@ -25,7 +25,7 @@ LOADVIS = """() => { const b=document.querySelector('#sbody .jrow .btn.load'); i
 ROWVIS = """() => { const f=document.getElementById('sfoot').getBoundingClientRect(), h=document.getElementById('shead').getBoundingClientRect(); const note=document.querySelector('#sbody .note'); if(note){ const q=note.getBoundingClientRect(); if(q.top>=h.bottom-1 && q.bottom<=f.top+1) return 'ok the board says why it is empty'; }
   const rows=[...document.querySelectorAll('#sbody .jrow')]; if(!rows.length) return 'no rows';
   const vis=rows.filter(x=>{const q=x.getBoundingClientRect(); return q.top>=h.bottom-1 && q.bottom<=f.top+1;}).length; return vis ? 'ok '+vis+' rows visible' : 'NO JOB ROW VISIBLE (first row at y='+Math.round(rows[0].getBoundingClientRect().top)+', footer starts '+Math.round(f.top)+')'; }"""
-sizes=[(386,630,3),(360,640,3),(390,844,3),(412,915,2.6),(768,1024,2),(1024,768,1),(1280,720,1),(1440,900,1),(1920,1080,1)]
+sizes=[(386,630,3),(360,640,3),(393,759,3),(390,844,3),(412,915,2.6),(768,1024,2),(1024,768,1),(1280,720,1),(1440,900,1),(1920,1080,1)]
 if len(sys.argv)>1: sizes=[tuple(float(v) if '.' in v else int(v) for v in a.split('x')) for a in sys.argv[1:]]
 total=0
 with sync_playwright() as p:
@@ -40,8 +40,14 @@ with sync_playwright() as p:
             pg.wait_for_timeout(350); iss=pg.evaluate(AUDIT)
             if shot: pg.screenshot(path='test/a_%dx%d_%s.png'%(W,H,name))
             for i in iss: found.append(name+': '+i)
-        chk('title', True)
-        pg.evaluate("() => act('chooseStart')"); chk('start', True)
+        # A dialog's buttons are in view when it opens, whatever its length; and on a phone of ordinary height the title and the
+        # start screen fit without scrolling (START used to sit below the fold, and the third start card was cut off).
+        DLG="""() => { const m=document.getElementById('mbox'), mr=m.getBoundingClientRect(), out=[]; const bt=m.querySelector('.acts .btn');
+          if(bt){ const r=bt.getBoundingClientRect(); if(r.bottom>mr.bottom+1||r.top<mr.top-1||r.bottom>innerHeight) out.push('DIALOG BUTTON OUT OF VIEW '+bt.textContent.trim()+' at y='+Math.round(r.top)+' (box ends '+Math.round(mr.bottom)+')'); }
+          if(innerWidth<=700&&innerHeight>=740&&m.scrollHeight>m.clientHeight+1) out.push('DIALOG NEEDS SCROLLING '+m.scrollHeight+' in '+m.clientHeight);
+          if(mr.top<0||mr.bottom>innerHeight+1) out.push('DIALOG OFF SCREEN'); return out; }"""
+        chk('title', True); found.extend('title: '+x for x in pg.evaluate(DLG))
+        pg.evaluate("() => act('chooseStart')"); chk('start', True); found.extend('start: '+x for x in pg.evaluate(DLG))
         pg.evaluate("() => act('newGame','casco')"); pg.wait_for_timeout(4600); chk('tut_intro', True)
         pg.evaluate("() => act('tutNext')"); chk('tut_pick', True)
         pg.evaluate("() => act('tutSkip')"); pg.wait_for_timeout(2800); chk('map', True)

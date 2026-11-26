@@ -42,4 +42,4 @@ jobs:
           python3 test/tips.py 1280x720x1
           python3 test/overlays.py 386x630x3
           python3 test/overlays.py 1280x720x1
-          python3 test/audit.py 386x630x3 1280x720x1
+          python3 test/audit.py 386x630x3 393x759x3 1280x720x1
